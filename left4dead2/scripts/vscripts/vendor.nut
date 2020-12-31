@@ -66,8 +66,6 @@ IncludeScript("entitygroups/vendor_vendor_group")
 
 IncludeScript("vendor_itemdata")
 IncludeScript("vendor_timers")
-IncludeScript("vendor_hud")
-
 
 //------------------------------------------------------------------------------------------------------
 //MUTATION SETUP
