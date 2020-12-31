@@ -1,0 +1,12 @@
+"vendor"
+{
+	"base"          	"vendor"
+	"maxplayers" 		"4"
+	"hasdifficulty" 	"1"
+
+		
+	"DisplayTitle"		"Vendor"
+	"Description"		"Eat Pasta"
+	"Image"			"maps/any"
+	"Author"		"Waifu Enthusiast"
+}

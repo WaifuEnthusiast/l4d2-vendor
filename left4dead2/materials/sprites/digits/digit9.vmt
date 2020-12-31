@@ -1,0 +1,6 @@
+Sprite
+{
+$basetexture "sprites/digits/digit9"
+$spriteorientation oriented
+$spriteorigin "[ 0.00 0.00 ]"
+}
