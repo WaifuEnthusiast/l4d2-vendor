@@ -63,8 +63,10 @@ enum ITEM_ID {
 //INCLUDE
 
 IncludeScript("entitygroups/vendor_vendor_group")
+
 IncludeScript("vendor_itemdata")
 IncludeScript("vendor_timers")
+IncludeScript("vendor_hud")
 
 
 //------------------------------------------------------------------------------------------------------
@@ -101,6 +103,51 @@ function OnGameplayStart() {
 	VendorSetItemType(SessionState.vendorTable[2], ITEM_ID.MOLOTOV)
 	
 	GiveCurrencyToAllSurvivors(10000)
+	
+	//Depending on performance requirements, we may need to create proper systems to only update the hud when needed...
+	//For example, on GiveCurrencyToAllSurvivors() also call HudUpdateCurrency(all) or something...
+	//This would also ensure that the hud updates EXACTLY at the right time, and we don't need to wait for l4d2 to call hudupdate()...
+	//Adds better responsiveness
+	local hudTable = {
+		Fields = {
+			names = {
+				slot = HUD_RIGHT_TOP
+				flags = HUD_FLAG_NOBG | HUD_FLAG_TEAM_SURVIVORS | HUD_FLAG_ALIGN_RIGHT 
+				datafunc = function() {
+					
+					local string = ""
+					
+					for (local i = 0; i < 4; i++) {
+						string += g_ModeScript.SurvivorSlotToPlayer(i).GetPlayerName()
+						if (i < 3) string += "\n"
+					}
+					
+					return string
+					
+				}
+			}
+			currency = {
+				slot = HUD_RIGHT_BOT
+				flags = HUD_FLAG_NOBG | HUD_FLAG_TEAM_SURVIVORS 
+				datafunc = function() {
+					
+					local string = ""
+					
+					for (local i = 0; i < 4; i++) {
+						string += "$"+g_ModeScript.SurvivorGetCurrency(i)
+						if (i < 3) string += "\n"
+					}
+					
+					return string
+					
+				}
+			}
+		}
+	}
+	
+	HUDSetLayout(hudTable)
+	HUDPlace(HUD_RIGHT_TOP, 0.7, 0.025, 0.2, 0.2)
+	HUDPlace(HUD_RIGHT_BOT, 0.9, 0.025, 0.1, 0.2)
 }
 
 
@@ -219,7 +266,7 @@ function ActivateVendor(vendorData, player) {
 	
 	printl("Vendor Activated By " + player)
 	
-	if (PlayerGetCurrency(player) < GetVendorPrice(vendorData)) {	
+	if (SurvivorGetCurrency(player.GetSurvivorSlot()) < GetVendorPrice(vendorData)) {	
 		EmitSoundOn("buttons/button11.wav", player)
 		QueueSpeak(player, "PlayerNegative", 0.3, "")
 		VendorLock(vendorData)
@@ -402,8 +449,8 @@ function GiveCurrencyToAllSurvivors(quantity) {
 }
 
 
-function PlayerGetCurrency(player) {
-	local survivorSlot = player.GetSurvivorSlot()
+function SurvivorGetCurrency(survivorSlot) {
+	//local survivorSlot = player.GetSurvivorSlot()
 	return SessionState.currency[survivorSlot]
 }
 
@@ -429,20 +476,18 @@ function EHandleToPlayer(ehandle) {
 }
 
 
-function EHandleToSurvivorSlot(ehandle) {
+function SurvivorSlotToPlayer(slot) {
 	local player = null
 	while (player = Entities.FindByClassname(player, "player")) {
-		
-		if (ehandle != player.GetEntityHandle())
-			continue
 			
 		if (!player.IsPlayer())
-			return null
+			continue
 			
 		if (!player.IsSurvivor())
-			return null
+			continue
 			
-		return player.GetSurvivorSlot()
+		if (player.GetSurvivorSlot() == slot)
+			return player
 		
 	}
 }
