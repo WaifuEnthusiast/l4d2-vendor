@@ -21,12 +21,11 @@ VendorVendor <-
 	{
 		local spawnEnts =
 		[
-			EntityGroup.SpawnTables.usetarget,
 			EntityGroup.SpawnTables.deploy_target,
 			EntityGroup.SpawnTables.prop_item,
-			EntityGroup.SpawnTables.price_display_target,
 			EntityGroup.SpawnTables.prop_machine,
-			EntityGroup.SpawnTables.root,
+			EntityGroup.SpawnTables.price_display_target,
+			EntityGroup.SpawnTables.usetarget,
 		]
 		return spawnEnts
 	}
@@ -72,7 +71,6 @@ VendorVendor <-
 					mincpulevel = "0"
 					mingpulevel = "0"
 					model = "models/props_office/vending_machine01.mdl"
-					parentname = "root"
 					PerformanceMode = "0"
 					pressuredelay = "0"
 					RandomAnimation = "0"
@@ -118,7 +116,6 @@ VendorVendor <-
 					mincpulevel = "0"
 					mingpulevel = "0"
 					model = "models/w_models/weapons/w_eq_medkit.mdl"
-					parentname = "root"
 					PerformanceMode = "0"
 					pressuredelay = "0"
 					RandomAnimation = "0"
@@ -136,24 +133,12 @@ VendorVendor <-
 					origin = Vector( 0, 0, 96 )
 				}
 			}
-			root = 
-			{
-				SpawnInfo =
-				{
-					classname = "info_target"
-					angles = Vector( 0, 0, 0 )
-					spawnflags = "0"
-					targetname = "root"
-					origin = Vector( 0, 0, 0 )
-				}
-			}
 			deploy_target = 
 			{
 				SpawnInfo =
 				{
 					classname = "info_target"
 					angles = Vector( 0, 0, 0 )
-					parentname = "root"
 					spawnflags = "0"
 					targetname = "deploy_target"
 					origin = Vector( 0, -24, 16 )
@@ -176,7 +161,6 @@ VendorVendor <-
 				{
 					classname = "info_target"
 					angles = Vector( 0, 0, 0 )
-					parentname = "root"
 					spawnflags = "0"
 					targetname = "price_display_target"
 					origin = Vector( -22, -8, 64 )

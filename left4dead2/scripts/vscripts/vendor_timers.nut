@@ -1,15 +1,12 @@
 //Author: WaifuEnthusiast
 
-::g_vendorTimers <- {}
+activeTimers 	<- {}
+thinkEnt 		<- null
 
-g_vendorTimers.ActiveTimers <- {}
-g_vendorTimers.thinkEnt <- null
-
-
-g_vendorTimers.Think <- function() {
+function Think() {
 	local timersToRemove = []
 
-	foreach (id, timer in g_vendorTimers.ActiveTimers) {
+	foreach (id, timer in g_ModeScript.vendorTimers.activeTimers) {
 	
 		if (Time() - timer.prevTime >= timer.delay) {
 			timersToRemove.append(id)
@@ -28,16 +25,16 @@ g_vendorTimers.Think <- function() {
 	}
 	
 	foreach (id in timersToRemove) {
-		g_vendorTimers.RemoveTimer(id)
+		g_ModeScript.vendorTimers.RemoveTimer(id)
 	}
 }
 
 
-g_vendorTimers.AddTimer <- function(id, delay, func, params) {
+function AddTimer(id, delay, func, params) {
 	if (!id || id == "")
 		id = UniqueString()
 
-	if (id in g_vendorTimers.ActiveTimers)
+	if (id in activeTimers)
 		return false
 		
 	local newTimer = {
@@ -47,28 +44,28 @@ g_vendorTimers.AddTimer <- function(id, delay, func, params) {
 		params		= params
 	}
 	
-	g_vendorTimers.ActiveTimers[id] <- newTimer
+	activeTimers[id] <- newTimer
 	return true
 }
 
 
-g_vendorTimers.RemoveTimer <- function(id) {
-	if (!id || !(id in g_vendorTimers.ActiveTimers))
+function RemoveTimer(id) {
+	if (!id || !(id in activeTimers))
 		return
 		
-	delete g_vendorTimers.ActiveTimers[id]
+	delete activeTimers[id]
 }
 
 
-g_vendorTimers.InitializeThinkEnt <- function() {
-	if (!g_vendorTimers.thinkEnt || !g_vendorTimers.thinkEnt.IsValid()) {
+function InitializeThinkEnt() {
+	if (!thinkEnt || !thinkEnt.IsValid()) {
 	
-		g_vendorTimers.thinkEnt = SpawnEntityFromTable("info_target", { targetname = "vendorTimers" });
-		if (g_vendorTimers.thinkEnt) {
-			g_vendorTimers.thinkEnt.ValidateScriptScope()
-			local scope = g_vendorTimers.thinkEnt.GetScriptScope()
-			scope.vendorTimersThink <- g_vendorTimers.Think
-			AddThinkToEnt(g_vendorTimers.thinkEnt, "vendorTimersThink")
+		thinkEnt = SpawnEntityFromTable("info_target", { targetname = "vendorTimers" });
+		if (thinkEnt) {
+			thinkEnt.ValidateScriptScope()
+			local scope = thinkEnt.GetScriptScope()
+			scope.vendorTimersThink <- Think
+			AddThinkToEnt(thinkEnt, "vendorTimersThink")
 			
 			return true
 		}
@@ -77,4 +74,4 @@ g_vendorTimers.InitializeThinkEnt <- function() {
 	
 	return false
 }
-g_vendorTimers.InitializeThinkEnt()
+InitializeThinkEnt()

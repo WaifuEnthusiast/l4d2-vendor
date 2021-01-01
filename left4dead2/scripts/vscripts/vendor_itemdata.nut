@@ -1,9 +1,8 @@
 //Vendor mutation itemData
 //Author: Waifu Enthusiast
 
-::g_vendorItemData <- {}
 
-g_vendorItemData.itemDataArray <- [
+itemDataArray <- [
 
 	//DEFAULT
 	{
@@ -139,6 +138,7 @@ g_vendorItemData.itemDataArray <- [
 	},
 	
 	//MELEE
+	/*
 	{
 		cost 		= 500
 		display 	= "models/w_models/weapons/w_fireaxe.mdl"
@@ -157,6 +157,7 @@ g_vendorItemData.itemDataArray <- [
 			model		= "models/w_models/weapons/w_katana.mdl"
 		}
 	},
+	*/
 	
 	//EXPLOSIVES
 	{
@@ -197,11 +198,11 @@ g_vendorItemData.itemDataArray <- [
 	
 ]
 
-g_vendorItemData.GetItemData <- function(index) {
-	return g_vendorItemData.itemDataArray[index]
+function GetItemData(index) {
+	return itemDataArray[index]
 }
 
-g_vendorItemData.modelsToPrecache <- [
+modelsToPrecache <- [
 	"models/props/terror/ammo_stack.mdl",
 	"models/props/terror/incendiary_ammo.mdl",
 	"models/props/terror/exploding_ammo.mdl",
@@ -209,8 +210,8 @@ g_vendorItemData.modelsToPrecache <- [
 	
 ]
 
-g_vendorItemData.PrecacheModels <- function() {
-	foreach (model in g_vendorItemData.modelsToPrecache)
+function PrecacheModels() {
+	foreach (model in modelsToPrecache)
 		PrecacheModel(model)
 }
 

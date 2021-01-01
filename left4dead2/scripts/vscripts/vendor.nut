@@ -8,15 +8,15 @@ const VENDOR_FINISH_TIME			= 2
 const VENDOR_FAIL_LOCK_TIME			= 1
 const MONEY_BIG_THRESHOLD 			= 1000
 const UPGRADE_INCENDIARY_AMMO 		= 0
-const UPGRADE_EXPLOSIVE_AMMO 		= 1
+const UPGRADE_EXPLODING_AMMO 		= 1
 const UPGRADE_LASER_SIGHT 			= 2
 const PRICE_DISPLAY_TEXTURE_SIZE	= 32
 const PRICE_DISPLAY_SCALE			= 0.2 //0.2 is the smallest a sprite can be
 const PRICE_DISPLAY_MAX_SPRITES		= 4
 
 enum ITEM_ID {
-	EMPTY
-
+	EMPTY,
+	
     SMG,
     SMG_SILENCED,
     SHOTGUN,
@@ -46,8 +46,8 @@ enum ITEM_ID {
     FIRST_AID_KIT,
     DEFIBRILLATOR,
     
-    FIREAXE,
-    KATANA,
+    //FIREAXE,
+    //KATANA,
     
     GAS,
     PROPANE,
@@ -55,7 +55,9 @@ enum ITEM_ID {
     INCENDIARY_UPGRADE,
     EXPLOSIVE_UPGRADE,
     LASERSIGHTS_UPGRADE,
-    AMMO_REFILL
+    AMMO_REFILL,
+	
+	count
 }
 
 
@@ -64,8 +66,17 @@ enum ITEM_ID {
 
 IncludeScript("entitygroups/vendor_vendor_group")
 
-IncludeScript("vendor_itemdata")
-IncludeScript("vendor_timers")
+vendorItemData 		<- {}
+vendorTimers 		<- {}
+vendorDistribution 	<- {}
+vendorHUD			<- {}
+
+IncludeScript("vendor_itemdata", 		vendorItemData)
+IncludeScript("vendor_timers", 			vendorTimers)
+IncludeScript("vendor_distribution", 	vendorDistribution)
+
+foreach (key, value in vendorTimers)
+	printl(key)
 
 //------------------------------------------------------------------------------------------------------
 //MUTATION SETUP
@@ -89,17 +100,11 @@ MutationState <- {
 
 function OnGameplayStart() {
 	printl( " ** On Gameplay Start" )
+	//foreach (key, value in getroottable())
+	//	printl(key)
 	
 	Precache()
-	
-	CreateVendor(Entities.FindByName(null, "vendorspawn_001"))
-	CreateVendor(Entities.FindByName(null, "vendorspawn_002"))
-	CreateVendor(Entities.FindByName(null, "vendorspawn_003"))
-	
-	VendorSetItemType(SessionState.vendorTable[0], ITEM_ID.FIRST_AID_KIT)
-	VendorSetItemType(SessionState.vendorTable[1], ITEM_ID.AUTOSHOTGUN)
-	VendorSetItemType(SessionState.vendorTable[2], ITEM_ID.MOLOTOV)
-	
+	vendorDistribution.SpawnAndDistributeVendors()
 	GiveCurrencyToAllSurvivors(10000)
 	
 	//Depending on performance requirements, we may need to create proper systems to only update the hud when needed...
@@ -177,7 +182,7 @@ function Precache() {
 	PrecacheSound("buttons/button11.wav")
 	PrecacheSound("buttons/bell1.wav")
 	
-	g_vendorItemData.PrecacheModels()
+	vendorItemData.PrecacheModels()
 }
 
 
@@ -190,7 +195,7 @@ function ThinkFunc() {
 //VENDOR FUNCTIONALITY
 
 vendorCount <- 0
-function CreateVendor(position_ent) {
+function CreateVendor(origin, angles) {
 	local vendorData = {
 		entities		= {}
 		priceDisplay	= []
@@ -230,18 +235,15 @@ function CreateVendor(position_ent) {
 		g_ModeScript.VendorPriceDisplayInitializeSprites(vendorData, 4)
 	}
 
-	VendorVendor.GetEntityGroup().SpawnTables[ "root" ].PostPlaceCB 				<- function(entity, rarity) {vendorData.entities.root	 			<- entity}
 	VendorVendor.GetEntityGroup().SpawnTables[ "deploy_target" ].PostPlaceCB 		<- function(entity, rarity) {vendorData.entities.deployTarget		<- entity}
 	VendorVendor.GetEntityGroup().SpawnTables[ "price_display_target" ].PostPlaceCB	<- function(entity, rarity) {vendorData.entities.priceDisplayTarget	<- entity; PriceDisplayCB(entity, rarity)}
 	VendorVendor.GetEntityGroup().SpawnTables[ "prop_item" ].PostPlaceCB 			<- function(entity, rarity) {vendorData.entities.propItem 			<- entity}
 	VendorVendor.GetEntityGroup().SpawnTables[ "prop_machine" ].PostPlaceCB 		<- function(entity, rarity) {vendorData.entities.propMachine 		<- entity}
 	VendorVendor.GetEntityGroup().SpawnTables[ "usetarget" ].PostPlaceCB 			<- function(entity, rarity) {vendorData.entities.usetarget 			<- entity; UsetargetCB(entity, rarity)}
 		
-	local origin = position_ent.GetOrigin()
-	local angles = QAngle(0,0,0)
 	SpawnSingleAt(VendorVendor.GetEntityGroup(), origin, angles)
-	
 	SessionState.vendorTable[vendorCount++] <- vendorData
+	return vendorData
 }
 
 
@@ -270,7 +272,7 @@ function ActivateVendor(vendorData, player) {
 		VendorLock(vendorData)
 		VendorPriceDisplaySetColor(vendorData, {r=255,g=0,b=0})
 		
-		g_vendorTimers.AddTimer("vendor_used_"+vendorData.id, VENDOR_FAIL_LOCK_TIME, function(h) {
+		vendorTimers.AddTimer("vendor_used_"+vendorData.id, VENDOR_FAIL_LOCK_TIME, function(h) {
 		
 			g_ModeScript.VendorPriceDisplaySetColor(vendorData, {r=255,g=255,b=255})
 			g_ModeScript.VendorUnlock(vendorData)
@@ -284,7 +286,7 @@ function ActivateVendor(vendorData, player) {
 	if (!type) 
 		return false
 		
-	local itemData = g_vendorItemData.itemDataArray[type]
+	local itemData = vendorItemData.itemDataArray[type]
 	if (!itemData)
 		return false
 			
@@ -313,7 +315,7 @@ function ActivateVendor(vendorData, player) {
 	EmitSoundOn("buttons/button4.wav", player)
 	VendorPriceDisplaySetColor(vendorData, {r=80,g=186,b=255})
 	VendorLock(vendorData)
-	g_vendorTimers.AddTimer("vendor_used_"+vendorData.id, VENDOR_FAIL_LOCK_TIME, function(h) {
+	vendorTimers.AddTimer("vendor_used_"+vendorData.id, VENDOR_FAIL_LOCK_TIME, function(h) {
 		
 		g_ModeScript.VendorPriceDisplaySetColor(vendorData, {r=255,g=255,b=255})
 		g_ModeScript.VendorUnlock(vendorData)
@@ -341,7 +343,7 @@ function VendorUnlock(vendorData) {
 
 
 function VendorSetItemType(vendorData, type) {
-	local itemData = g_vendorItemData.itemDataArray[type]
+	local itemData = vendorItemData.itemDataArray[type]
 	
 	vendorData.itemType = type;
 		
@@ -353,7 +355,7 @@ function VendorSetItemType(vendorData, type) {
 
 
 function GetVendorPrice(vendorData) {
-	local itemData = g_vendorItemData.itemDataArray[vendorData.itemType]
+	local itemData = vendorItemData.itemDataArray[vendorData.itemType]
 	return itemData.cost
 }
 

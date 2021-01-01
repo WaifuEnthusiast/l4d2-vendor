@@ -1,37 +1,43 @@
-//prototype
-/*
-mapProperties <- {
-	minMedkitVendors 	= 0
-	maxMedkitVendors 	= 2
-	vendorWitchLimit	= 1
-}
-
 spawns <- [
+	//Rooftop
 	{
-		origin 			= Vector(0,0,0)
-		angles 			= QAngle(0,0,0)
-		area 			= 0
-		mustExist 		= false
-		canSpawnWitch 	= true
-		blacklist		= []
+		origin = Vector(1952, 1244, 432)
+		angles = QAngle(0,180,0)
+	},
+	{
+		origin = Vector(1888, 1244, 432)
+		angles = QAngle(0,180,0)
+	},
+	
+	//Alley
+	{
+		origin = Vector(2436, 1756, 16)
+		angles = QAngle(0,0,0)
+	},
+	{
+		origin = Vector(2380, 1756, 16)
+		angles = QAngle(0,0,0)
+	},
+	{
+		origin = Vector(2528, 1128, 16)
+		angles = QAngle(0,270,0)
+	},
+	{
+		origin = Vector(2528, 1072, 16)
+		angles = QAngle(0,270,0)
+	},
+	
+	//Car alarm
+	{
+		origin = Vector(2508, 3588, 8)
+		angles = QAngle(0,255,0)
+	},
+	{
+		origin = Vector(2284, 4020, 40)
+		angles = QAngle(0, 150, -90)
+	},
+	{
+		origin = Vector(2783, 4396, 16)
+		angles = QAngle(0, 270, 0)
 	}
 ]
-
-areas <- [
-	{
-		minVendors 		= 0
-		maxVendors 		= null
-		medkitLimit 	= 1
-		
-		//vv turn these into bitwise flags vv//
-		mustHaveT1Weapons 			= false
-		mustHaveT2Weapons			= false
-		mustHaveSecondaryWeapons 	= false
-		mustHaveSpecialWeapons		= false
-		mustHaveGrenades			= false
-		mustHaveHealing				= false
-		mustHaveUpgrades			= false
-		mustHaveExplosiveProps		= false
-	}
-]
-*/
