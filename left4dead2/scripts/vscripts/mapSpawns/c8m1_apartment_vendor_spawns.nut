@@ -3,10 +3,18 @@ spawns <- [
 	{
 		origin = Vector(1952, 1244, 432)
 		angles = QAngle(0,180,0)
+		blacklist = [
+			ITEM_ID.FIRST_AID_KIT,
+			ITEM_ID.DEFIBRILLATOR,
+		]
 	},
 	{
 		origin = Vector(1888, 1244, 432)
 		angles = QAngle(0,180,0)
+		blacklist = [
+			ITEM_ID.FIRST_AID_KIT,
+			ITEM_ID.DEFIBRILLATOR
+		]
 	},
 	
 	//Alley
@@ -39,5 +47,10 @@ spawns <- [
 	{
 		origin = Vector(2783, 4396, 16)
 		angles = QAngle(0, 270, 0)
+	}
+]
+
+areas <- [
+	{
 	}
 ]

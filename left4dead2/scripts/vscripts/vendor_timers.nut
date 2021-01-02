@@ -3,6 +3,7 @@
 activeTimers 	<- {}
 thinkEnt 		<- null
 
+
 function Think() {
 	local timersToRemove = []
 

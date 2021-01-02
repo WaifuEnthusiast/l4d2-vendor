@@ -21,11 +21,11 @@ VendorVendor <-
 	{
 		local spawnEnts =
 		[
-			EntityGroup.SpawnTables.deploy_target,
-			EntityGroup.SpawnTables.prop_item,
-			EntityGroup.SpawnTables.prop_machine,
 			EntityGroup.SpawnTables.price_display_target,
+			EntityGroup.SpawnTables.deploy_target,
+			EntityGroup.SpawnTables.prop_machine,
 			EntityGroup.SpawnTables.usetarget,
+			EntityGroup.SpawnTables.prop_item,
 		]
 		return spawnEnts
 	}
@@ -105,9 +105,9 @@ VendorVendor <-
 					fadescale = "1"
 					glowbackfacemult = "1.0"
 					glowcolor = "0 0 0"
-					glowrange = "0"
+					glowrange = "140"
 					glowrangemin = "0"
-					glowstate = "0"
+					glowstate = "3"
 					LagCompensate = "0"
 					MaxAnimTime = "10"
 					maxcpulevel = "0"

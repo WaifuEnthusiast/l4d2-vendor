@@ -46,8 +46,9 @@ enum ITEM_ID {
     FIRST_AID_KIT,
     DEFIBRILLATOR,
     
-    //FIREAXE,
-    //KATANA,
+    FIREAXE,
+    KATANA,
+	FRYING_PAN,
     
     GAS,
     PROPANE,
@@ -75,9 +76,6 @@ IncludeScript("vendor_itemdata", 		vendorItemData)
 IncludeScript("vendor_timers", 			vendorTimers)
 IncludeScript("vendor_distribution", 	vendorDistribution)
 
-foreach (key, value in vendorTimers)
-	printl(key)
-
 //------------------------------------------------------------------------------------------------------
 //MUTATION SETUP
 
@@ -100,8 +98,6 @@ MutationState <- {
 
 function OnGameplayStart() {
 	printl( " ** On Gameplay Start" )
-	//foreach (key, value in getroottable())
-	//	printl(key)
 	
 	Precache()
 	vendorDistribution.SpawnAndDistributeVendors()
@@ -121,7 +117,10 @@ function OnGameplayStart() {
 					local string = ""
 					
 					for (local i = 0; i < 4; i++) {
-						string += g_ModeScript.SurvivorSlotToPlayer(i).GetPlayerName()
+						local player = g_ModeScript.SurvivorSlotToPlayer(i)
+						if (player)
+							string += player.GetPlayerName()
+							
 						if (i < 3) string += "\n"
 					}
 					
@@ -289,17 +288,18 @@ function ActivateVendor(vendorData, player) {
 	local itemData = vendorItemData.itemDataArray[type]
 	if (!itemData)
 		return false
-			
+	
+	local ent = null
 	if ("classname" in itemData) {
 		
 		local kvs = {}
 		if ("keyvalues" in itemData)
-			kvs = DuplicateTable(itemData)
+			kvs = clone itemData.keyvalues
 			
 		kvs.origin 	<- vendorData.entities.deployTarget.GetOrigin()
 		kvs.angles 	<- QAngle(0,0,0).ToKVString()
 		
-		local ent = SpawnEntityFromTable(itemData.classname, kvs)
+		ent = SpawnEntityFromTable(itemData.classname, kvs)
 		
 	}
 		
@@ -382,7 +382,8 @@ function VendorPriceDisplayInitializeSprites(vendorData, count) {
 	
 	for (local i = 0; i < count; i++) {
 	
-		local angle = vendorData.entities.priceDisplayTarget.GetAngles() + QAngle(0,90,0)
+		local angle = vendorData.entities.priceDisplayTarget.GetAngles()
+		angle = QAngle(-angle.z, angle.y+90, angle.x) //shrug
 		local offsetScalar = i * PRICE_DISPLAY_TEXTURE_SIZE * PRICE_DISPLAY_SCALE
 		local offsetVector = angle.Left().Scale(offsetScalar)
 		
