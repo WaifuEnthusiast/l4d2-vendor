@@ -42,38 +42,22 @@ function VMutVendor::CreateVendor(origin, angles) {
 
 	local id = UniqueString()
 	local vendorData = {
-		entities		= {}
+		entities		= {
+			deployTarget 		= null
+			priceDisplayTarget 	= null
+			propMachine 		= null
+			propItem 			= null
+			usetarget 			= null
+		}
 		priceDisplay	= []
 		itemType		= ITEM_ID.EMPTY
 		timesUsed		= 0
 		priceMultiplier	= 1
-		id				=  id
+		locked			= false
+		id				= id
 	}
 		
 	local UsetargetCB = function(entity, rarity) {
-		entity.CanShowBuildPanel(false)
-		entity.SetProgressBarText("Using Vendor...")
-		entity.SetProgressBarFinishTime(VENDOR_FINISH_TIME)
-		
-		entity.ValidateScriptScope()
-		local usetargetScope = entity.GetScriptScope()
-		usetargetScope.user <- null
-		
-		usetargetScope.UseFinish <- function() {
-			::VMutVendor.ActivateVendor(vendorData,  ::VMutUtils.EHandleToPlayer(usetargetScope.user))
-			usetargetScope.user = null
-		}
-		usetargetScope.UseStart <- function() {
-			usetargetScope.user = usetargetScope.PlayerUsingMe
-		}
-		usetargetScope.UseStop <- function() {
-			usetargetScope.user = null
-		}
-			
-		entity.ConnectOutput("OnUseFinished", 	"UseFinish")
-		entity.ConnectOutput("OnUseStarted", 	"UseStart")
-		entity.ConnectOutput("OnUseCancelled", 	"UseStop")
-		
 		printl(" ** usetarget callback")
 	}
 	
@@ -86,18 +70,22 @@ function VMutVendor::CreateVendor(origin, angles) {
 	entGroup.SpawnTables[ "price_display_target" ].PostPlaceCB	<- function(entity, rarity) {vendorData.entities.priceDisplayTarget	<- entity; PriceDisplayCB(entity, rarity)}
 	entGroup.SpawnTables[ "prop_item" ].PostPlaceCB 			<- function(entity, rarity) {vendorData.entities.propItem 			<- entity}
 	entGroup.SpawnTables[ "prop_machine" ].PostPlaceCB 			<- function(entity, rarity) {vendorData.entities.propMachine 		<- entity}
-	entGroup.SpawnTables[ "usetarget" ].PostPlaceCB 			<- function(entity, rarity) {vendorData.entities.usetarget 			<- entity; UsetargetCB(entity, rarity)}
+	//entGroup.SpawnTables[ "usetarget" ].PostPlaceCB 			<- function(entity, rarity) {vendorData.entities.usetarget 			<- entity; UsetargetCB(entity, rarity)}
 		
 	g_ModeScript.SpawnSingleAt(VMutVendorEnt.GetEntityGroup(), origin, angles)
+	::VMutVendor.VendorCreateAndAttachUseTarget(vendorData)
+	
 	g_ModeScript.SessionState.vendorTable[id] <- vendorData
 	return vendorData
+	
 }
 
 
 function VMutVendor::DestroyVendor(vendorData) {
 	//Destroy all associated entities
 	foreach (ent in vendorData.entities) {
-		ent.Kill()
+		if (ent)
+			ent.Kill()
 	}
 	
 	//Cleanup price display
@@ -109,13 +97,66 @@ function VMutVendor::DestroyVendor(vendorData) {
 } 
 
 
+function VMutVendor::VendorCreateAndAttachUseTarget(vendorData) {
+
+	if (vendorData.entities.usetarget)
+		return false
+
+	local kvs = {
+		model 		= vendorData.entities.propMachine.GetName()
+		origin 		= vendorData.entities.propMachine.GetOrigin() + Vector( 0, -24, 0 )
+		targetname 	= "vendor_" + vendorData.id + "_usetarget"
+	}
+	local ent = SpawnEntityFromTable("point_script_use_target", kvs)
+		
+	ent.CanShowBuildPanel(false)
+	ent.SetProgressBarText("Using Vendor...")
+	ent.SetProgressBarFinishTime(VENDOR_FINISH_TIME)
+		
+	ent.ValidateScriptScope()
+	local usetargetScope = ent.GetScriptScope()
+	usetargetScope.user <- null
+		
+	usetargetScope.UseFinish <- function() {
+		::VMutVendor.ActivateVendor(vendorData,  ::VMutUtils.EHandleToPlayer(usetargetScope.user))
+		usetargetScope.user = null
+	}
+	usetargetScope.UseStart <- function() {
+		usetargetScope.user = usetargetScope.PlayerUsingMe
+	}
+	usetargetScope.UseStop <- function() {
+		usetargetScope.user = null
+	}
+			
+	ent.ConnectOutput("OnUseFinished", 	"UseFinish")
+	ent.ConnectOutput("OnUseStarted", 	"UseStart")		
+	ent.ConnectOutput("OnUseCancelled", "UseStop")
+	
+	vendorData.entities.usetarget = ent
+	return true
+	
+}
+
+
+function VMutVendor::VendorKillUseTarget(vendorData) {
+	local ent = vendorData.entities.usetarget;
+	if (!ent)
+		return false
+		
+	ent.Kill()
+	vendorData.entities.usetarget = null
+		
+	return true
+}
+
 function VMutVendor::ActivateVendor(vendorData, player) {
 	
 	printl("Vendor Activated By " + player)
 	
 	if (::VMutCurrency.SurvivorGetCurrency(player.GetSurvivorSlot()) < VendorGetPrice(vendorData)) {	
+	
 		EmitSoundOn("buttons/button11.wav", player)
-		QueueSpeak(player, "PlayerNegative", 0.3, "")
+		QueueSpeak(player, "PlayerNegative", 0.35, "")
 		::VMutVendor.VendorLock(vendorData)
 		::VMutVendor.VendorPriceDisplaySetColor(vendorData, {r=255,g=0,b=0})
 		
@@ -129,6 +170,7 @@ function VMutVendor::ActivateVendor(vendorData, player) {
 		}, null)
 		
 		return false
+		
 	}
 
 	local type = vendorData.itemType;
@@ -180,13 +222,21 @@ function VMutVendor::ActivateVendor(vendorData, player) {
 }
 
 
-function VMutVendor::VendorLock(vendorData) {
-	//VendorDestroyUsetarget(vendorData)
+function VMutVendor::VendorUnlock(vendorData) {
+	if (!vendorData.locked)
+		return
+		
+	::VMutVendor.VendorCreateAndAttachUseTarget(vendorData)
+	vendorData.locked = false
 }
 
 
-function VMutVendor::VendorUnlock(vendorData) {
-	//VendorCreateAndAttachUseTarget(vendorData)
+function VMutVendor::VendorLock(vendorData) {
+	if (vendorData.locked)
+		return
+		
+	::VMutVendor.VendorKillUseTarget(vendorData)
+	vendorData.locked = true
 }
 
 

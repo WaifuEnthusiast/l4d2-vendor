@@ -3,14 +3,14 @@
 
 
 function VMutSpawns::SpawnAndDistributeVendors() {
+
 	local mapSpawnData = ::VMutSpawns.GetMapSpawnData()
 	if (!mapSpawnData)
 		return false
 	
 	foreach (spawn in mapSpawnData.spawns) {
-		//try {
+		try {
 			local itemid = 0
-		
 			if ("itemid" in spawn)
 				itemid = spawn.itemid
 			else {
@@ -29,16 +29,19 @@ function VMutSpawns::SpawnAndDistributeVendors() {
 		
 			local vendorData = ::VMutVendor.CreateVendor(spawn.origin, spawn.angles)
 			::VMutVendor.VendorSetItemType(vendorData, itemid)
-		//}
-		//catch (exception) {
-		//	printl("Failed to spawn vendor - " + exception)
-		//}
+		}
+		catch (exception) {
+			printl("Failed to spawn vendor - " + exception)
+		}
 	}
 	
 	return true;
+	
 }
 
+
 function VMutSpawns::GetMapSpawnData() {
+
 	local mapSpawnData = {}
 	local directory = "mapSpawns/" + Director.GetMapName() + "_vendor_spawns"
 	IncludeScript(directory, mapSpawnData)
@@ -63,4 +66,5 @@ function VMutSpawns::GetMapSpawnData() {
 	}
 	
 	return mapSpawnData
+	
 }
