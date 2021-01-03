@@ -1,0 +1,13 @@
+"AddonInfo"
+{
+	addonSteamAppID		550
+	addontitle		"Vendor Mutation"
+	addonversion		0.1
+	addontagline		"Vendor Mutation"
+	addonauthor		"Waifu Enthusiast"
+	addonSteamGroupName	""
+	addonauthorSteamID	""
+	addonURL0		""
+	addonDescription	"...."
+	addonContent_Script 1
+}

@@ -24,7 +24,6 @@
 			EntityGroup.SpawnTables.price_display_target,
 			EntityGroup.SpawnTables.deploy_target,
 			EntityGroup.SpawnTables.prop_machine,
-			EntityGroup.SpawnTables.usetarget,
 			EntityGroup.SpawnTables.prop_item,
 		]
 		return spawnEnts
@@ -142,17 +141,6 @@
 					spawnflags = "0"
 					targetname = "deploy_target"
 					origin = Vector( 0, -24, 16 )
-				}
-			}
-			usetarget = 
-			{
-				SpawnInfo =
-				{
-					classname = "point_script_use_target"
-					model = "prop_machine"
-					origin = Vector( 0, -24, 0 )
-					targetname = "usetarget"
-					vscripts = "usetargets/vendor_usetarget"
 				}
 			}
 			price_display_target = 

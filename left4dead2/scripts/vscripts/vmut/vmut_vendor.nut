@@ -56,24 +56,16 @@ function VMutVendor::CreateVendor(origin, angles) {
 		locked			= false
 		id				= id
 	}
-		
-	local UsetargetCB = function(entity, rarity) {
-		printl(" ** usetarget callback")
-	}
 	
-	local PriceDisplayCB = function(entity, rarity) {
-		::VMutVendor.VendorPriceDisplayInitializeSprites(vendorData, 4)
-	}
-
 	local entGroup = ::VMutVendorEnt.GetEntityGroup()
 	entGroup.SpawnTables[ "deploy_target" ].PostPlaceCB 		<- function(entity, rarity) {vendorData.entities.deployTarget		<- entity}
-	entGroup.SpawnTables[ "price_display_target" ].PostPlaceCB	<- function(entity, rarity) {vendorData.entities.priceDisplayTarget	<- entity; PriceDisplayCB(entity, rarity)}
+	entGroup.SpawnTables[ "price_display_target" ].PostPlaceCB	<- function(entity, rarity) {vendorData.entities.priceDisplayTarget	<- entity}
 	entGroup.SpawnTables[ "prop_item" ].PostPlaceCB 			<- function(entity, rarity) {vendorData.entities.propItem 			<- entity}
 	entGroup.SpawnTables[ "prop_machine" ].PostPlaceCB 			<- function(entity, rarity) {vendorData.entities.propMachine 		<- entity}
-	//entGroup.SpawnTables[ "usetarget" ].PostPlaceCB 			<- function(entity, rarity) {vendorData.entities.usetarget 			<- entity; UsetargetCB(entity, rarity)}
 		
 	g_ModeScript.SpawnSingleAt(VMutVendorEnt.GetEntityGroup(), origin, angles)
 	::VMutVendor.VendorCreateAndAttachUseTarget(vendorData)
+	::VMutVendor.VendorPriceDisplayInitializeSprites(vendorData, 4)
 	
 	g_ModeScript.SessionState.vendorTable[id] <- vendorData
 	return vendorData
