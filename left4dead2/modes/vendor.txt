@@ -1,11 +1,11 @@
-"vendor"
+"vmut"
 {
-	"base"          	"vendor"
+	"base"          	"vmut"
 	"maxplayers" 		"4"
 	"hasdifficulty" 	"1"
 
 		
-	"DisplayTitle"		"Vendor"
+	"DisplayTitle"		"Vendor Mutation"
 	"Description"		"Eat Pasta"
 	"Image"			"maps/any"
 	"Author"		"Waifu Enthusiast"

@@ -1,10 +1,14 @@
-function SpawnAndDistributeVendors() {
-	local mapSpawnData = GetMapSpawnData()
+//Author: Waifu Enthusiast
+::VMutSpawns <- {}
+
+
+function VMutSpawns::SpawnAndDistributeVendors() {
+	local mapSpawnData = ::VMutSpawns.GetMapSpawnData()
 	if (!mapSpawnData)
 		return false
 	
 	foreach (spawn in mapSpawnData.spawns) {
-		try {
+		//try {
 			local itemid = 0
 		
 			if ("itemid" in spawn)
@@ -23,18 +27,18 @@ function SpawnAndDistributeVendors() {
 				itemid = relevantItems[RandomInt(0, relevantItems.len()-1)]
 			}
 		
-			local vendorData = g_ModeScript.CreateVendor(spawn.origin, spawn.angles)
-			g_ModeScript.VendorSetItemType(vendorData, itemid)
-		}
-		catch (exception) {
-			printl("Failed to spawn vendor - " + exception)
-		}
+			local vendorData = ::VMutVendor.CreateVendor(spawn.origin, spawn.angles)
+			::VMutVendor.VendorSetItemType(vendorData, itemid)
+		//}
+		//catch (exception) {
+		//	printl("Failed to spawn vendor - " + exception)
+		//}
 	}
 	
 	return true;
 }
 
-function GetMapSpawnData() {
+function VMutSpawns::GetMapSpawnData() {
 	local mapSpawnData = {}
 	local directory = "mapSpawns/" + Director.GetMapName() + "_vendor_spawns"
 	IncludeScript(directory, mapSpawnData)

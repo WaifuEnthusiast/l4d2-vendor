@@ -1,0 +1,2 @@
+//Author: Waifu Enthusiast
+::VmutHud <- {}

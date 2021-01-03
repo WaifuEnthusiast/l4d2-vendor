@@ -1,18 +1,58 @@
-//Vendor mutation itemData
 //Author: Waifu Enthusiast
+::VMutItemData <- {}
 
-//For now in order to fix weapons spawning with no ammo, I am changing weapons to weapon_spawns...
-//I don't really understand the implications of spawning weapon_spawns on the director... Dunno if it's messing with systems that I don't understand
-//Ideally, a better solution would be to spawn a regular weapon (without the "_spawn") then set some kind of flag or keyvalue to make it spawn with full ammo...
-//There needs to be some kind of function that can adjust a weapon's ammo, because l4d2 calls it when survivors throw their weapons away or die and spawn their weapons.
-//Unfortunately, there is no documentation that describes the keyvalues and flags of standard weapon entities, so I don't know what the magic ammo key/flag is.
-//Maybe there is some way to see the original .cpp class file that valve uses for the weapon entities that might shed some light on this.
-//Anyway, now I need to put keyvalues and flags into every itemDataArray field to make sure it spawns correctly. Yet another reason to scrap this system and create a specific system for spawning weapon specifically.
-//I can then expand the systems to manage different cases such as melees, upgradess, etc... 
-//This will also allow for a smoother precaching system, because right now I need to hand-write an array of models that need to be precached. Not good.
+const UPGRADE_INCENDIARY_AMMO 		= 0
+const UPGRADE_EXPLODING_AMMO 		= 1
+const UPGRADE_LASER_SIGHT 			= 2
+
+enum ITEM_ID {
+	EMPTY,
+	
+    SMG,
+    SMG_SILENCED,
+    SHOTGUN,
+    SHOTGUN_CHROME,
+    
+    AK47,
+    M16,
+    DESERT_RIFLE,
+    AUTOSHOTGUN,
+    SHOTGUN_SPAS,
+    HUNTING_RIFLE,
+    SNIPER_RIFLE,
+    
+    PISTOL,
+    MAGNUM,
+    
+    MACHINEGUN,
+    GRENADE_LAUNCHER,
+    CHAINSAW,
+    
+    MOLOTOV,
+    PIPEBOMB,
+    BILE_JAR,
+    
+    PAIN_PILLS,
+    ADRENALINE,
+    FIRST_AID_KIT,
+    DEFIBRILLATOR,
+    
+    FIREAXE,
+    KATANA,
+	FRYING_PAN,
+    
+    GAS,
+    PROPANE,
+    
+    INCENDIARY_UPGRADE,
+    EXPLOSIVE_UPGRADE,
+    LASERSIGHTS_UPGRADE,
+	
+	count
+}
 
 
-itemDataArray <- [
+::VMutItemData.itemDataArray <- [
 
 	//DEFAULT
 	{
@@ -274,37 +314,34 @@ itemDataArray <- [
 		cost 		= 500
 		display 	= "models/w_models/weapons/w_laser_sights.mdl"
 		func		= function(vendorData, player, params) {player.GiveUpgrade(UPGRADE_LASER_SIGHT)}
-	},
-	{
-		cost 		= 800
-		display 	= "models/props/terror/ammo_stack.mdl"
-		func		= function(vendorData, player, params) {}
 	}
 	
 ]
 
-function GetItemData(index) {
+
+function VMutItemData::Get(index) {
 	return itemDataArray[index]
 }
 
-modelsToPrecache <- [
-	"models/weapons/melee/w_chainsaw.mdl",
-	"models/props/terror/ammo_stack.mdl",
-	"models/props/terror/incendiary_ammo.mdl",
-	"models/props/terror/exploding_ammo.mdl",
-	"models/props_junk/gnome.mdl",
-]
 
-meleeModels <- [
-	"models/weapons/melee/v_katana.mdl",
-	"models/weapons/melee/w_katana.mdl"
-	"models/weapons/melee/v_fireaxe.mdl",
-	"models/weapons/melee/w_fireaxe.mdl",
-	"models/weapons/melee/v_frying_pan.mdl",
-	"models/weapons/melee/w_frying_pan.mdl"
-]
+function VMutItemData::Precache() {
+	local modelsToPrecache = [
+		"models/props/terror/incendiary_ammo.mdl",
+		"models/props/terror/exploding_ammo.mdl"
+	]
+	
+	local meleeModels = [
+		"models/weapons/melee/w_chainsaw.mdl",
+		"models/weapons/melee/w_katana.mdl",
+		"models/weapons/melee/w_fireaxe.mdl",
+		"models/weapons/melee/w_frying_pan.mdl",
+	
+		"models/weapons/melee/v_chainsaw.mdl",
+		"models/weapons/melee/v_katana.mdl",
+		"models/weapons/melee/v_fireaxe.mdl",
+		"models/weapons/melee/v_frying_pan.mdl"
+	]
 
-function PrecacheModels() {
 	foreach (model in modelsToPrecache)
 		PrecacheModel(model)
 	foreach (model in meleeModels)
