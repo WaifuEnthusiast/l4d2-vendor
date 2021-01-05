@@ -71,7 +71,6 @@ MutationOptions <- {
 
 
 MutationState <- {
-	vendorTable = {}
 	currency = [0,0,0,0]
 }
 
@@ -83,6 +82,7 @@ function OnGameplayStart() {
 	
 	::VMutSpawns.SpawnAndDistributeVendors()
 	::VMutCurrency.GiveCurrencyToAllSurvivors(10000)
+	
 }
 
 
@@ -100,9 +100,3 @@ function Precache() {
 	::VMutItemData.Precache()
 	::VMutVendor.Precache()
 }
-
-
-function ThinkFunc() {
-	printl("eat")
-}
-

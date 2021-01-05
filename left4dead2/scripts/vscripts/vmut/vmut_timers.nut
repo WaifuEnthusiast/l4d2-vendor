@@ -6,6 +6,10 @@
 ::VMutTimers.thinkEnt 		<- null
 
 
+/*
+ *	Main point of execution for timers. Never call externally.
+ *	This function is assigned to an empty entity's think function, and is executed every 0.1 seconds.
+ */
 function VMutTimers::Think() {
 	local timersToRemove = []
 
@@ -20,8 +24,7 @@ function VMutTimers::Think() {
 			}
 			catch (exception) 
 			{ 
-				printl("Failed to execute timer function:")
-				printl(exception)
+				printl("Failed to execute timer function - id: " + id + " - " + exception)
 			}
 		}
 			
@@ -33,13 +36,21 @@ function VMutTimers::Think() {
 }
 
 
+/*
+ *	Adds a new timer.
+ *	When a timer expires, execute "func" and pass "params" as the function parameter
+ */
 function VMutTimers::AddTimer(id, delay, func, params) {
+
+	//Generate unique id if not specified
 	if (!id || id == "")
 		id = UniqueString()
 
+	//Don't create duplicate timers
 	if (id in ::VMutTimers.activeTimers)
 		return false
 		
+	//Create the timer
 	local newTimer = {
 		prevTime 	= Time()
 		delay 		= delay
@@ -52,6 +63,9 @@ function VMutTimers::AddTimer(id, delay, func, params) {
 }
 
 
+/*
+ *	Removes a timer
+ */
 function VMutTimers::RemoveTimer(id) {
 	if (!id || !(id in ::VMutTimers.activeTimers))
 		return
@@ -60,6 +74,9 @@ function VMutTimers::RemoveTimer(id) {
 }
 
 
+/*
+ *	Creates an empty entity who's think function will be used to update timers.
+ */
 function VMutTimers::InitializeThinkEnt() {
 	if (!::VMutTimers.thinkEnt || !::VMutTimers.thinkEnt.IsValid()) {
 	
@@ -78,4 +95,4 @@ function VMutTimers::InitializeThinkEnt() {
 	
 	return false
 }
-::VMutTimers.InitializeThinkEnt()
+::VMutTimers.InitializeThinkEnt() //Create the think ent immediately when this file is included

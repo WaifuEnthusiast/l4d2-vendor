@@ -52,6 +52,44 @@ enum ITEM_ID {
 }
 
 
+function VMutItemData::Precache() {
+	local modelsToPrecache = [
+		"models/props/terror/incendiary_ammo.mdl",
+		"models/props/terror/exploding_ammo.mdl"
+	]
+	
+	local meleeModels = [
+		"models/weapons/melee/w_chainsaw.mdl",
+		"models/weapons/melee/w_katana.mdl",
+		"models/weapons/melee/w_fireaxe.mdl",
+		"models/weapons/melee/w_frying_pan.mdl",
+	
+		"models/weapons/melee/v_chainsaw.mdl",
+		"models/weapons/melee/v_katana.mdl",
+		"models/weapons/melee/v_fireaxe.mdl",
+		"models/weapons/melee/v_frying_pan.mdl"
+	]
+
+	foreach (model in modelsToPrecache)
+		PrecacheModel(model)
+	foreach (model in meleeModels)
+		PrecacheModel(model)
+}
+
+
+/*
+ *	Main itemdata array
+ *	Index this array with an ITEM_ID constant to retrieve the associated itemdata
+ *	eg: shotgunData = itemDataArray[ITEM_ID.SHOTGUN]
+ *
+ *	cost		-- How much it costs to buy this item from a vendor
+ *	display 	-- The model that appears above a vendor when it is selling this item
+ *	classname	-- If specified, spawn an entity of this class when this item is purchased from a vendor
+ *	keyvalues	-- If specified, assign these keyvalues to the entity created after purchasing an item from a vendor
+ *	func		-- If specified, call this function when this item is purchased from a vendor
+ * 	params		-- If specified, pass these params to func when it is executed
+ *
+ */
 ::VMutItemData.itemDataArray <- [
 
 	//DEFAULT
@@ -319,32 +357,11 @@ enum ITEM_ID {
 ]
 
 
+/*
+ *	A shorthand function for retrieving an itemdata table from the itemDataArray
+ *	ie: VMutItemData.Get(i) instead of VMutItemData.itemDataArray[i]
+ */
 function VMutItemData::Get(index) {
 	return itemDataArray[index]
-}
-
-
-function VMutItemData::Precache() {
-	local modelsToPrecache = [
-		"models/props/terror/incendiary_ammo.mdl",
-		"models/props/terror/exploding_ammo.mdl"
-	]
-	
-	local meleeModels = [
-		"models/weapons/melee/w_chainsaw.mdl",
-		"models/weapons/melee/w_katana.mdl",
-		"models/weapons/melee/w_fireaxe.mdl",
-		"models/weapons/melee/w_frying_pan.mdl",
-	
-		"models/weapons/melee/v_chainsaw.mdl",
-		"models/weapons/melee/v_katana.mdl",
-		"models/weapons/melee/v_fireaxe.mdl",
-		"models/weapons/melee/v_frying_pan.mdl"
-	]
-
-	foreach (model in modelsToPrecache)
-		PrecacheModel(model)
-	foreach (model in meleeModels)
-		PrecacheModel(model)
 }
 

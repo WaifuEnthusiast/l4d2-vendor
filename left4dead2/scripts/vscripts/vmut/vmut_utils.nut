@@ -2,6 +2,9 @@
 ::VMutUtils <- {}
 
 
+/*
+ *	Converts an entity handle to a player CEntity handle
+ */
 function VMutUtils::EHandleToPlayer(ehandle) {
 	local player = null
 	while (player = Entities.FindByClassname(player, "player")) {
@@ -14,6 +17,9 @@ function VMutUtils::EHandleToPlayer(ehandle) {
 }
 
 
+/*
+ *	Get the player entity associated with a survivor slot
+ */
 function VMutUtils::SurvivorSlotToPlayer(slot) {
 	local player = null
 	while (player = Entities.FindByClassname(player, "player")) {
@@ -31,6 +37,10 @@ function VMutUtils::SurvivorSlotToPlayer(slot) {
 }
 
 
+/*
+ *	Converts an integer value into an array holding each digit of the original value
+ *	Eg: 2560 becomes [2,5,6,0]
+ */
 function VMutUtils::DigitArrayFromValue(value) {
 	
 	if (value < 0)
