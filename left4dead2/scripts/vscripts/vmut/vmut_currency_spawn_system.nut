@@ -8,33 +8,45 @@
 }
 
 
- function VMutCurrencySpawnSystem::SpawnCurrencyPickup(origin, quantity) {
-	local angles = QAngle(0,RandomInt(0,360),0)
+ function VMutCurrencySpawnSystem::SpawnCurrencyPickup(origin, value) {
+	
 	
 	local entGroup = g_ModeScript.VMutCurrencyPickup.GetEntityGroup()
 	
-	/*
-	entGroup.SpawnTables["button"].PostPlaceCB <- function(entity, rarity) {
+	entGroup.SpawnTables["pickup"].PostPlaceCB <- function(entity, rarity) {
+	
+		//Get currency pickup script scope
 		entity.ValidateScriptScope()
 		local entScope = entity.GetScriptScope()
-		entScope.Pickup <- function() {
-			::VMutCurrency.SurvivorEarnedCurrency(0, 500)
+		
+		//Initialize currency pickup functionality
+		entScope.value <- value
+		entScope.CollectPickup <- function() {
+			::VMutCurrency.SurvivorEarnedCurrency(0, entScope.value)
 		}
-		entity.ConnectOutput("OnPressed", "Pickup")
+		
+		entity.ConnectOutput("OnPressed", "CollectPickup")
 	}
-	*/
 	
+	//Spawn the pickup
+	local angles = QAngle(0,RandomInt(0,360),0)
 	local g = g_ModeScript.SpawnSingleAt(entGroup, origin, angles)
  }
  
  
  function VMutCurrencySpawnSystem::SpawnAndDistributeCurrencyPickups() {
-	//TEMPORARY SYSTEM
-	foreach (spawnCandidate in g_MapScript.pickupCandidates) {
+ 
+	//Determine how many pickups we will spawn, and the median value of these pickups
+	local pickupSpawnCount = RandomInt(g_MapScript.minCurrencySpawns, g_MapScript.maxCurrencySpawns)
+	if (pickupSpawnCount > g_MapScript.pickupCandidates.len()) {pickupSpawnCount = g_MapScript.pickupCandidates.len()}
+		
+	local pickupSpawnValue = floor(g_MapScript.mapCurrency / pickupSpawnCount)
 	
-		local chance = RandomInt(0, 0)
-		if (chance == 0) {
-			SpawnCurrencyPickup(spawnCandidate.origin, 200 + RandomInt(0,2) * 200)
-		}
+	//Sample a selection of candidates from the pickup candidate table. These will be used to spawn currency pickups.
+	local validCandidates = ::VMutUtils.ListRandomSample(g_MapScript.pickupCandidates, pickupSpawnCount)
+ 
+	//Spawn pickups
+	foreach (spawnCandidate in validCandidates) {
+		SpawnCurrencyPickup(spawnCandidate.origin, pickupSpawnValue)
 	}
 }

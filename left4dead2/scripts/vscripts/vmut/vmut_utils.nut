@@ -76,3 +76,31 @@ function VMutUtils::PointInBox(point, origin, extent) {
 	return false
 	
 }
+
+
+/*
+ *	Returns true if the specified point is within the specified bounds
+ */
+function VMutUtils::ListRandomSample(list, samples) {
+	
+	//Create a temporary copy of the list that can be modified without altering the original list
+	local tempList = list.slice(0, list.len())
+	local newList = []
+	local size = tempList.len()
+	
+	for (local i = 0; i < samples; i++) {
+		//If the list we are sampling from has run out of values, then stop the function
+		if (size <= 0)
+			break
+	
+		//Random sample
+		local index = RandomInt(0, size-1)
+		newList.append(tempList[index])
+		
+		//Remove the sampled index to prevent it being sampled multiple times
+		tempList.remove(index)
+		size-=1
+	}
+	
+	return newList
+}

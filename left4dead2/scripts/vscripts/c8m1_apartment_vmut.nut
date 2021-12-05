@@ -12,12 +12,12 @@ function Precache() {
 //------------------------------------------------------------------------------------------------------
 //MAP OPTIONS
 
-MinMedkitVendors 	<- defaultMinMedkitVendors 
-MaxMedkitVendors 	<- defaultMaxMedkitVendors 
-VendorWitchLimit 	<- defaultVendorWitchLimit 
-MapCurrency			<- defaultMapCurrency		
-MinCurrencySpawns	<- defaultMinCurrencySpawns
-MaxCurrencySpawns	<- defaultMaxCurrencySpawns
+minMedkitVendors 	<- defaultMinMedkitVendors 
+maxMedkitVendors 	<- defaultMaxMedkitVendors 
+vendorWitchLimit 	<- defaultVendorWitchLimit 
+mapCurrency			<- defaultMapCurrency		
+minCurrencySpawns	<- defaultMinCurrencySpawns
+maxCurrencySpawns	<- defaultMaxCurrencySpawns
 
 
 //------------------------------------------------------------------------------------------------------

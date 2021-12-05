@@ -29,12 +29,9 @@ IncludeScript("vmut/vmut_currency_spawn_system")
 g_MapScript.defaultMinMedkitVendors <- 0
 g_MapScript.defaultMaxMedkitVendors <- 0
 g_MapScript.defaultVendorWitchLimit <- 1
-g_MapScript.defaultMapCurrency		<- 4000
-g_MapScript.defaultMinCurrencySpawns<- 10
-g_MapScript.defaultMaxCurrencySpawns<- 15
-
-
-//@TODO possibly add conditionFunction that is called before purging an entity. If the function returns false then do not purge.
+g_MapScript.defaultMapCurrency		<- 6000
+g_MapScript.defaultMinCurrencySpawns<- 30
+g_MapScript.defaultMaxCurrencySpawns<- 40
 
 /*
  *	Sets criteria that deems an entity as grounds for purging.

@@ -20,9 +20,8 @@ VMutCurrencyPickup <-
 	{
 		local spawnEnts =
 		[
-			EntityGroup.SpawnTables.button,
-			EntityGroup.SpawnTables.script,
 			EntityGroup.SpawnTables.prop,
+			EntityGroup.SpawnTables.pickup,
 		]
 		return spawnEnts
 	}
@@ -85,7 +84,7 @@ VMutCurrencyPickup <-
 					origin = Vector( 0, 0, 0 )
 				}
 			}
-			button = 
+			pickup = 
 			{
 				SpawnInfo =
 				{
@@ -113,7 +112,7 @@ VMutCurrencyPickup <-
 					sounds = "0"
 					spawnflags = "1024"
 					speed = "5"
-					targetname = "button"
+					targetname = "pickup"
 					unlocked_sentence = "0"
 					unlocked_sound = "0"
 					wait = "3"
@@ -129,18 +128,8 @@ VMutCurrencyPickup <-
 					}
 				}
 			}
-			script = 
-			{
-				SpawnInfo =
-				{
-					classname = "logic_script"
-					targetname = "script"
-					vscripts = "VMut/VMut_currency_pickup"
-					origin = Vector( 0, 0, 16 )
-				}
-			}
 		} // SpawnTables
 	} // EntityGroup
-} // VmutCurrencyPickup
+} // VMutCurrencyPickup
 
 RegisterEntityGroup( "VMutCurrencyPickup", VMutCurrencyPickup )
