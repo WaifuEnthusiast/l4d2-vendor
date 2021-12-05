@@ -24,6 +24,8 @@ const PRICE_DISPLAY_MAX_SPRITES		= 4
 
 
 function VMutVendor::Precache() {
+	printl(" ** VMUT Vendor Precache")
+
 	PrecacheSound("buttons/button4.wav")
 	PrecacheSound("buttons/button11.wav")
 	PrecacheSound("buttons/bell1.wav")
@@ -184,7 +186,8 @@ function VMutVendor::VendorUnlock(vendorData) {
 		return
 		
 	//Recreate this vendor's usetarget entity so that players can interact with it
-	::VMutVendor.VendorCreateAndAttachUseTarget(vendorData)
+	//::VMutVendor.VendorCreateAndAttachUseTarget(vendorData)
+	EntFire( vendorData.entities.usetarget.GetName(), "activate", 0, 0 )
 	vendorData.locked = false
 	
 }
@@ -199,7 +202,8 @@ function VMutVendor::VendorLock(vendorData) {
 		return
 		
 	//Stop players from using this vendor by completely removing its usetarget entity
-	::VMutVendor.VendorKillUseTarget(vendorData)
+	//::VMutVendor.VendorKillUseTarget(vendorData)
+	EntFire( vendorData.entities.usetarget.GetName(), "deactivate", 0, 0 )
 	vendorData.locked = true
 	
 }

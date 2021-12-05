@@ -34,6 +34,8 @@ function VMutUtils::SurvivorSlotToPlayer(slot) {
 			return player
 		
 	}
+	
+	return null
 }
 
 
@@ -42,6 +44,7 @@ function VMutUtils::SurvivorSlotToPlayer(slot) {
  *	Eg: 2560 becomes [2,5,6,0]
  */
 function VMutUtils::DigitArrayFromValue(value) {
+	//This is really dumb and hacky but it works so meh
 	
 	if (value < 0)
 		return [0]
@@ -55,4 +58,21 @@ function VMutUtils::DigitArrayFromValue(value) {
 	}
 	
 	return digitArray
+}
+
+
+/*
+ *	Returns true if the specified point is within the specified bounds
+ */
+function VMutUtils::PointInBox(point, origin, extent) {
+	
+	if (
+		point.x > origin.x && point.x < origin.x + extent.x &&
+		point.y > origin.y && point.y < origin.y + extent.y &&
+		point.z > origin.z && point.z < origin.z + extent.z) {
+		return true
+	}
+	
+	return false
+	
 }
