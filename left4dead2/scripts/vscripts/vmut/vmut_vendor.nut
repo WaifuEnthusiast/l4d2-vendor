@@ -8,6 +8,10 @@ const PRICE_DISPLAY_TEXTURE_SIZE	= 32
 const PRICE_DISPLAY_SCALE			= 0.2 //0.2 is the smallest a sprite can be
 const PRICE_DISPLAY_MAX_SPRITES		= 4
 
+const VENDOR_USE_NULL				= 0
+const VENDOR_USE_SUCCESS			= 0
+const VENDOR_USE_FAIL				= 0
+
 
 ::VMutVendor.digitModels <- [
 	"sprites/digits/digit0.vmt",
@@ -54,7 +58,8 @@ function VMutVendor::CreateVendor(origin, angles) {
 			usetarget 			= null
 		}
 		priceDisplay	= []
-		itemType		= ITEM_ID.EMPTY //DO NOT manually modify this value. Call VenorSetItemType() instead.
+		itemId			= ITEM_ID.EMPTY //DO NOT manually modify this value. Call VenorSetItemId() instead.
+		itemParam		= null			//Certain itemdata types will need additional data to work properly. That additional data goes here.
 		timesUsed		= 0
 		priceMultiplier	= 1
 		locked			= false
@@ -62,7 +67,7 @@ function VMutVendor::CreateVendor(origin, angles) {
 	}
 	
 	
-	//Generate callbacks for each entity in the entity group. Entities will add themselves to the vendor's entity data after spawning.
+	//Generate callbacks for each entity in the entity group. This will make entities add themselves to the vendor's entity data after spawning.
 	local entGroup = ::VMutVendorEnt.GetEntityGroup()
 	entGroup.SpawnTables[ "deploy_target" ].PostPlaceCB 		<- function(entity, rarity) {vendorData.entities.deployTarget		<- entity}
 	entGroup.SpawnTables[ "price_display_target" ].PostPlaceCB	<- function(entity, rarity) {vendorData.entities.priceDisplayTarget	<- entity}
@@ -186,8 +191,8 @@ function VMutVendor::VendorUnlock(vendorData) {
 		return
 		
 	//Recreate this vendor's usetarget entity so that players can interact with it
-	//::VMutVendor.VendorCreateAndAttachUseTarget(vendorData)
-	EntFire( vendorData.entities.usetarget.GetName(), "activate", 0, 0 )
+	::VMutVendor.VendorCreateAndAttachUseTarget(vendorData)
+	//EntFire( vendorData.entities.usetarget.GetName(), "activate", 0, 0 )
 	vendorData.locked = false
 	
 }
@@ -202,10 +207,18 @@ function VMutVendor::VendorLock(vendorData) {
 		return
 		
 	//Stop players from using this vendor by completely removing its usetarget entity
-	//::VMutVendor.VendorKillUseTarget(vendorData)
-	EntFire( vendorData.entities.usetarget.GetName(), "deactivate", 0, 0 )
+	::VMutVendor.VendorKillUseTarget(vendorData)
+	//EntFire( vendorData.entities.usetarget.GetName(), "deactivate", 0, 0 )
 	vendorData.locked = true
 	
+}
+
+
+/*
+ *	Test if a player has enough currency to purchase an item from a vendor
+ */
+function VMutVendor::VendorPlayerCanAfford(vendorData, player) {
+	return (::VMutCurrency.SurvivorGetCurrency(player.GetSurvivorSlot()) >= VendorGetPrice(vendorData))
 }
 
 
@@ -214,14 +227,16 @@ function VMutVendor::VendorLock(vendorData) {
  */
 function VMutVendor::ActivateVendor(vendorData, player) {
 	
-	// Not enough money? Play a sound, flash red and lock the vendor for a moment... 
-	if (::VMutCurrency.SurvivorGetCurrency(player.GetSurvivorSlot()) < VendorGetPrice(vendorData)) {	
+	//Attempt to deploy the vendor's item
+	local deployStatus = ::VMutVendor.VendorDeploy(vendorData, player)
 	
+	// Failed to deploy? Play a sound, flash red and lock the vendor for a moment... 
+	if (deployStatus == false) {
+
 		EmitSoundOn("buttons/button11.wav", player)
 		QueueSpeak(player, "PlayerNegative", 0.30, "")
-		::VMutVendor.VendorLock(vendorData)
 		::VMutVendor.VendorPriceDisplaySetColor(vendorData, {r=255,g=0,b=0})
-		
+		::VMutVendor.VendorLock(vendorData)
 		::VMutTimers.AddTimer("vendor_used_"+vendorData.id, VENDOR_FAIL_LOCK_TIME, function(params) {
 		
 			if (::VMutVendor.VendorExists(vendorData)) { 
@@ -232,59 +247,25 @@ function VMutVendor::ActivateVendor(vendorData, player) {
 		}, null)
 		
 		return false
-		
-	}
-
-	
-	// Retrieve the item-data associated with this vendor's itemid
-	local itemid = vendorData.itemType;
-	if (!itemid) {return false}
-		
-	local itemData = ::VMutItemData.itemDataArray[itemid]
-	if (!itemData) {return false}
-	
-	
-	// If the itemdata contains a classname, then spawn the associated entity and assign its keyvalues if available
-	local ent = null
-	if ("classname" in itemData) {
-		
-		local kvs = {}
-		if ("keyvalues" in itemData)
-			kvs = clone itemData.keyvalues
-			
-		kvs.origin 	<- vendorData.entities.deployTarget.GetOrigin()
-		kvs.angles 	<- QAngle(0,0,0).ToKVString()
-		
-		ent = SpawnEntityFromTable(itemData.classname, kvs)
-		
-	}
-		
-		
-	// If the itemdata contains a function, then execute it now...
-	if ("func" in itemData) {
-		
-		local params = null
-		if ("params" in itemData)
-			params = itemData.params
-			
-		itemData.func(vendorData, player, params)
-	}
-	
+	}	
 	
 	// Successfully activated the vendor. Play a sound, flash blue and lock the vendor for a moment...
-	EmitSoundOn("buttons/button4.wav", player)
-	::VMutVendor.VendorPriceDisplaySetColor(vendorData, {r=80,g=186,b=255})
-	::VMutVendor.VendorLock(vendorData)
-	::VMutTimers.AddTimer("vendor_used_"+vendorData.id, VENDOR_FAIL_LOCK_TIME, function(params) {
-	
-		if (::VMutVendor.VendorExists(vendorData)) {
-			::VMutVendor.VendorPriceDisplaySetColor(vendorData, {r=255,g=255,b=255})
-			::VMutVendor.VendorUnlock(vendorData)
-		}
+	if (deployStatus == true) {
 		
-	}, null)
+		EmitSoundOn("buttons/button4.wav", player)
+		::VMutVendor.VendorPriceDisplaySetColor(vendorData, {r=80,g=186,b=255})
+		::VMutVendor.VendorLock(vendorData)
+		::VMutTimers.AddTimer("vendor_used_"+vendorData.id, VENDOR_FAIL_LOCK_TIME, function(params) {
+		
+			if (::VMutVendor.VendorExists(vendorData)) {
+				::VMutVendor.VendorPriceDisplaySetColor(vendorData, {r=255,g=255,b=255})
+				::VMutVendor.VendorUnlock(vendorData)
+			}
+			
+		}, null)
+		
+	}
 	
-
 	// Finish up. Remove currency from the survivor who activated this vendor
 	::VMutCurrency.SurvivorRemoveCurrency(player.GetSurvivorSlot(), VendorGetPrice(vendorData))
 	vendorData.timesUsed++
@@ -294,26 +275,124 @@ function VMutVendor::ActivateVendor(vendorData, player) {
 
 
 /*
- *	Updates a vendor's item-id.
+ *	Deploy a vendor's item
  */
-function VMutVendor::VendorSetItemType(vendorData, type) {
-	local itemData = ::VMutItemData.itemDataArray[type]
+function VMutVendor::VendorDeploy(vendorData, player) {
+
+	// Retrieve the item-data associated with this vendor's itemid
+	local itemid = vendorData.itemId;
+	if (!itemid) {return null}
+		
+	local itemData = ::VMutItemData.itemDataArray[itemid]
+	if (!itemData) {return null}
 	
-	vendorData.itemType = type;
+	//Test if the player who activated the vendor has enough currency to afford the vendor's item
+	if (!::VMutVendor.VendorPlayerCanAfford(vendorData, player))
+		return false
+	
+	//Attempt to deploy the item. The method and conditions of deployment depend on the itemdata type
+	local deployStatus = true
+	switch (itemData.type) {
+		case ITEMDATA_TYPE_ITEM:
+			deployStatus = ::VMutVendor.VendorDeployItem(vendorData, player)
+			break;
 		
-	if (itemData.display)
-		vendorData.entities.propItem.SetModel(itemData.display)
+		case ITEMDATA_TYPE_MELEE:
+			deployStatus = ::VMutVendor.VendorDeployMelee(vendorData, player)
+			break;
+			
+		case ITEMDATA_TYPE_UPGRADE:
+			deployStatus = ::VMutVendor.VendorDeployUpgrade(vendorData, player)
+			break;
+	}
+	
+	//Failure to deploy means we return false
+	if (deployStatus == false)
+		return false
+	
+	// If the itemdata contains a callback function, then execute it now...
+	if ("callback" in itemData) {
+		itemData.callback(vendorData, player)
+	}
+	
+	return true
+}
+
+
+/*
+ *	Deploy an item and give it to the specified player.
+ */
+function VMutVendor::VendorDeployItem(vendorData, player) {
+	//Give the item
+	local itemData = ::VMutItemData.itemDataArray[vendorData.itemId]
+	return ::VMutInventory.GiveItem(player, itemData.data)
+	
+}
+
+
+/*
+ *	Deploy a melee weapon and give it to the specified player.
+ */
+function VMutVendor::VendorDeployMelee(vendorData, player) {
+	//Give the melee
+	return ::VMutInventory.GiveItem(player, vendorData.itemParam)
+}
+
+
+/*
+ *	Deploy an upgrade on the specified player. Return false if player has no primary.
+ */
+function VMutVendor::VendorDeployUpgrade(vendorData, player) {
+	//Give the upgrade
+	local itemData = ::VMutItemData.itemDataArray[vendorData.itemId]
+	return ::VMutInventory.GiveUpgrade(player, itemData.data)
+}
+
+
+/*
+ *	Assign a new item-id to a vendor
+ */
+function VMutVendor::VendorSetItemId(vendorData, id) {
+	local itemData = ::VMutItemData.itemDataArray[id]
+	
+	vendorData.itemId = id;
 		
+	::VMutVendor.VendorUpdateDisplay(vendorData)
 	::VMutVendor.VendorPriceDisplayUpdateValue(vendorData, itemData.cost)
 }
 
 
+/*
+ *	Update a vendor's display model
+ */
+function VMutVendor::VendorUpdateDisplay(vendorData) {
+	//Get itemData
+	local itemData = ::VMutItemData.itemDataArray[vendorData.itemId]
+	
+	//Melee specific display model
+	if (itemData.type == ITEMDATA_TYPE_MELEE) {
+		vendorData.entities.propItem.SetModel(g_ModeScript.meleeModelWorld[vendorData.itemParam])
+	}
+	else {
+		if (itemData.display)
+			vendorData.entities.propItem.SetModel(itemData.display)
+	}
+	
+}
+
+
+/*
+ *	Get the current cost of activating a vendor
+ */
 function VMutVendor::VendorGetPrice(vendorData) {
-	local itemData = ::VMutItemData.itemDataArray[vendorData.itemType]
+	local itemData = ::VMutItemData.itemDataArray[vendorData.itemId]
 	return itemData.cost * vendorData.priceMultiplier
 }
 
 
+/*
+ *	Check if a vendor exists
+ */
 function VMutVendor::VendorExists(vendorData) {
 	return (vendorData.id in ::VMutVendor.vendorTable)
 }

@@ -1,52 +1,56 @@
 //Author: WaifuEnthusiast
 ::VMutCurrencySpawnSystem <- {}
 
- function VMutCurrencySpawnSystem::AddCurrencyPickupCandidate(origin) {
-	g_MapScript.pickupCandidates.append(
+ function VMutCurrencySpawnSystem::AddCurrencyItemCandidate(origin) {
+	g_MapScript.currencyItemCandidates.append(
 		{origin = origin}
 	)
 }
 
 
- function VMutCurrencySpawnSystem::SpawnCurrencyPickup(origin, value) {
+ function VMutCurrencySpawnSystem::SpawnCurrencyItem(origin, value) {
 	
 	
-	local entGroup = g_ModeScript.VMutCurrencyPickup.GetEntityGroup()
+	local entGroup = g_ModeScript.VMutCurrencyItem.GetEntityGroup()
 	
-	entGroup.SpawnTables["pickup"].PostPlaceCB <- function(entity, rarity) {
+	entGroup.SpawnTables["currency_item"].PostPlaceCB <- function(ent, rarity) {
 	
-		//Get currency pickup script scope
-		entity.ValidateScriptScope()
-		local entScope = entity.GetScriptScope()
+		//Get currency item script scope
+		//ent.ValidateScriptScope()
+		local entScope = ent.GetScriptScope()
 		
-		//Initialize currency pickup functionality
-		entScope.value <- value
-		entScope.CollectPickup <- function() {
+		//Initialize currency item functionality
+		entScope.value = value
+		
+		/*
+		entScope.CollectItem <- function() {
 			::VMutCurrency.SurvivorEarnedCurrency(0, entScope.value)
 		}
 		
-		entity.ConnectOutput("OnPressed", "CollectPickup")
+		ent.ConnectOutput("OnPressed", "CollectItem")
+		*/
 	}
 	
-	//Spawn the pickup
+	//Spawn the item
 	local angles = QAngle(0,RandomInt(0,360),0)
 	local g = g_ModeScript.SpawnSingleAt(entGroup, origin, angles)
  }
  
  
- function VMutCurrencySpawnSystem::SpawnAndDistributeCurrencyPickups() {
+ function VMutCurrencySpawnSystem::SpawnAndDistributeCurrencyItems() {
  
-	//Determine how many pickups we will spawn, and the median value of these pickups
-	local pickupSpawnCount = RandomInt(g_MapScript.minCurrencySpawns, g_MapScript.maxCurrencySpawns)
-	if (pickupSpawnCount > g_MapScript.pickupCandidates.len()) {pickupSpawnCount = g_MapScript.pickupCandidates.len()}
+	//Determine how many items we will spawn, and the median value of these items
+	local itemSpawnCount = RandomInt(g_MapScript.minCurrencySpawns, g_MapScript.maxCurrencySpawns)
+	if (itemSpawnCount > g_MapScript.currencyItemCandidates.len()) {itemSpawnCount = g_MapScript.currencyItemCandidates.len()}
 		
-	local pickupSpawnValue = floor(g_MapScript.mapCurrency / pickupSpawnCount)
+	//local itemSpawnValue = floor(g_MapScript.mapCurrency / itemSpawnCount)
+	local itemSpawnValue = 200
 	
-	//Sample a selection of candidates from the pickup candidate table. These will be used to spawn currency pickups.
-	local validCandidates = ::VMutUtils.ListRandomSample(g_MapScript.pickupCandidates, pickupSpawnCount)
+	//Sample a selection of candidates from the currency item candidate table. These will be used to spawn currency items.
+	local validCandidates = ::VMutUtils.ListRandomSample(g_MapScript.currencyItemCandidates, itemSpawnCount)
  
-	//Spawn pickups
+	//Spawn items
 	foreach (spawnCandidate in validCandidates) {
-		SpawnCurrencyPickup(spawnCandidate.origin, pickupSpawnValue)
+		SpawnCurrencyItem(spawnCandidate.origin, itemSpawnValue)
 	}
 }

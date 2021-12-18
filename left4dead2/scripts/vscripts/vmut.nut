@@ -7,14 +7,21 @@
 
 printl(" ** Executing mode script")
 
+//------------------------------------------------------------------------------------------------------
+//CONSTANTS
+
+const DEFAULT_STARTING_CURRENCY = 4000
+
 
 //------------------------------------------------------------------------------------------------------
 //INCLUDE
 
 IncludeScript("entitygroups/vmut_vendor_group.nut")
-IncludeScript("entitygroups/vmut_currency_pickup_group.nut")
+IncludeScript("entitygroups/vmut_currency_item_group.nut")
+IncludeScript("entitygroups/spin_group.nut")
 
 IncludeScript("vmut/vmut_itemdata")
+IncludeScript("vmut/vmut_inventory")
 IncludeScript("vmut/vmut_utils")
 IncludeScript("vmut/vmut_timers")
 IncludeScript("vmut/vmut_currency")
@@ -51,43 +58,42 @@ g_MapScript.defaultMaxCurrencySpawns<- 40
  *	Alas, I don't know any way to add pre or post functionality to each entity sanitized by the sanitize table. Thus, please welcome the purge table.
  */
 g_MapScript.defaultPurgeTable <- [
-	{classname = "weapon_spawn", 						callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyPickupCandidate(ent.GetOrigin())},
-	{classname = "weapon_item_spawn", 					callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyPickupCandidate(ent.GetOrigin())},
-	{classname = "weapon_ammo_spawn", 					callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyPickupCandidate(ent.GetOrigin())},
-	{classname = "weapon_melee_spawn", 					callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyPickupCandidate(ent.GetOrigin())},
-	{classname = "weapon_first_aid_kit_spawn", 			callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyPickupCandidate(ent.GetOrigin())},
-	{classname = "weapon_defibrillator_spawn", 			callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyPickupCandidate(ent.GetOrigin())},
-	{classname = "weapon_pain_pills_spawn", 			callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyPickupCandidate(ent.GetOrigin())},
-	{classname = "weapon_adrenaline_spawn",				callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyPickupCandidate(ent.GetOrigin())},
-	{classname = "weapon_molotov_spawn",				callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyPickupCandidate(ent.GetOrigin())},
-	{classname = "weapon_pipe_bomb_spawn",				callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyPickupCandidate(ent.GetOrigin())},
-	{classname = "weapon_vomitjar_spawn",				callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyPickupCandidate(ent.GetOrigin())},
-	{classname = "weapon_vomitjar_spawn",				callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyPickupCandidate(ent.GetOrigin())},
-	{classname = "weapon_upgradepack_incendiary_spawn",	callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyPickupCandidate(ent.GetOrigin())},
-	{classname = "weapon_upgradepack_explosive_spawn",	callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyPickupCandidate(ent.GetOrigin())},
-	{classname = "weapon_smg_spawn",                    callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyPickupCandidate(ent.GetOrigin())},
-	{classname = "weapon_smg_silenced_spawn",           callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyPickupCandidate(ent.GetOrigin())},
-	{classname = "weapon_shotgun_spawn",                callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyPickupCandidate(ent.GetOrigin())},
-	{classname = "weapon_shotgun_chrome_spawn",         callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyPickupCandidate(ent.GetOrigin())},
-	{classname = "weapon_rifle_spawn",                  callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyPickupCandidate(ent.GetOrigin())},
-	{classname = "weapon_ak47_spawn",                   callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyPickupCandidate(ent.GetOrigin())},
-	{classname = "weapon_desert_rifle_spawn",           callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyPickupCandidate(ent.GetOrigin())},
-	{classname = "weapon_autoshotgun_spawn",            callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyPickupCandidate(ent.GetOrigin())},
-	{classname = "weapon_shotgun_spas_spawn",           callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyPickupCandidate(ent.GetOrigin())},
-	{classname = "weapon_hunting_rifle_spawn",          callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyPickupCandidate(ent.GetOrigin())},
-	{classname = "weapon_sniper_military_spawn",        callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyPickupCandidate(ent.GetOrigin())},
-	{classname = "weapon_chainsaw_spawn",               callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyPickupCandidate(ent.GetOrigin())},
-	{classname = "weapon_grenade_launcher_spawn",       callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyPickupCandidate(ent.GetOrigin())},
-	{classname = "weapon_m60_spawn",					callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyPickupCandidate(ent.GetOrigin())},
-	{classname = "weapon_pistol_spawn",					callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyPickupCandidate(ent.GetOrigin())},
-	{classname = "weapon_pistol_magnum_spawn",			callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyPickupCandidate(ent.GetOrigin())}
+	{classname = "weapon_spawn", 						callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
+	{classname = "weapon_item_spawn", 					callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
+	{classname = "weapon_ammo_spawn", 					callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
+	{classname = "weapon_melee_spawn", 					callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
+	{classname = "weapon_first_aid_kit_spawn", 			callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
+	{classname = "weapon_defibrillator_spawn", 			callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
+	{classname = "weapon_pain_pills_spawn", 			callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
+	{classname = "weapon_adrenaline_spawn",				callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
+	{classname = "weapon_molotov_spawn",				callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
+	{classname = "weapon_pipe_bomb_spawn",				callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
+	{classname = "weapon_vomitjar_spawn",				callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
+	{classname = "weapon_vomitjar_spawn",				callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
+	{classname = "weapon_upgradepack_incendiary_spawn",	callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
+	{classname = "weapon_upgradepack_explosive_spawn",	callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
+	{classname = "weapon_smg_spawn",                    callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
+	{classname = "weapon_smg_silenced_spawn",           callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
+	{classname = "weapon_shotgun_spawn",                callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
+	{classname = "weapon_shotgun_chrome_spawn",         callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
+	{classname = "weapon_rifle_spawn",                  callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
+	{classname = "weapon_ak47_spawn",                   callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
+	{classname = "weapon_desert_rifle_spawn",           callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
+	{classname = "weapon_autoshotgun_spawn",            callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
+	{classname = "weapon_shotgun_spas_spawn",           callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
+	{classname = "weapon_hunting_rifle_spawn",          callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
+	{classname = "weapon_sniper_military_spawn",        callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
+	{classname = "weapon_chainsaw_spawn",               callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
+	{classname = "weapon_grenade_launcher_spawn",       callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
+	{classname = "weapon_m60_spawn",					callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
+	{classname = "weapon_pistol_spawn",					callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
+	{classname = "weapon_pistol_magnum_spawn",			callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())}
 ]
 
-g_MapScript.defaultVendorCandidates <- []
-g_MapScript.defaultPickupCandidates <- []
-g_MapScript.defaultProtectedZones	<- []
+g_MapScript.defaultVendorCandidates 		<- []
+g_MapScript.defaultCurrencyItemCandidates 	<- []
+g_MapScript.defaultProtectedZones			<- []
 
-::VMutUtils.PointInBox(Vector(0,0,0), Vector(0,0,0), Vector(0,0,0))
 
 //------------------------------------------------------------------------------------------------------
 //MODE SETUP
@@ -106,9 +112,8 @@ function OnGameplayStart() {
 	printl( " ** On Gameplay Start" )
 
 	::VMutVendorSpawnSystem.SpawnAndDistributeVendors()
-	::VMutCurrencySpawnSystem.SpawnAndDistributeCurrencyPickups()
-	::VMutCurrency.GiveCurrencyToAllSurvivors(4000)
-
+	::VMutCurrencySpawnSystem.SpawnAndDistributeCurrencyItems()
+	::VMutCurrency.GiveCurrencyToAllSurvivors(DEFAULT_STARTING_CURRENCY)
 }
 
 
@@ -125,7 +130,7 @@ function OnEntityGroupRegistered( name, group ) {
 function Precache() {
 	printl( " ** VMUT Precache" )
 	
-	PrecacheModel("models/props_junk/gnome.mdl")
+	PrecacheMeleeModels()
 	
 	::VMutItemData.Precache()
 	::VMutVendor.Precache()
@@ -182,6 +187,63 @@ function SetupModeHUD() {
 	HUDPlace(HUD_RIGHT_BOT, 0.9, 0.025, 0.1, 0.2)
 }
 
+//------------------------------------------------------------------------------------------------------
+//MELEE MODELS
+
+meleeId <- [
+	"baseball_bat",
+	"cricket_bat",	
+	"crowbar",	
+	"electric_guitar",
+	"fireaxe",
+	"frying_pan",
+	"golfclub",	
+	"katana",
+	"knife",
+	"machete",
+	"pitchfork",
+	"shovel",
+    "tonfa"
+]
+	
+meleeModelWorld <- {
+	baseball_bat		= "models/weapons/melee/w_bat.mdl"
+	cricket_bat			= "models/weapons/melee/w_cricket_bat.mdl"
+	crowbar				= "models/weapons/melee/w_crowbar.mdl"
+	electric_guitar		= "models/weapons/melee/w_electric_guitar.mdl"
+	fireaxe				= "models/weapons/melee/w_fireaxe.mdl"
+	frying_pan			= "models/weapons/melee/w_frying_pan.mdl"
+	golfclub			= "models/weapons/melee/w_golfclub.mdl"
+	katana				= "models/weapons/melee/w_katana.mdl"
+	knife				= "models/w_models/weapons/w_knife_t.mdl"
+	machete				= "models/weapons/melee/w_machete.mdl"
+	pitchfork			= "models/weapons/melee/w_pitchfork.mdl"
+	shovel				= "models/weapons/melee/w_shovel.mdl"
+	tonfa				= "models/weapons/melee/w_tonfa.mdl"
+}
+
+meleeModelView <- {
+	baseball_bat		= "models/weapons/melee/v_bat.mdl"
+	cricket_bat			= "models/weapons/melee/v_cricket_bat.mdl"
+	crowbar				= "models/weapons/melee/v_crowbar.mdl"
+	electric_guitar		= "models/weapons/melee/v_electric_guitar.mdl"
+	fireaxe				= "models/weapons/melee/v_fireaxe.mdl"
+	frying_pan			= "models/weapons/melee/v_frying_pan.mdl"
+	golfclub			= "models/weapons/melee/v_golfclub.mdl"
+	katana				= "models/weapons/melee/v_katana.mdl"
+	knife				= "models/v_models/weapons/v_knife_t.mdl"
+	machete				= "models/weapons/melee/v_machete.mdl"
+	pitchfork			= "models/weapons/melee/v_pitchfork.mdl"
+	shovel				= "models/weapons/melee/v_shovel.mdl"
+	tonfa				= "models/weapons/melee/v_tonfa.mdl"
+}
+
+function PrecacheMeleeModels() {
+	foreach (meleeName, modelName in meleeModelWorld)
+		PrecacheModel(modelName)
+	foreach (meleeName, modelName in meleeModelView)
+		PrecacheModel(modelName)
+}
 
 //------------------------------------------------------------------------------------------------------
 //PURGE SYSTEM

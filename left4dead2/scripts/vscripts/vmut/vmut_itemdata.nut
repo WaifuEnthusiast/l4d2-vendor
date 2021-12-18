@@ -5,12 +5,26 @@
 //The actual pricing and balancing of this whole system is going to take a LOT of testing, feedback and adjusting... T^T
 //The itemdata system / vendor activation system is probably going to be replaced in the future with a system that is friendlier to precaching, wierd exceptions like melee weapons, custom events, custom upgrades, etc...
 
+
 //------------------------------------------------------------------------------------------------------
-//CONST IDS
+//CONST ITEM TYPES
+
+const ITEMDATA_TYPE_ITEM 	= 0
+const ITEMDATA_TYPE_MELEE	= 1
+const ITEMDATA_TYPE_UPGRADE	= 2
+const ITEMDATA_TYPE_PROPANE	= 3
+
+
+//------------------------------------------------------------------------------------------------------
+//CONST UPGRADE IDs
 
 const UPGRADE_INCENDIARY_AMMO 		= 0
 const UPGRADE_EXPLODING_AMMO 		= 1
 const UPGRADE_LASER_SIGHT 			= 2
+
+
+//------------------------------------------------------------------------------------------------------
+//CONST ITEM IDs
 
 enum ITEM_ID {
 	EMPTY,
@@ -30,6 +44,7 @@ enum ITEM_ID {
     
     PISTOL,
     MAGNUM,
+	MELEE,
     
     MACHINEGUN,
     GRENADE_LAUNCHER,
@@ -44,10 +59,6 @@ enum ITEM_ID {
     FIRST_AID_KIT,
     DEFIBRILLATOR,
     
-    FIREAXE,
-    KATANA,
-	FRYING_PAN,
-    
     GAS,
     PROPANE,
     
@@ -60,6 +71,7 @@ enum ITEM_ID {
 
 enum ITEM_CATEGORY {
 	EMPTY,
+	ALL,
 	HEALING,
 	HEALING_SOFT,
 	HEALING_CRITICAL,
@@ -85,27 +97,20 @@ enum ITEM_CATEGORY {
 //SETUP
 
 function VMutItemData::Precache() {
+	foreach (itemData in ::VMutItemData.itemDataArray) {
+		local display = itemData.display
+		if (display)
+			PrecacheModel(display)
+	}
+
+	/*
 	local modelsToPrecache = [
 		"models/props/terror/incendiary_ammo.mdl",
 		"models/props/terror/exploding_ammo.mdl"
 	]
-	
-	local meleeModels = [
-		"models/weapons/melee/w_chainsaw.mdl",
-		"models/weapons/melee/w_katana.mdl",
-		"models/weapons/melee/w_fireaxe.mdl",
-		"models/weapons/melee/w_frying_pan.mdl",
-	
-		"models/weapons/melee/v_chainsaw.mdl",
-		"models/weapons/melee/v_katana.mdl",
-		"models/weapons/melee/v_fireaxe.mdl",
-		"models/weapons/melee/v_frying_pan.mdl"
-	]
-
 	foreach (model in modelsToPrecache)
 		PrecacheModel(model)
-	foreach (model in meleeModels)
-		PrecacheModel(model)
+	*/
 }
 
 
@@ -118,11 +123,10 @@ function VMutItemData::Precache() {
  *	eg: shotgunData = itemDataArray[ITEM_ID.SHOTGUN]
  *
  *	cost		-- How much it costs to buy this item from a vendor
- *	display 	-- The model that appears above a vendor when it is selling this item
- *	classname	-- If specified, spawn an entity of this class when this item is purchased from a vendor
- *	keyvalues	-- If specified, assign these keyvalues to the entity created after purchasing an item from a vendor
- *	func		-- If specified, call this function when this item is purchased from a vendor. func(vendordata, player, params)
- * 	params		-- If specified, pass these params to func when it is executed
+ *	display 	-- The model that appears above a vendor when it is selling this item. Melee vendors do not require a display model.
+ *	type		-- The itemdata type. This determines what functions the vendor will call when it is activated.
+ *	data		-- Determines what item a vendor will deploy once it is activated. Data format will change depending on the itemdata type.
+ * 	callback	-- If specified, this function will be called when a vendor deploys an item with this item ID. Callback(vendorData, player) <- must use this format
  *
  */
 ::VMutItemData.itemDataArray <- [
@@ -131,262 +135,198 @@ function VMutItemData::Precache() {
 	{
 		cost		= 0
 		display		= null
+		data		= null
+		type		= null
 	}
 
 	//T1 WEAPONS
 	{
 		cost 		= 500
 		display 	= "models/w_models/weapons/w_smg_uzi.mdl"
-		classname 	= "weapon_smg_spawn"
-		keyvalues	= {
-			count		= 1
-			spawnflags 	= 1
-		}
+		data 		= "weapon_smg"
+		type 		= ITEMDATA_TYPE_ITEM
 	},
 	{
 		cost 		= 750
 		display 	= "models/w_models/weapons/w_smg_a.mdl"
-		classname 	= "weapon_smg_silenced_spawn"
-		keyvalues	= {
-			count		= 1
-			spawnflags 	= 1
-		}
+		data 		= "weapon_smg_silenced"
+		type 		= ITEMDATA_TYPE_ITEM
 	},
 	{
 		cost 		= 500
 		display 	= "models/w_models/weapons/w_shotgun.mdl"
-		classname 	= "weapon_pumpshotgun_spawn"
-		keyvalues	= {
-			count		= 1
-			spawnflags 	= 1
-		}
+		data	 	= "weapon_pumpshotgun"
+		type 		= ITEMDATA_TYPE_ITEM
 	},
 	{
 		cost 		= 750
 		display 	= "models/w_models/weapons/w_pumpshotgun_a.mdl"
-		classname 	= "weapon_shotgun_chrome_spawn"
-		keyvalues	= {
-			count		= 1
-			spawnflags 	= 1
-		}
+		data	 	= "weapon_shotgun_chrome"
+		type 		= ITEMDATA_TYPE_ITEM
 	},
 	
 	//T2 WEAPONS
 	{
 		cost 		= 1000
 		display 	= "models/w_models/weapons/w_rifle_ak47.mdl"
-		classname 	= "weapon_rifle_ak47_spawn"
-		keyvalues	= {
-			count		= 1
-			spawnflags 	= 1
-		}
+		data	 	= "weapon_rifle_ak47"
+		type 		= ITEMDATA_TYPE_ITEM
 	},
 	{
 		cost 		= 1000
 		display 	= "models/w_models/weapons/w_rifle_m16a2.mdl"
-		classname 	= "weapon_rifle_spawn"
-		keyvalues	= {
-			count		= 1
-			spawnflags 	= 1
-		}
+		data	 	= "weapon_rifle"
+		type 		= ITEMDATA_TYPE_ITEM
 	},
 	{
-		cost 		= 1500
+		cost 		= 1250
 		display 	= "models/w_models/weapons/w_desert_rifle.mdl"
-		classname 	= "weapon_rifle_desert_spawn"
-		keyvalues	= {
-			count		= 1
-			spawnflags 	= 1
-		}
+		data	 	= "weapon_rifle_desert"
+		type 		= ITEMDATA_TYPE_ITEM
 	},
 	{
-		cost 		= 1500
+		cost 		= 1000
 		display 	= "models/w_models/weapons/w_autoshot_m4super.mdl"
-		classname 	= "weapon_autoshotgun_spawn"
-		keyvalues	= {
-			count		= 1
-			spawnflags 	= 1
-		}
+		data	 	= "weapon_autoshotgun"
+		type 		= ITEMDATA_TYPE_ITEM
 	},
 	{
-		cost 		= 1500
+		cost 		= 1250
 		display 	= "models/w_models/weapons/w_shotgun_spas.mdl"
-		classname 	= "weapon_shotgun_spas_spawn"
-		keyvalues	= {
-			count		= 1
-			spawnflags 	= 1
-		}
+		data	 	= "weapon_shotgun_spas"
+		type 		= ITEMDATA_TYPE_ITEM
 	},
 	{
 		cost 		= 1000
 		display 	= "models/w_models/weapons/w_sniper_mini14.mdl"
-		classname 	= "weapon_hunting_rifle_spawn"
-		keyvalues	= {
-			count		= 1
-			spawnflags 	= 1
-		}
+		data	 	= "weapon_hunting_rifle"
+		type 		= ITEMDATA_TYPE_ITEM
 	},
 	{
-		cost 		= 1500
+		cost 		= 1250
 		display 	= "models/w_models/weapons/w_sniper_military.mdl"
-		classname 	= "weapon_sniper_military_spawn"
-		keyvalues	= {
-			count		= 1
-			spawnflags 	= 1
-		}
+		data	 	= "weapon_sniper_military"
+		type 		= ITEMDATA_TYPE_ITEM
 	},
 	
-	//PISTOLS
+	//SECONDARY
 	{
 		cost 		= 250 //500 for dual pistols
 		display 	= "models/w_models/weapons/w_pistol_a.mdl"
-		classname 	= "weapon_pistol_spawn"
-		keyvalues	= {
-			count		= 1
-			spawnflags 	= 1
-		}
+		data 		= "weapon_pistol"
+		type 		= ITEMDATA_TYPE_ITEM
 	},
 	{
-		cost 		= 750
+		cost 		= 500
 		display 	= "models/w_models/weapons/w_desert_eagle.mdl"
-		classname 	= "weapon_pistol_magnum_spawn"
-		keyvalues	= {
-			count		= 1
-			spawnflags 	= 1
-		}
+		data 		= "weapon_pistol_magnum"
+		type 		= ITEMDATA_TYPE_ITEM
+	},
+	{
+		cost 		= 500
+		display 	= null
+		data		= null
+		type		= ITEMDATA_TYPE_MELEE
 	},
 	
 	//SPECIAL WEAPONS
 	{
 		cost 		= 1500
 		display 	= "models/w_models/weapons/w_m60.mdl"
-		classname 	= "weapon_rifle_m60_spawn"
-		keyvalues	= {
-			count		= 1
-			spawnflags 	= 1
-		}
+		data 		= "weapon_rifle_m60"
+		type 		= ITEMDATA_TYPE_ITEM
 	},
 	{
 		cost 		= 1500
 		display 	= "models/w_models/weapons/w_grenade_launcher.mdl"
-		classname 	= "weapon_grenade_launcher_spawn"
-		keyvalues	= {
-			count		= 1
-			spawnflags 	= 1
-		}
+		data 		= "weapon_grenade_launcher"
+		type 		= ITEMDATA_TYPE_ITEM
 	},
 	{
 		cost 		= 1500
 		display 	= "models/weapons/melee/w_chainsaw.mdl"
-		classname 	= "weapon_chainsaw_spawn"
-		keyvalues	= {
-			count		= 1
-			spawnflags 	= 1
-		}
+		data	 	= "weapon_chainsaw"
+		type 		= ITEMDATA_TYPE_ITEM
 	},
 	
 	//GENADES
 	{
 		cost 		= 750
 		display 	= "models/w_models/weapons/w_eq_molotov.mdl"
-		classname 	= "weapon_molotov"
+		data 		= "weapon_molotov"
+		type 		= ITEMDATA_TYPE_ITEM
 	},
 	{
 		cost 		= 750
 		display 	= "models/w_models/weapons/w_eq_pipebomb.mdl"
-		classname 	= "weapon_pipe_bomb"
+		data 		= "weapon_pipe_bomb"
+		type 		= ITEMDATA_TYPE_ITEM
 	},
 	{
 		cost 		= 1500
 		display 	= "models/w_models/weapons/w_eq_bile_flask.mdl"
-		classname 	= "weapon_vomitjar"
+		data 		= "weapon_vomitjar"
+		type 		= ITEMDATA_TYPE_ITEM
 	},
 	
 	//HEALTH
 	{
 		cost 		= 1000
 		display 	= "models/w_models/weapons/w_eq_painpills.mdl"
-		classname 	= "weapon_pain_pills"
+		data 		= "weapon_pain_pills"
+		type 		= ITEMDATA_TYPE_ITEM
 	},
 	{
 		cost 		= 1000
 		display 	= "models/w_models/weapons/w_eq_adrenaline.mdl"
-		classname 	= "weapon_adrenaline"
+		data 		= "weapon_adrenaline"
+		type 		= ITEMDATA_TYPE_ITEM
 	},
 	{
 		cost 		= 4000
 		display 	= "models/w_models/weapons/w_eq_medkit.mdl"
-		classname 	= "weapon_first_aid_kit"
+		data 		= "weapon_first_aid_kit"
+		type 		= ITEMDATA_TYPE_ITEM
 	},
 	{
 		cost 		= 4000
 		display 	= "models/w_models/weapons/w_eq_defibrillator.mdl"
-		classname 	= "weapon_defibrillator"
-	},
-	
-	//MELEE
-	{
-		cost 		= 500
-		display 	= "models/weapons/melee/w_fireaxe.mdl"
-		classname 	= "weapon_melee_spawn"
-		keyvalues	= {
-			melee_weapon	= "fireaxe"
-			count 			= 1
-			spawnflags 		= 1
-		}
-	},
-	{
-		cost 		= 500
-		display 	= "models/weapons/melee/w_katana.mdl"
-		classname 	= "weapon_melee_spawn"
-		keyvalues	= {
-			melee_weapon	= "katana"
-			count 			= 1
-			spawnflags 		= 1
-		}
-	},
-	{
-		cost 		= 500
-		display 	= "models/weapons/melee/w_frying_pan.mdl"
-		classname 	= "weapon_melee_spawn"
-		keyvalues	= {
-			melee_weapon	= "frying_pan"
-			count 			= 1
-			spawnflags 		= 1
-		}
+		data 		= "weapon_defibrillator"
+		type 		= ITEMDATA_TYPE_ITEM
 	},
 	
 	//EXPLOSIVES
-	{
-		cost 		= 750
+	{	//gas
+		cost 		= 750 //should have same price as molotov
 		display 	= "models/props_junk/gascan001a.mdl"
-		classname 	= "weapon_gascan"
+		data 		= "weapon_gascan"
+		type 		= ITEMDATA_TYPE_ITEM
 	},
-	{
+	{	//propane
 		cost 		= 500
 		display 	= "models/props_junk/propanecanister001a.mdl"
-		classname 	= "prop_physics"
-		keyvalues	= {
-			model		= "models/props_junk/propanecanister001a.mdl"
-			spawnflags 	= 64 | 2048
-		}
+		data	 	= "weapon_propanetank"
+		type 		= ITEMDATA_TYPE_ITEM
 	},
 	
 	//UPGRADES
-	{
+	{	//incendiary ammo
 		cost 		= 500
 		display 	= "models/props/terror/incendiary_ammo.mdl"
-		func		= function(vendorData, player, params) {player.GiveUpgrade(UPGRADE_INCENDIARY_AMMO)}
+		data		= UPGRADE_INCENDIARY_AMMO
+		type 		= ITEMDATA_TYPE_UPGRADE
 	},
-	{
+	{	//explosive ammo
 		cost 		= 500
 		display 	= "models/props/terror/exploding_ammo.mdl"
-		func		= function(vendorData, player, params) {player.GiveUpgrade(UPGRADE_EXPLODING_AMMO)}
+		data		= UPGRADE_EXPLODING_AMMO
+		type 		= ITEMDATA_TYPE_UPGRADE
 	},
-	{
+	{	//lasersight
 		cost 		= 500
 		display 	= "models/w_models/weapons/w_laser_sights.mdl"
-		func		= function(vendorData, player, params) {player.GiveUpgrade(UPGRADE_LASER_SIGHT)}
+		data		= UPGRADE_LASER_SIGHT
+		type 		= ITEMDATA_TYPE_UPGRADE
 	}
 	
 ]
@@ -411,10 +351,46 @@ function VMutItemData::Get(index) {
 //Or a system where the individual item data entries have a list of categories they belong to?
 //The purpose of item categories is to eventually add an easier way to blacklist or whitelist certain item groups on vendors.
 
+/*
 ::VMutItemData.category <- [
 	//EMPTY
 	[
 		ITEM_ID.EMPTY
+	],
+	
+	//All
+	[
+		ITEM_ID.SMG,
+		ITEM_ID.SMG_SILENCED,
+		ITEM_ID.SHOTGUN,
+		ITEM_ID.SHOTGUN_CHROME,
+		ITEM_ID.AK47,
+		ITEM_ID.M16,
+		ITEM_ID.DESERT_RIFLE,
+		ITEM_ID.AUTOSHOTGUN,
+		ITEM_ID.SHOTGUN_SPAS,
+		ITEM_ID.HUNTING_RIFLE,
+		ITEM_ID.SNIPER_RIFLE,
+		ITEM_ID.PISTOL,
+		ITEM_ID.MAGNUM,
+		ITEM_ID.MACHINEGUN,
+		ITEM_ID.GRENADE_LAUNCHER,
+		ITEM_ID.CHAINSAW,
+		ITEM_ID.MOLOTOV,
+		ITEM_ID.PIPEBOMB,
+		ITEM_ID.BILE_JAR,
+		ITEM_ID.PAIN_PILLS,
+		ITEM_ID.ADRENALINE,
+		ITEM_ID.FIRST_AID_KIT,
+		ITEM_ID.DEFIBRILLATOR,
+		ITEM_ID.FIREAXE,
+		ITEM_ID.KATANA,
+		ITEM_ID.FRYING_PAN,
+		ITEM_ID.GAS,
+		ITEM_ID.PROPANE,
+		ITEM_ID.INCENDIARY_UPGRADE,
+		ITEM_ID.EXPLOSIVE_UPGRADE,
+		ITEM_ID.LASERSIGHTS_UPGRADE
 	],
 
 	//Healing
@@ -524,6 +500,7 @@ function VMutItemData::Get(index) {
 		ITEM_ID.PROPANE
 	]
 ]
+*/
 
 
 

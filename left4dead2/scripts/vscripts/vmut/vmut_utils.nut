@@ -79,7 +79,8 @@ function VMutUtils::PointInBox(point, origin, extent) {
 
 
 /*
- *	Returns true if the specified point is within the specified bounds
+ *	Returns another list containing a random set of entries from the supplied list.
+ *	The resulting list will not contain any duplicate entries.
  */
 function VMutUtils::ListRandomSample(list, samples) {
 	
@@ -103,4 +104,19 @@ function VMutUtils::ListRandomSample(list, samples) {
 	}
 	
 	return newList
+}
+
+
+/*
+ *	Test if a player reference is indeed referencing a valid player
+ */
+function VMutUtils::ValidatePlayer(player) {
+	if (!player)
+		return false
+	if (!player.IsPlayer())
+		return false
+	if (!player.IsSurvivor())
+		return false
+		
+	return true
 }
