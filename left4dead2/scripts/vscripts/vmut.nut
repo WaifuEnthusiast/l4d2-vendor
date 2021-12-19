@@ -114,6 +114,7 @@ function OnGameplayStart() {
 	::VMutVendorSpawnSystem.SpawnAndDistributeVendors()
 	::VMutCurrencySpawnSystem.SpawnAndDistributeCurrencyItems()
 	::VMutCurrency.GiveCurrencyToAllSurvivors(DEFAULT_STARTING_CURRENCY)
+	
 }
 
 
