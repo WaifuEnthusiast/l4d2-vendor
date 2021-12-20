@@ -1,7 +1,9 @@
 //Author: Waifu Enthusiast
+
 //This entire module is hacky and stupid.
 //This is partly due to there being no robust system for checking specific inventory slots.
-//May need to make my own inventory system that manually keeps track of player inventories and has some nicer functions for checking slots and dropping items...
+
+//@TODO May need to make my own inventory system that manually keeps track of player inventories and has some nicer functions for checking slots and dropping items...
 //Possibly listens to game events to see when items are picked up or dropped and have some tables that reference every item classname to a slot that it belongs to...
 //A self made system could also keep track of if the player is currently dual wielding pistols or not...
 //idk
@@ -22,12 +24,26 @@ function VMutInventory::GiveItem(player, classname) {
 	local preInv = {}
 	g_ModeScript.GetInvTable(player, preInv)
 	
+	//I don't think there is any way to check if the player is dual wielding pistols, which leads to some janky behaviour when giving/dropping pistols... Let's create a case to account for that.
+	//This is a hack, but it works for now.
+	if (classname == "weapon_pistol") {
+		if ("slot1" in preInv) {
+			local item = preInv["slot1"]
+			if (item && item.GetClassname() == "weapon_pistol") {
+			
+				//Create a new pistol item and then return
+				printl(" ** inventory: creating pistol")
+				local ent = ::VMutInventory.CreateWeapon("weapon_pistol", player.GetOrigin() + Vector(0, 0, 48))
+				if (!ent) {printl(" ** inventory: failed to create new pistol entity!")}
+				
+				return true
+				
+			}
+		}
+	}
+	
 	//Give the item
 	player.GiveItem(classname)
-	
-	//If the item was a pistol, there is no need to do anything else
-	if (classname == "weapon_pistol")
-		return true
 	
 	//Get another copy of the player's inventory for comparison
 	local postInv = {}
@@ -49,20 +65,14 @@ function VMutInventory::GiveItem(player, classname) {
 		if (preInv[slot] == postInv[slot]) {
 			if (slot == "slot0") {	//Primary weapons need to create a new weapon entity with full ammo
 			
-				printl(" ** forcing primary weapon drop")
-				local kvs = {
-					origin 		= player.GetOrigin() + Vector(0, 0, 48)
-					angles		= QAngle(0,0,0)
-					count		= 1
-					spawnflags 	= 1
-				}
-				local ent = g_ModeScript.SpawnEntityFromTable(classname + "_spawn", kvs)
-				if (!ent) {printl(" ** failed to create new weapon entity!")}
+				printl(" ** inventory: forcing primary weapon drop")
+				local ent = ::VMutInventory.CreateWeapon(classname, player.GetOrigin() + Vector(0, 0, 48))
+				if (!ent) {printl(" ** inventory: failed to create new primary weapon entity!")}
 				
 			}
 			else {					//Otherwise, a standard drop and replace is fine
 				
-				printl(" ** forcing item drop")
+				printl(" ** inventory: forcing item drop")
 				player.DropItem(classname)
 				player.GiveItem(classname)
 				
@@ -93,3 +103,17 @@ function VMutInventory::GiveUpgrade(player, upgradeId) {
 	
 	return true
 }
+
+
+/*
+ *	Simple weapon creation
+ */
+ function VMutInventory::CreateWeapon(classname, origin) {
+	local kvs = {
+		origin 		= origin
+		angles		= QAngle(0,0,0)
+		count		= 1
+		spawnflags 	= 1
+	}
+	return g_ModeScript.SpawnEntityFromTable(classname + "_spawn", kvs)
+ }
