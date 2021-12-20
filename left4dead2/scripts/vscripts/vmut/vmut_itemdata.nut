@@ -140,89 +140,89 @@ function VMutItemData::Precache() {
 	}
 
 	//T1 WEAPONS
-	{
+	{	//smg
 		cost 		= 500
 		display 	= "models/w_models/weapons/w_smg_uzi.mdl"
 		data 		= "weapon_smg"
 		type 		= ITEMDATA_TYPE_ITEM
 	},
-	{
-		cost 		= 750
+	{	//silenced smg
+		cost 		= 500
 		display 	= "models/w_models/weapons/w_smg_a.mdl"
 		data 		= "weapon_smg_silenced"
 		type 		= ITEMDATA_TYPE_ITEM
 	},
-	{
+	{	//shotgun
 		cost 		= 500
 		display 	= "models/w_models/weapons/w_shotgun.mdl"
 		data	 	= "weapon_pumpshotgun"
 		type 		= ITEMDATA_TYPE_ITEM
 	},
-	{
-		cost 		= 750
+	{	//chrome shotgun
+		cost 		= 500
 		display 	= "models/w_models/weapons/w_pumpshotgun_a.mdl"
 		data	 	= "weapon_shotgun_chrome"
 		type 		= ITEMDATA_TYPE_ITEM
 	},
 	
 	//T2 WEAPONS
-	{
+	{	//ak47
 		cost 		= 1000
 		display 	= "models/w_models/weapons/w_rifle_ak47.mdl"
 		data	 	= "weapon_rifle_ak47"
 		type 		= ITEMDATA_TYPE_ITEM
 	},
-	{
+	{	//assault rifle
 		cost 		= 1000
 		display 	= "models/w_models/weapons/w_rifle_m16a2.mdl"
 		data	 	= "weapon_rifle"
 		type 		= ITEMDATA_TYPE_ITEM
 	},
-	{
-		cost 		= 1250
+	{	//combat rifle
+		cost 		= 1000
 		display 	= "models/w_models/weapons/w_desert_rifle.mdl"
 		data	 	= "weapon_rifle_desert"
 		type 		= ITEMDATA_TYPE_ITEM
 	},
-	{
+	{	//auto shotgn
 		cost 		= 1000
 		display 	= "models/w_models/weapons/w_autoshot_m4super.mdl"
 		data	 	= "weapon_autoshotgun"
 		type 		= ITEMDATA_TYPE_ITEM
 	},
-	{
-		cost 		= 1250
+	{	//combat shotgun
+		cost 		= 1000
 		display 	= "models/w_models/weapons/w_shotgun_spas.mdl"
 		data	 	= "weapon_shotgun_spas"
 		type 		= ITEMDATA_TYPE_ITEM
 	},
-	{
+	{	//hunting rifle
 		cost 		= 1000
 		display 	= "models/w_models/weapons/w_sniper_mini14.mdl"
 		data	 	= "weapon_hunting_rifle"
 		type 		= ITEMDATA_TYPE_ITEM
 	},
-	{
-		cost 		= 1250
+	{	//sniper
+		cost 		= 1000
 		display 	= "models/w_models/weapons/w_sniper_military.mdl"
 		data	 	= "weapon_sniper_military"
 		type 		= ITEMDATA_TYPE_ITEM
 	},
 	
 	//SECONDARY
-	{
+	{	//pistol
 		cost 		= 250 //500 for dual pistols
 		display 	= "models/w_models/weapons/w_pistol_a.mdl"
 		data 		= "weapon_pistol"
 		type 		= ITEMDATA_TYPE_ITEM
 	},
-	{
+	{	//deagle
 		cost 		= 500
 		display 	= "models/w_models/weapons/w_desert_eagle.mdl"
 		data 		= "weapon_pistol_magnum"
 		type 		= ITEMDATA_TYPE_ITEM
 	},
-	{
+	{	//melee
 		cost 		= 500
 		display 	= null
 		data		= null
@@ -231,38 +231,39 @@ function VMutItemData::Precache() {
 	
 	//SPECIAL WEAPONS
 	{
-		cost 		= 1500
+		//machine gun
+		cost 		= 1000
 		display 	= "models/w_models/weapons/w_m60.mdl"
 		data 		= "weapon_rifle_m60"
 		type 		= ITEMDATA_TYPE_ITEM
 	},
-	{
-		cost 		= 1500
+	{	//grenade launcher
+		cost 		= 1000
 		display 	= "models/w_models/weapons/w_grenade_launcher.mdl"
 		data 		= "weapon_grenade_launcher"
 		type 		= ITEMDATA_TYPE_ITEM
 	},
-	{
-		cost 		= 1500
+	{	//chainsaw
+		cost 		= 1000
 		display 	= "models/weapons/melee/w_chainsaw.mdl"
 		data	 	= "weapon_chainsaw"
 		type 		= ITEMDATA_TYPE_ITEM
 	},
 	
 	//GENADES
-	{
+	{	//molotov
 		cost 		= 750
 		display 	= "models/w_models/weapons/w_eq_molotov.mdl"
 		data 		= "weapon_molotov"
 		type 		= ITEMDATA_TYPE_ITEM
 	},
-	{
+	{	//pipebomb
 		cost 		= 750
 		display 	= "models/w_models/weapons/w_eq_pipebomb.mdl"
 		data 		= "weapon_pipe_bomb"
 		type 		= ITEMDATA_TYPE_ITEM
 	},
-	{
+	{	//bile
 		cost 		= 1500
 		display 	= "models/w_models/weapons/w_eq_bile_flask.mdl"
 		data 		= "weapon_vomitjar"
@@ -270,25 +271,25 @@ function VMutItemData::Precache() {
 	},
 	
 	//HEALTH
-	{
+	{	//pills
 		cost 		= 1000
 		display 	= "models/w_models/weapons/w_eq_painpills.mdl"
 		data 		= "weapon_pain_pills"
 		type 		= ITEMDATA_TYPE_ITEM
 	},
-	{
+	{	//adrenaline
 		cost 		= 1000
 		display 	= "models/w_models/weapons/w_eq_adrenaline.mdl"
 		data 		= "weapon_adrenaline"
 		type 		= ITEMDATA_TYPE_ITEM
 	},
-	{
+	{	//kit
 		cost 		= 4000
 		display 	= "models/w_models/weapons/w_eq_medkit.mdl"
 		data 		= "weapon_first_aid_kit"
 		type 		= ITEMDATA_TYPE_ITEM
 	},
-	{
+	{	//defibrillator
 		cost 		= 4000
 		display 	= "models/w_models/weapons/w_eq_defibrillator.mdl"
 		data 		= "weapon_defibrillator"

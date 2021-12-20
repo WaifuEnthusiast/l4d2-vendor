@@ -39,6 +39,10 @@ g_MapScript.defaultVendorWitchLimit <- 1
 g_MapScript.defaultMapCurrency		<- 6000
 g_MapScript.defaultMinCurrencySpawns<- 30
 g_MapScript.defaultMaxCurrencySpawns<- 40
+g_MapScript.defaultStartingCurrency	<- 4000	//When a map is loaded at the start of a campagin, set currency to this ammount
+
+//Assign defaults to map properties here?
+//minMedkitVendors <- defaultMinMedkitVendors????
 
 /*
  *	Sets criteria that deems an entity as grounds for purging.

@@ -18,6 +18,7 @@ vendorWitchLimit 	<- defaultVendorWitchLimit
 mapCurrency			<- defaultMapCurrency		
 minCurrencySpawns	<- defaultMinCurrencySpawns
 maxCurrencySpawns	<- defaultMaxCurrencySpawns
+startingCurrency	<- defaultStartingCurrency
 
 
 //------------------------------------------------------------------------------------------------------
@@ -50,6 +51,10 @@ vendorCandidates <- [
 					ITEM_ID.PISTOL,
 					ITEM_ID.MAGNUM,
 					ITEM_ID.MELEE,
+					//ITEM_ID.SMG,
+					//ITEM_ID.SMG_SILENCED,
+					//ITEM_ID.SHOTGUN,
+					//ITEM_ID.SHOTGUN_CHROME,
 					ITEM_ID.MACHINEGUN,
 					ITEM_ID.GRENADE_LAUNCHER,
 					ITEM_ID.CHAINSAW,	
@@ -73,7 +78,12 @@ vendorCandidates <- [
 				witch  = WITCH_DISABLE
 				blacklist = [	//Spawn with anything to create an interesting choice
 					ITEM_ID.FIRST_AID_KIT,
-					ITEM_ID.DEFIBRILLATOR
+					ITEM_ID.DEFIBRILLATOR,
+					ITEM_ID.GAS,
+					ITEM_ID.PROPANE,
+					ITEM_ID.INCENDIARY_UPGRADE,
+					ITEM_ID.EXPLOSIVE_UPGRADE,
+					ITEM_ID.LASERSIGHTS_UPGRADE
 				]
 			}
 		]
@@ -81,7 +91,7 @@ vendorCandidates <- [
 	
 	//Alley
 	{
-		min = 2,
+		min = 4,
 		max = 4,
 		spawnCandidates = [
 			{
