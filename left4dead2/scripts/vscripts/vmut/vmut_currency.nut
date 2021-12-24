@@ -1,7 +1,9 @@
 //Author: Waifu Enthusiast
 ::VMutCurrency <- {}
 
-//@TODO preserve currency between map transitions. When a chapter is restarted, reset currency to whatever it was when the chapter was first started.
+const CURRENCY_SOURCE_FOUND 		= 0
+const CURRENCY_SOURCE_MAP_COMPLETE  = 1
+const CURRENCY_SOURCE_SI_KILLED		= 2
 
 /*
  *	Currency is assigned on a "by survivor" basis.
@@ -9,40 +11,96 @@
  */
  
  
-function VMutCurrency::GiveCurrencyToAllSurvivors(quantity) {
-	foreach (idx, value in SessionState.currency)
-		g_ModeScript.SessionState.currency[idx] += quantity
+ /*
+  *	This is INCREDIBLY SCUFFED !!!
+  *
+  *	The original plan was to either use a table with player entities as keys or to save currency values to player script scope as part of their "survivor state".
+  *	Both solutions allow us to save and restore a very intuitive table between map transitions.
+  *	Alas, problems. 
+  * Firstly, I ran into a problem where player entities sometimes don't exist until after all of the round beginning events and hooks are all called, which makes it very hard to synchronize the tables with survivor states.
+  *	Secondly, when saving tables between map transitions, all the keys MUST be strings. Entity handles can not be used as keys and preserved between transitions.
+  *	I could use a simple array that is indexed with survivor slots, however, for whatever reason, arrays are converted into tables between map transitions, and cannot be indexed with integers. Pain.
+  *	So here is the solution. An incredibly scuffed survivor-slot-to-mapped-value thingamajig. Death.
+  */
+ 
+::VMutCurrency.keyList <- [		
+	"0", 
+	"1", 
+	"2", 
+	"3"
+]
+::VMutCurrency.roundCurrency <- {
+	"0"	: 0,
+	"1"	: 0,
+	"2"	: 0,
+	"3"	: 0,
+	"initialized" : 0
 }
 
-function VMutCurrency::SurvivorEarnedCurrency(survivorSlot, quantity) {
+ 
+function VMutCurrency::GiveCurrencyToAllSurvivors(quantity) {
+	for (local survivorIndex = 0; survivorIndex < 4; survivorIndex++)
+		::VMutCurrency.SurvivorGiveCurrency(survivorIndex, quantity)
+}
+
+
+function VMutCurrency::SurvivorEarnedCurrency(survivorSlot, quantity, source = CURRENCY_SOURCE_FOUND) {
 	::VMutCurrency.GiveCurrencyToAllSurvivors(quantity)
-	//Play sound and send message to all survivors
-	//no survivor slot means no specific survivor mentioned in message
-	//source indicates the method by which the currency was earned
+
 	local player 		= ::VMutUtils.SurvivorSlotToPlayer(survivorSlot)
 	local playerName 	= "Survivor"
 	
-	if (player)
+	if (::VMutUtils.ValidatePlayer(player))
 		playerName = player.GetPlayerName()
 	
 	g_ModeScript.Say(null, playerName + " found $" + quantity, false)
 }
 
+
 function VMutCurrency::SurvivorGetCurrency(survivorSlot) {
-	return g_ModeScript.SessionState.currency[survivorSlot]
+	return ::VMutCurrency.roundCurrency[::VMutCurrency.keyList[survivorSlot]]
+}
+
+
+function VMutCurrency::SurvivorGiveCurrency(survivorSlot, quantity) {
+	::VMutCurrency.roundCurrency[::VMutCurrency.keyList[survivorSlot]] += quantity
 }
 
 
 function VMutCurrency::SurvivorRemoveCurrency(survivorSlot, quantity) {
-	g_ModeScript.SessionState.currency[survivorSlot] -= quantity
+	::VMutCurrency.roundCurrency[::VMutCurrency.keyList[survivorSlot]] -= quantity
 }
 
 
+/*
+ *	Functions for managing persistent currency between map transitions
+ */
 function VMutCurrency::SavePersistentCurrency() {
-
+	g_ModeScript.SaveTable("persistentCurrency", ::VMutCurrency.roundCurrency)
+	printl(" ** SAVED persistent currency")
+	foreach(k, v in ::VMutCurrency.roundCurrency) {
+		printl(k + " - " + v)
+	}
 }
 
 
 function VMutCurrency::LoadPersistentCurrency() {
+	g_ModeScript.RestoreTable("persistentCurrency", ::VMutCurrency.roundCurrency)
+	printl(" ** LOADED persistent currency")
+	foreach(k, v in ::VMutCurrency.roundCurrency) {
+		printl(k + " - " + v)
+	}
+}
 
+
+/*
+ *	Functions for setting up currency state at start of campagin
+ */
+function VMutCurrency::IsInitialized() {
+	return (::VMutCurrency.roundCurrency["initialized"] == 1)
+}
+
+
+function VMutCurrency::SetInitialized() {
+	::VMutCurrency.roundCurrency["initialized"] = 1
 }

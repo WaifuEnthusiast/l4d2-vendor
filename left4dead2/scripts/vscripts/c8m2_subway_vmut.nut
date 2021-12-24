@@ -16,8 +16,8 @@ minMedkitVendors 	<- defaultMinMedkitVendors
 maxMedkitVendors 	<- defaultMaxMedkitVendors 
 vendorWitchLimit 	<- defaultVendorWitchLimit 
 mapCurrency			<- defaultMapCurrency		
-minCurrencySpawns	<- defaultMinCurrencySpawns
-maxCurrencySpawns	<- defaultMaxCurrencySpawns
+minCurrencySpawns	<- 40
+maxCurrencySpawns	<- 50
 startingCurrency	<- defaultStartingCurrency
 
 

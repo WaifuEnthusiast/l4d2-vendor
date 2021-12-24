@@ -20,6 +20,7 @@ IncludeScript("entitygroups/vmut_vendor_group.nut")
 IncludeScript("entitygroups/vmut_currency_item_group.nut")
 IncludeScript("entitygroups/spin_group.nut")
 
+IncludeScript("vmut/vmut_persistent_state")
 IncludeScript("vmut/vmut_itemdata")
 IncludeScript("vmut/vmut_inventory")
 IncludeScript("vmut/vmut_utils")
@@ -108,17 +109,31 @@ MutationOptions <- {
 
 
 MutationState <- {
-	currency = [0,0,0,0]
+
 }
 
 
 function OnGameplayStart() {
 	printl( " ** On Gameplay Start" )
-
+	
+	//Map setup: Spawn vendors and currency items
+	//@TODO move these to map scripts?
 	::VMutVendorSpawnSystem.SpawnAndDistributeVendors()
 	::VMutCurrencySpawnSystem.SpawnAndDistributeCurrencyItems()
-	::VMutCurrency.GiveCurrencyToAllSurvivors(DEFAULT_STARTING_CURRENCY)
 	
+	//Round setup: Setup survivor state
+	::VMutCurrency.LoadPersistentCurrency()
+	if (!::VMutCurrency.IsInitialized()) {
+		::VMutCurrency.SetInitialized()
+		
+		if ("startingCurrency" in g_MapScript)
+			::VMutCurrency.GiveCurrencyToAllSurvivors(g_MapScript.startingCurrency)
+		else
+			::VMutCurrency.GiveCurrencyToAllSurvivors(DEFAULT_STARTING_CURRENCY)
+	}
+	
+	//Immediately create a saved table that we can reference if the round is restarted
+	::VMutCurrency.SavePersistentCurrency()
 }
 
 
@@ -139,6 +154,23 @@ function Precache() {
 	
 	::VMutItemData.Precache()
 	::VMutVendor.Precache()
+}
+
+
+//------------------------------------------------------------------------------------------------------
+//PERSISTENT DATA SAVING
+
+function OnGameEvent_map_transition(params) {
+	printl(" ** map transition")
+	
+	//Save current currency to persistent currency table
+	::VMutCurrency.SavePersistentCurrency()
+	
+	//Save vendor state to post-round data
+	//...
+	
+	//Save currency item state to post-round data
+	//...
 }
 
 

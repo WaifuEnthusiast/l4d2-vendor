@@ -39,7 +39,7 @@ function VMutVendor::Precache() {
 }
 
 
-::VMutVendor.vendorTable <- {}
+::VMutVendor.vendorTable <- {}	//Contains the state of all vendors
 
 
 /*
@@ -63,7 +63,9 @@ function VMutVendor::CreateVendor(origin, angles) {
 		timesUsed		= 0
 		priceMultiplier	= 1
 		locked			= false
-		id				= id
+		id				= id			//Unique identifier used to index the main vendor table
+		tag				= null			//Tagging vendors allows certain vendors to be found and referenced after they are spawned via the vendor spawning system.
+		flags			= 0				//Flags that are assigned via spawndata. Has some effects on vendor behaviour. Advised to NOT manually alter this value, instead set it via spawndata.
 	}
 	
 	
@@ -86,6 +88,25 @@ function VMutVendor::CreateVendor(origin, angles) {
 	
 }
 
+
+/*
+ *	Returns a list of vendors that have the specified tag
+ */
+function VMutVendor::FindVendorByTag(tag) {
+	//Null tag returns null
+	if (!tag)
+		return null
+		
+	local vendorArray = []
+		
+	foreach(k, v in ::VMutVendor.vendorTable) {
+		if (v.tag == tag)
+			vendorArray.append(v)
+	}
+	
+	return vendorArray
+}
+ 
 
 /*
  *	Cleanup a vendor and all of its associated entities.

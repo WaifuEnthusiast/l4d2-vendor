@@ -288,7 +288,7 @@ vendorCandidates <- [
 	//Sewer ammo room
 	{
 		min = 1,
-		max = 1,
+		max = 2,
 		spawnCandidates = [
 			{
 				origin = Vector(13544, 10488, -464)
