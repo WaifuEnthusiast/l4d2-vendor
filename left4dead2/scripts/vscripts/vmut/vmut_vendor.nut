@@ -12,6 +12,10 @@ const VENDOR_USE_NULL				= 0
 const VENDOR_USE_SUCCESS			= 0
 const VENDOR_USE_FAIL				= 0
 
+const VFLAG_START_LOCKED		= 1	//Vendor will spawn locked and unusable until unlocked via a script
+const VFLAG_PRESERVE_SPAWNDATA	= 2	//When a vendor changes its item, reuse the spawndata to determine how the randomizer will select the new item
+const VFLAG_SAFE				= 4 //Vendor will never change its item or expire
+
 
 ::VMutVendor.digitModels <- [
 	"sprites/digits/digit0.vmt",
@@ -45,7 +49,7 @@ function VMutVendor::Precache() {
 /*
  *	Create a new vendor.
  */
-function VMutVendor::CreateVendor(origin, angles) {
+function VMutVendor::CreateVendor(origin, angles, flags = 0) {
 
 	//Initialize the new vendor's data
 	local id = UniqueString()
@@ -65,7 +69,7 @@ function VMutVendor::CreateVendor(origin, angles) {
 		locked			= false
 		id				= id			//Unique identifier used to index the main vendor table
 		tag				= null			//Tagging vendors allows certain vendors to be found and referenced after they are spawned via the vendor spawning system.
-		flags			= 0				//Flags that are assigned via spawndata. Has some effects on vendor behaviour. Advised to NOT manually alter this value, instead set it via spawndata.
+		flags			= flags			//Flags that are assigned via spawndata. Has some effects on vendor behaviour. Advised to NOT manually alter this value, instead set it via spawndata.
 	}
 	
 	
@@ -82,8 +86,15 @@ function VMutVendor::CreateVendor(origin, angles) {
 	::VMutVendor.VendorCreateAndAttachUseTarget(vendorData)
 	::VMutVendor.VendorPriceDisplayInitializeSprites(vendorData, 4)
 
-	
 	::VMutVendor.vendorTable[id] <- vendorData
+	
+	
+	//Lock vendor if flags say so
+	if ((flags & VFLAG_START_LOCKED) != 0)
+		::VMutVendor.VendorLock(vendorData)
+	
+	
+	//Return a reference to the created vendor
 	return vendorData
 	
 }
@@ -92,7 +103,7 @@ function VMutVendor::CreateVendor(origin, angles) {
 /*
  *	Returns a list of vendors that have the specified tag
  */
-function VMutVendor::FindVendorByTag(tag) {
+function VMutVendor::FindVendorsByTag(tag) {
 	//Null tag returns null
 	if (!tag)
 		return null

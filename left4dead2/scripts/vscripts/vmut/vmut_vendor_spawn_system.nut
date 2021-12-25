@@ -1,10 +1,6 @@
 //Author: Waifu Enthusiast
 ::VMutVendorSpawnSystem <- {}
 
-const VFLAG_START_LOCKED		= 1	//Vendor will spawn locked and unusable until unlocked via a script
-const VFLAG_PRESERVE_SPAWNDATA	= 2	//When a vendor changes its item, reuse the spawndata to determine how the randomizer will select the new item
-const VFLAG_SAFE				= 4 //Vendor will never change its item or expire
-
 const DEFAULT_HOARD_CHANCE = 0.02
 const DEFAULT_WITCH_CHANCE = 0.25
 
@@ -163,17 +159,18 @@ function VMutVendorSpawnSystem::AddRelvantSpawnCandidatesFromGroup(spawnCandidat
  *	Spawn and create a vendor.
  */
 function VMutVendorSpawnSystem::SpawnVendor(spawnCandidate, itemid) {	
+	//Get flags
+	local flags = 0
+	if ("flags" in spawnCandidate)
+		flags = spawnCandidate.flags
+	
 	//Spawn the vendor
 	printl(" <> Spawning vendor with item id: " + itemid)
-	local vendorData = ::VMutVendor.CreateVendor(spawnCandidate.origin, spawnCandidate.angles)
+	local vendorData = ::VMutVendor.CreateVendor(spawnCandidate.origin, spawnCandidate.angles, flags)
 	
 	//Assign a tag if one was specified in the spawndata
 	if ("tag" in spawnCandidate)
 		vendorData.tag = spawnCandidate.tag
-		
-	//Assign flags
-	if ("flags" in spawnCandidate)
-		vendorData.flags = spawnCandidate.flags	//@TODO Maybe the ::VmutVendor.CreateVendor should take a flags parameter. The vendor systems then decide a vendor's behaviour as it is created based on its flags instead of awkwardly trying to manipulate a vendor from the spawning system after it is created...
 	
 	//Melee hack. This is REALLY dumb. We can fix this by giving every melee weapon a unique ITEM_ID. But this may require some more abstraction in the spawning system to treat all melee weapons as a single possible spawn.
 	if (itemid == ITEM_ID.MELEE) {

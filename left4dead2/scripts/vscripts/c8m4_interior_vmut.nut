@@ -164,61 +164,85 @@ vendorCandidates <- [
 				origin = Vector(13696, 14848, 424)
 				angles = QAngle(0,270,0)
 				blacklist = utilityOnlyBlacklist
+				tag	= "elevatorPanic"
+				flags = VFLAG_START_LOCKED
 			},
 			{
 				origin = Vector(13728, 14464, 424)
 				angles = QAngle(0,270,0)
 				blacklist = utilityOnlyBlacklist
+				tag	= "elevatorPanic"
+				flags = VFLAG_START_LOCKED
 			},
 			{
 				origin = Vector(13688, 14312, 424)
 				angles = QAngle(0,270,0)
 				blacklist = utilityOnlyBlacklist
+				tag	= "elevatorPanic"
+				flags = VFLAG_START_LOCKED
 			},
 			{	//sideroom
 				origin = Vector(13248, 14008, 424)
 				angles = QAngle(0,270,0)
 				blacklist = utilityOnlyBlacklist
+				tag	= "elevatorPanic"
+				flags = VFLAG_START_LOCKED
 			},
 			{	//surgery room
 				origin = Vector(12136, 14440, 424)
 				angles = QAngle(0,270,0)
 				blacklist = utilityOnlyBlacklist
+				tag	= "elevatorPanic"
+				flags = VFLAG_START_LOCKED
 			},
 			{
 				origin = Vector(12136, 14808, 424)
 				angles = QAngle(0,270,0)
 				blacklist = utilityOnlyBlacklist
+				tag	= "elevatorPanic"
+				flags = VFLAG_START_LOCKED
 			},
 			{	//dark room
 				origin = Vector(12888, 15328, 424)
 				angles = QAngle(0,0,0)
 				blacklist = utilityOnlyBlacklist
+				tag	= "elevatorPanic"
+				flags = VFLAG_START_LOCKED
 			},
 			{
 				origin = Vector(12616, 15328, 424)
 				angles = QAngle(0,0,0)
 				blacklist = utilityOnlyBlacklist
+				tag	= "elevatorPanic"
+				flags = VFLAG_START_LOCKED
 			},
 			{	//small dark room
 				origin = Vector(12288, 15328, 424)
 				angles = QAngle(0,0,0)
 				blacklist = utilityOnlyBlacklist
+				tag	= "elevatorPanic"
+				flags = VFLAG_START_LOCKED
 			},
 			{	//reception rest room <- possibly turn this into its own group with 0-2 spawns.
 				origin = Vector(12312, 14280, 424)
 				angles = QAngle(0,0,0)
 				blacklist = utilityOnlyBlacklist
+				tag	= "elevatorPanic"
+				flags = VFLAG_START_LOCKED
 			},
 			{
 				origin = Vector(11952, 14112, 424)
 				angles = QAngle(0,90,0)
 				blacklist = utilityOnlyBlacklist
+				tag	= "elevatorPanic"
+				flags = VFLAG_START_LOCKED
 			},
 			{	//imaging room
 				origin = Vector(12800, 14456, 424)
 				angles = QAngle(0,270,0)
 				blacklist = utilityOnlyBlacklist
+				tag	= "elevatorPanic"
+				flags = VFLAG_START_LOCKED
 			},
 		]
 	},
@@ -286,7 +310,43 @@ protectedZones <- [
 	}
 ]
 
+
 //------------------------------------------------------------------------------------------------------
 //INITIALIZE ROUND
 
 purgeSystem.Purge()
+
+
+//------------------------------------------------------------------------------------------------------
+//MAP EVENTS AND SCRIPTED BEHAVIOURS
+
+eventElevatorPanic <- false
+
+//Find the elevator button
+local elevatorButton = Entities.FindByClassnameNearest("func_button", Vector(13491 15102 477.5), 1)
+
+if (elevatorButton && elevatorButton.IsValid()) {
+	//Get scope
+	elevatorButton.ValidateScriptScope()
+	local scope = elevatorButton.GetScriptScope()
+	
+	//Setup functionality
+	scope.VMutUnlockPanicVendors <- function() {
+	
+		//Unlock vendors
+		local panicVendors = ::VMutVendor.FindVendorsByTag("elevatorPanic")
+		foreach (vendorData in panicVendors) {
+			::VMutVendor.VendorUnlock(vendorData)
+		}
+		
+		//Set map event
+		g_MapScript.eventElevatorPanic = true
+	}
+	
+	//Attach output
+	elevatorButton.ConnectOutput("OnPressed", "VMutUnlockPanicVendors")
+}
+else {
+	//Failed to setup event. Just unlock the vendors.
+	//...
+}
