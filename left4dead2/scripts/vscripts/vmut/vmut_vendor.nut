@@ -9,12 +9,13 @@ const PRICE_DISPLAY_SCALE			= 0.2 //0.2 is the smallest a sprite can be
 const PRICE_DISPLAY_MAX_SPRITES		= 4
 
 const VENDOR_USE_NULL				= 0
-const VENDOR_USE_SUCCESS			= 0
-const VENDOR_USE_FAIL				= 0
+const VENDOR_USE_SUCCESS			= 1
+const VENDOR_USE_FAIL				= 2
 
 const VFLAG_START_LOCKED		= 1	//Vendor will spawn locked and unusable until unlocked via a script
 const VFLAG_PRESERVE_SPAWNDATA	= 2	//When a vendor changes its item, reuse the spawndata to determine how the randomizer will select the new item
-const VFLAG_SAFE				= 4 //Vendor will never change its item or expire
+const VFLAG_SAFE				= 3 //Vendor will never change its item or expire
+const VFLAG_FINALE				= 4 //Vendor is tied to a finale sequence
 
 
 ::VMutVendor.digitModels <- [
