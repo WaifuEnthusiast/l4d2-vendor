@@ -133,6 +133,8 @@ local utilityOnlyBlacklist = [
 //Switching up secondary weapons would also be cool.
 //Spawn one lasersight and one defib would be epic.
 //By spawning essential items like weapons in a variety of locations, it will force players to utilize the entire map. It could become very interesting. Players  may also experience moment-to-moment playstyle changes while running loops around the map.
+//Adding some variance on medkits could also prove to be powerful. Maybe 3 or 2 possible places for a medkit vendor to spawn. Should have a massive influence on where survivors decide to defend. Medkit vendors will always expire after 4 uses and force survivors to reposition.
+//Multiple "medkit sell"  around the map could also create situations where a player could sell medkits for a very short-term boost in order to escape a bad situation.
 
 vendorCandidates <- [
 	//Start safehouse
@@ -257,8 +259,8 @@ vendorCandidates <- [
 	
 	//Finale
 	{
-		min = 21,
-		max = 21,
+		min = 22,
+		max = 22,
 		spawnCandidates = [
 			{	//Radio building
 				origin = Vector(5616, 8336, 6080)
@@ -455,8 +457,8 @@ currencyItemCandidates <- []	//No currency spawns governed by the spawning syste
 protectedZones <- [
 	//Starting safehouse
 	{
-		origin 		= Vector(2816, 2832, 16)
-		extent 		= Vector(224, 480, 128)
+		origin 		= Vector(5248, 8160, 5536)
+		extent 		= Vector(448, 416, 128)
 		protected	= [
 			"weapon_first_aid_kit_spawn",
 			"weapon_ammo_spawn"
@@ -481,30 +483,55 @@ purgeSystem.Purge()
 
 
 //------------------------------------------------------------------------------------------------------
+//SUPPLY BALLOONS
+
+IncludeScript("vmut/vmut_balloon_manager")
+
+::VMutBalloonManager.spawnPoints = [
+	{
+		origin = Vector(0,0,0)
+		angles = QAngle(0,0,0)
+	}
+]
+
+
+//------------------------------------------------------------------------------------------------------
 //MAP EVENTS AND SCRIPTED BEHAVIOURS
 
 
 function OnActivate() {
 	printl(" ** Map OnActivate")
-	::VMutCurrencySpawnSystem.SpawnCurrencyItem(Vector(5856, 8336, 5956), 1000)	//Free 1k
+	
+	//Free 1k to buy a T2 weapon...
+	::VMutCurrencySpawnSystem.SpawnCurrencyItem(Vector(5856, 8336, 5956), 1000)	
 }
 
-//Find the finale trigger
-//local finaleTrigger = Entities.FindByClassnameNearest("trigger_finale", Vector(5820, 8336, 5954), 32)
-//local finaleTrigger = Entities.FindByClassnameNearest("logic_choreographed_scene", Vector(5904, 8321, 5979), 1)
-//local finaleTrigger = Entities.FindByName(null, "pilot_radio_setup_lcs")
 
 eventFinale <- false
 function OnGameEvent_finale_start(params) {
+	//Run this event only once
 	if (eventFinale == true)
 		return
-
+	eventFinale = true
+	
+	//Debug
 	printl(" ** Finale started, unlocking finale vendors...")
 		
+	//Unlock vendors
 	local finaleVendors = ::VMutVendor.FindVendorsByTag("finale")
 	foreach (vendorData in finaleVendors) {
 		::VMutVendor.VendorUnlock(vendorData)
 	}
 	
-	eventFinale = true
+	//Test supply balloon
+	//::VMutBalloonManager.SpawnSupplyBalloon(Vector(5744, 8512, 6656), QAngle(0, 0, 0))
 }
+
+
+//Use event stages to spawn balloons
+/*
+function GetNextStage() {
+	WHY DOES IT STOP THE FINALE FROM PROGRESSING WHEN THIS FUNCTION EXISTS???????????????
+	REEEEEEEEEEEEEEE SO FRUSTRATING!!!!!!!
+}
+*/

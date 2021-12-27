@@ -156,7 +156,7 @@ function VMutVendor::VendorCreateAndAttachUseTarget(vendorData) {
 	//Create and initialize usetarget entity
 	local kvs = {
 		model 		= vendorData.entities.propMachine.GetName()
-		origin 		= vendorData.entities.propMachine.GetOrigin() + Vector( 0, -24, 0 )
+		origin 		= Vector(0,0,0)//vendorData.entities.propMachine.GetOrigin() + Vector( 0, -24, 0 )
 		targetname 	= "vendor_" + vendorData.id + "_usetarget"
 	}
 	local ent = SpawnEntityFromTable("point_script_use_target", kvs)

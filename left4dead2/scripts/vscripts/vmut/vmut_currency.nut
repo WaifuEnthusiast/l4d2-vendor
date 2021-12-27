@@ -2,8 +2,9 @@
 ::VMutCurrency <- {}
 
 const CURRENCY_SOURCE_FOUND 		= 0
-const CURRENCY_SOURCE_MAP_COMPLETE  = 1
-const CURRENCY_SOURCE_SI_KILLED		= 2
+const CURRENCY_SOURCE_SUPPLY_CRATE	= 1
+const CURRENCY_SOURCE_MAP_COMPLETE  = 2
+const CURRENCY_SOURCE_SI_KILLED		= 3
 
 /*
  *	Currency is assigned on a "by survivor" basis.
@@ -53,7 +54,21 @@ function VMutCurrency::SurvivorEarnedCurrency(survivorSlot, quantity, source = C
 	if (::VMutUtils.ValidatePlayer(player))
 		playerName = player.GetPlayerName()
 	
-	g_ModeScript.Say(null, playerName + " found $" + quantity, false)
+	local notice = ""
+	switch (source) {
+		case CURRENCY_SOURCE_FOUND:
+			notice = playerName + " found $" + quantity
+			break
+			
+		case CURRENCY_SOURCE_SUPPLY_CRATE:
+			notice = playerName + " unpacked $" + quantity
+			break
+			
+		default:
+			notice = "Survivors earned $" + quantity
+	}
+	
+	g_ModeScript.Say(null, notice, false)
 }
 
 

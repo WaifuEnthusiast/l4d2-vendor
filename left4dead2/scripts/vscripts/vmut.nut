@@ -18,7 +18,6 @@ const DEFAULT_STARTING_CURRENCY = 4000
 
 IncludeScript("entitygroups/vmut_vendor_group.nut")
 IncludeScript("entitygroups/vmut_currency_item_group.nut")
-IncludeScript("entitygroups/spin_group.nut")
 
 IncludeScript("vmut/vmut_persistent_state")
 IncludeScript("vmut/vmut_itemdata")
