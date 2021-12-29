@@ -25,6 +25,7 @@ IncludeScript("vmut/vmut_inventory")
 IncludeScript("vmut/vmut_utils")
 IncludeScript("vmut/vmut_timers")
 IncludeScript("vmut/vmut_currency")
+IncludeScript("vmut/vmut_gui")
 IncludeScript("vmut/vmut_vendor")
 IncludeScript("vmut/vmut_vendor_spawn_system")
 IncludeScript("vmut/vmut_currency_spawn_system")
@@ -152,6 +153,7 @@ function Precache() {
 	PrecacheMeleeModels()
 	
 	::VMutItemData.Precache()
+	::VMutGUI.Precache()
 	::VMutVendor.Precache()
 }
 
