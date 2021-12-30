@@ -149,6 +149,7 @@ vendorCandidates <- [
 				angles = QAngle(0,0,0)
 				witch  = WITCH_DISABLE
 				blacklist = primaryWeaponOnlyBlacklist
+				flags = VFLAG_PRESERVE_SPAWNDATA
 			}
 		]
 	}
@@ -321,6 +322,7 @@ purgeSystem.Purge()
 //MAP EVENTS AND SCRIPTED BEHAVIOURS
 
 eventElevatorPanic <- false
+elevatorPanicHint <- null
 
 //Find the elevator button
 local elevatorButton = Entities.FindByClassnameNearest("func_button", Vector(13491 15102 477.5), 1)
@@ -339,6 +341,10 @@ if (elevatorButton && elevatorButton.IsValid()) {
 			::VMutVendor.VendorUnlock(vendorData)
 		}
 		
+		//Destroy panic hint
+		//if (elevatorPanicHint)
+		//	elevatorPanicHint.Kill()
+		
 		//Set map event
 		g_MapScript.eventElevatorPanic = true
 	}
@@ -347,6 +353,28 @@ if (elevatorButton && elevatorButton.IsValid()) {
 	elevatorButton.ConnectOutput("OnPressed", "VMutUnlockPanicVendors")
 }
 else {
-	//Failed to setup event. Just unlock the vendors.
-	//...
+	printl(" ** Failed to initialize elevator event")
+}
+
+
+//Spawn map specific entities
+//function MapSetup() {
+//}
+
+function OnActivate() {
+	printl(" ** Map OnActivate")
+	
+	//Create a hint for the elevator panic event
+	local kvs = {
+		targetname			= "vmut_elevator_panic_hint"
+		origin 				= Vector(13440, 15008, 464)
+		hint_caption 		= "Locked vendors will open after calling the elevator"
+		hint_static			= 1
+		hint_auto_start 	= true
+		hint_icon_onscreen	= "icon_info"
+		hint_icon_offscreen	= "icon_info"
+		hint_color			= "255 255 255"
+		hint_timeout		= 6
+	}
+	elevatorPanicHint = SpawnEntityFromTable("env_instructor_hint", kvs)
 }

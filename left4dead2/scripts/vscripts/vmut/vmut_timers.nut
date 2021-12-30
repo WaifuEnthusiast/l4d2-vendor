@@ -4,6 +4,7 @@
 
 ::VMutTimers.activeTimers 	<- {}
 ::VMutTimers.thinkEnt 		<- null
+::VMutTimers.timerQueue		<- []
 
 
 /*
@@ -16,7 +17,13 @@ function VMutTimers::Think() {
 	foreach (id, timer in ::VMutTimers.activeTimers) {
 	
 		if (Time() - timer.prevTime >= timer.delay) {
-			timersToRemove.append(id)
+			if (timer.repeat == 0) {
+				timersToRemove.append(id)
+			}
+			else {
+				timer.repeat--
+				timer.prevTime = Time()
+			}
 			
 			//If the function fails to execute, we still want this timer to be removed and others to be executed
 			try {
@@ -40,7 +47,7 @@ function VMutTimers::Think() {
  *	Adds a new timer.
  *	When a timer expires, execute "func" and pass "params" as the function parameter
  */
-function VMutTimers::AddTimer(id, delay, func, params) {
+function VMutTimers::AddTimer(id, delay, repeat, func, params) {
 
 	//Generate unique id if not specified
 	if (!id || id == "")
@@ -54,6 +61,7 @@ function VMutTimers::AddTimer(id, delay, func, params) {
 	local newTimer = {
 		prevTime 	= Time()
 		delay 		= delay
+		repeat		= repeat
 		func 		= func
 		params		= params
 	}

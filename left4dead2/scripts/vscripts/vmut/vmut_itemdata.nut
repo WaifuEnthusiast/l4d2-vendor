@@ -134,7 +134,7 @@ function VMutItemData::Precache() {
 	//DEFAULT
 	{
 		cost		= 0
-		display		= null
+		display		= "error.mdl"
 		data		= null
 		type		= null
 	}

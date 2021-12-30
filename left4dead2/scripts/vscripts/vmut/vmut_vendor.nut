@@ -8,15 +8,18 @@ const PRICE_DISPLAY_TEXTURE_SIZE	= 32
 const PRICE_DISPLAY_SCALE			= 0.2 //0.2 is the smallest a sprite can be
 const PRICE_DISPLAY_MAX_SPRITES		= 4
 
+const VENDOR_MIN_SAFE_USES			= 4
+const VENDOR_MAX_SAFE_USES			= 4
+const VENDOR_EXPIRE_CHANCE			= 3
+
 const VENDOR_USE_NULL				= 0
 const VENDOR_USE_SUCCESS			= 1
 const VENDOR_USE_FAIL				= 2
 
-const VFLAG_START_LOCKED		= 1	//Vendor will spawn locked and unusable until unlocked via a script
-const VFLAG_PRESERVE_SPAWNDATA	= 2	//When a vendor changes its item, reuse the spawndata to determine how the randomizer will select the new item
-const VFLAG_SAFE				= 3 //Vendor will never change its item or expire
-const VFLAG_FINALE				= 4 //Vendor is tied to a finale sequence
-
+const VFLAG_START_LOCKED			= 1	//Vendor will spawn locked and unusable until unlocked via a script
+const VFLAG_PRESERVE_SPAWNDATA		= 2	//When a vendor changes its item, reuse the spawndata to determine how the randomizer will select the new item
+const VFLAG_SAFE					= 4 //Vendor will never change its item or expire
+const VFLAG_FINALE					= 8 //Vendor is tied to a finale sequence
 
 
 function VMutVendor::Precache() {
@@ -34,29 +37,34 @@ function VMutVendor::Precache() {
 /*
  *	Create a new vendor.
  */
-function VMutVendor::CreateVendor(origin, angles, flags = 0, overrides = null) {
+function VMutVendor::CreateVendor(origin, angles, flags, initialBlacklist = null, overrides = null) {
 
 	//Initialize the new vendor's data
 	local id = UniqueString()
 	local vendorData = {
 		entities		= {
+			root				= null
 			deployTarget 		= null
 			priceDisplayTarget 	= null
 			propMachine 		= null
 			propItem 			= null
+			explode				= null
 			usetarget 			= null
+		}
+		initialSpawnData= {
+			blacklist	= initialBlacklist	//Kind of scuffed... Maybe a system where the we make a dictionary of spawncandidates with vendors as keys?
 		}
 		priceDisplay	= null
 		lockDisplay		= null
-		itemId			= ITEM_ID.EMPTY //DO NOT manually modify this value. Call VenorSetItemId() instead.
-		itemParam		= null			//Certain itemdata types will need additional data to work properly. That additional data goes here.
+		itemId			= ITEM_ID.EMPTY	 	//DO NOT manually modify this value. Call VenorSetItemId() instead.
+		itemParam		= null				//Certain itemdata types will need additional data to work properly. That additional data goes here.
 		timesUsed		= 0
 		priceMultiplier	= 1
 		enabled			= true
-		locked			= false			//The vendordata table is starting to get CHONK. May need to create a state machine to avoid the incoming apocalypse of state variables.
-		id				= id			//Unique identifier used to index the main vendor table
-		tag				= null			//Tagging vendors allows certain vendors to be found and referenced after they are spawned via the vendor spawning system.
-		flags			= flags			//Flags that are assigned via spawndata. Has some effects on vendor behaviour. Advised to NOT manually alter this value, instead set it via spawndata.
+		locked			= false				//The vendordata table is starting to get CHONK. May need to create a state machine to avoid the incoming apocalypse of state variables.
+		id				= id				//Unique identifier used to index the main vendor table
+		tag				= null				//Tagging vendors allows certain vendors to be found and referenced after they are spawned via the vendor spawning system.
+		flags			= flags				//Flags that are assigned via spawndata. Has some effects on vendor behaviour. Advised to NOT manually alter this value, instead set it via spawndata.
 	}
 	
 	
@@ -75,11 +83,12 @@ function VMutVendor::CreateVendor(origin, angles, flags = 0, overrides = null) {
 	
 	//Generate callbacks for each entity in the entity group. This will make entities add themselves to the vendor's entity data after spawning.
 	local entGroup = ::VMutVendorEnt.GetEntityGroup()
-	//entGroup.SpawnTables[ "root" ].PostPlaceCB 				<- function(entity, rarity) {vendorData.entities.root				<- entity}
+	entGroup.SpawnTables[ "root" ].PostPlaceCB 					<- function(entity, rarity) {vendorData.entities.root				<- entity}
 	entGroup.SpawnTables[ "deploy_target" ].PostPlaceCB 		<- function(entity, rarity) {vendorData.entities.deployTarget		<- entity}
 	entGroup.SpawnTables[ "price_display_target" ].PostPlaceCB	<- function(entity, rarity) {vendorData.entities.priceDisplayTarget	<- entity}
 	entGroup.SpawnTables[ "prop_item" ].PostPlaceCB 			<- function(entity, rarity) {vendorData.entities.propItem 			<- entity}
 	entGroup.SpawnTables[ "prop_machine" ].PostPlaceCB 			<- function(entity, rarity) {vendorData.entities.propMachine 		<- entity}
+	entGroup.SpawnTables[ "explode" ].PostPlaceCB 				<- function(entity, rarity) {vendorData.entities.explode			<- entity}
 	
 	
 	//Spawn the entity group
@@ -155,8 +164,10 @@ function VMutVendor::DestroyVendor(vendorData) {
 function VMutVendor::VendorCreateAndAttachUseTarget(vendorData) {
 
 	//Don't create duplicate usetargets
-	if (vendorData.entities.usetarget)
+	if (vendorData.entities.usetarget) {
+		printl(" ** Failed to create and attach usetarget to vendor " + vendorData.id)
 		return false
+	}
 
 	
 	//Create and initialize usetarget entity
@@ -198,6 +209,7 @@ function VMutVendor::VendorCreateAndAttachUseTarget(vendorData) {
 	
 	//Assign to vendor's usetarget entity
 	vendorData.entities.usetarget = ent
+	printl(" ** Created and attached usetarget " + vendorData.id + " - " + ent)
 	return true
 	
 }
@@ -231,9 +243,9 @@ function VMutVendor::VendorEnableUse(vendorData) {
 		
 	//Recreate this vendor's usetarget entity so that players can interact with it
 	::VMutVendor.VendorCreateAndAttachUseTarget(vendorData)
-	//EntFire( vendorData.entities.usetarget.GetName(), "activate", 0, 0 )
+
 	vendorData.enabled = true
-	
+	printl(" ** Enabled vendor " + vendorData.id)
 }
 
 
@@ -247,9 +259,9 @@ function VMutVendor::VendorDisableUse(vendorData) {
 		
 	//Stop players from using this vendor by completely removing its usetarget entity
 	::VMutVendor.VendorKillUseTarget(vendorData)
-	//EntFire( vendorData.entities.usetarget.GetName(), "deactivate", 0, 0 )
+
 	vendorData.enabled = false
-	
+	printl(" ** Disabled vendor " + vendorData.id)
 }
 
 
@@ -285,6 +297,64 @@ function VMutVendor::VendorLock(vendorData) {
 
 
 /*
+ *	Begin countdown to self-destruct
+ */
+function VMutVendor::VendorStartExplodeSequence(vendorData) {
+
+	//Prevent players from interacting with the vendor during the self-destruct sequence
+	::VMutVendor.VendorDisableUse(vendorData)
+	
+	//Countdown functionality
+	local countdown = function(params) {
+		if (params.flash == true) {
+			params.count--
+			
+			if (params.count < 0) {
+				::VMutVendor.VendorExpire(vendorData)
+				return
+			}
+			
+			EmitSoundOn("buttons/button11.wav", vendorData.entities.priceDisplayTarget)
+			::VMutGUI.DigitDisplaySetColor(vendorData.priceDisplay, {r=255,g=0,b=0})
+			::VMutGUI.DigitDisplayUpdateValue(vendorData.priceDisplay, params.count.tostring())
+			
+			params.flash = false
+		}
+		else {
+			::VMutGUI.DigitDisplaySetColor(vendorData.priceDisplay, {r=255,g=255,b=255})
+			
+			params.flash = true
+		}
+		
+		//::VMutTimers.AddTimer("vendor_countdown_"+vendorData.id, 0.5, 0, countdown, params)
+	}
+	
+	//Begin countdown
+	local params = {flash = true, count = 5}
+	::VMutTimers.AddTimer("vendor_countdown_"+vendorData.id, 0.5, params.count*2, countdown, params)
+}
+
+
+/*
+ *	Cancel self-destruct sequence
+ */
+function VMutVendor::VendorCancelExplodeSequence(vendorData) {
+	//Cancel countdown... re-enable... reset state... blah blah blah
+
+	//Let players interact with the vendor
+	::VMutVendor.VendorEnableUse(vendorData)
+}
+
+
+/*
+ *	Returns true if this vendor is usable
+ */ 
+function VMutVendor::VendorIsUsable(vendorData) {
+	return vendorData.enabled
+}
+ 
+
+/*
  *	Test if a player has enough currency to purchase an item from a vendor
  */
 function VMutVendor::VendorPlayerCanAfford(vendorData, player) {
@@ -307,9 +377,10 @@ function VMutVendor::ActivateVendor(vendorData, player) {
 		QueueSpeak(player, "PlayerNegative", 0.30, "")
 		::VMutGUI.DigitDisplaySetColor(vendorData.priceDisplay, {r=255,g=0,b=0})
 		::VMutVendor.VendorDisableUse(vendorData)
-		::VMutTimers.AddTimer("vendor_used_"+vendorData.id, VENDOR_FAIL_DISABLE_TIME, function(params) {
+		::VMutTimers.AddTimer("vendor_used_"+vendorData.id, VENDOR_FAIL_DISABLE_TIME, 0, function(params) {
 		
-			if (::VMutVendor.VendorExists(vendorData)) { 
+			if (::VMutVendor.VendorExists(vendorData)) {
+				//Re-enable vendor
 				::VMutGUI.DigitDisplaySetColor(vendorData.priceDisplay, {r=255,g=255,b=255})
 				::VMutVendor.VendorEnableUse(vendorData)
 			}
@@ -325,24 +396,49 @@ function VMutVendor::ActivateVendor(vendorData, player) {
 		EmitSoundOn("buttons/button4.wav", player)
 		::VMutGUI.DigitDisplaySetColor(vendorData.priceDisplay, {r=80,g=186,b=255})
 		::VMutVendor.VendorDisableUse(vendorData)
-		::VMutTimers.AddTimer("vendor_used_"+vendorData.id, VENDOR_FAIL_DISABLE_TIME, function(params) {
+		::VMutTimers.AddTimer("vendor_used_"+vendorData.id, VENDOR_FAIL_DISABLE_TIME, 0, function(params) {
 		
 			if (::VMutVendor.VendorExists(vendorData)) {
+				//Re-enable vendor
 				::VMutGUI.DigitDisplaySetColor(vendorData.priceDisplay, {r=255,g=255,b=255})
 				::VMutVendor.VendorEnableUse(vendorData)
+				
+				//Determine if this vendor should expire
+				::VMutVendor.VendorFinish(vendorData)
 			}
 			
 		}, null)
 		
+		// Finish up. Remove currency from the survivor who activated this vendor
+		::VMutCurrency.SurvivorRemoveCurrency(player.GetSurvivorSlot(), VendorGetPrice(vendorData))
+		vendorData.timesUsed++
+	
+		return true
 	}
 	
-	// Finish up. Remove currency from the survivor who activated this vendor
-	::VMutCurrency.SurvivorRemoveCurrency(player.GetSurvivorSlot(), VendorGetPrice(vendorData))
-	vendorData.timesUsed++
-	return true
+	return null
 	
 }
 
+
+/*
+ *	Post function that is called after activating a vendor. Determine if a vendor should expire or not.
+ */
+ function VMutVendor::VendorFinish(vendorData) {
+ 
+	//When conditions are met, enter explode sequence
+	if (vendorData.timesUsed >= VENDOR_MIN_SAFE_USES && !::VMutVendor.VendorIsSafe(vendorData)) {
+		local chance = 0
+		if (vendorData.timesUsed < VENDOR_MAX_SAFE_USES)
+			chance = RandomInt(0, VENDOR_EXPIRE_CHANCE)
+			
+		if (chance == 0) {
+			::VMutVendor.VendorStartExplodeSequence(vendorData)
+		}
+	}
+	
+ }
+ 
 
 /*
  *	Deploy a vendor's item
@@ -420,6 +516,38 @@ function VMutVendor::VendorDeployUpgrade(vendorData, player) {
 
 
 /*
+ *	Make this vendor expire.
+ *	It will either explode or change to a new item
+ */
+function VMutVendor::VendorExpire(vendorData) {
+
+	//Either change item or die
+	local chance = RandomInt(0, 2)
+	
+	if (chance <= 1) {	//Alter item
+		local newItemId = ITEM_ID.EMPTY
+		
+		if ((vendorData.flags & VFLAG_PRESERVE_SPAWNDATA) != 0) {
+			newItemId = ::VMutVendorSpawnSystem.RandomizeItem(vendorData.initialSpawnData.blacklist)
+		}
+		else {
+			newItemId = ::VMutVendorSpawnSystem.RandomizeItem(null) //<- move this to ItemData module??
+		}
+		
+		::VMutVendor.VendorSetItemId(vendorData, newItemId)
+		EmitSoundOn("buttons/bell1.wav", vendorData.entities.priceDisplayTarget)
+		
+		::VMutVendor.VendorEnableUse(vendorData)
+		vendorData.timesUsed = 0
+	}
+	else {	//die
+		::VMutUtils.Explode(vendorData.entities.propMachine.GetOrigin())
+		::VMutVendor.DestroyVendor(vendorData)
+	}
+}
+
+
+/*
  *	Assign a new item-id to a vendor
  */
 function VMutVendor::VendorSetItemId(vendorData, id) {
@@ -428,8 +556,9 @@ function VMutVendor::VendorSetItemId(vendorData, id) {
 	vendorData.itemId = id;
 		
 	::VMutVendor.VendorUpdateDisplay(vendorData)
-	//::VMutVendor.VendorPriceDisplayUpdateValue(vendorData, itemData.cost)
 	::VMutGUI.DigitDisplayUpdateValue(vendorData.priceDisplay, itemData.cost.tostring()) 
+	
+	printl(" ** Vendor " + vendorData.id + " set item id to " + id)
 }
 
 
@@ -458,6 +587,16 @@ function VMutVendor::VendorUpdateDisplay(vendorData) {
 function VMutVendor::VendorGetPrice(vendorData) {
 	local itemData = ::VMutItemData.itemDataArray[vendorData.itemId]
 	return itemData.cost * vendorData.priceMultiplier
+}
+
+
+/*
+ *	Check if a vendor is "safe" (cannot expire or change item)
+ */
+function VMutVendor::VendorIsSafe(vendorData) {
+	if ((vendorData.flags & VFLAG_SAFE) != 0)
+		return true
+	return false
 }
 
 

@@ -59,9 +59,6 @@ function VMutGUI::CreateGUI(rootEntity) {
 function VMutGUI::DestroyGUI(guiTable) {
 	//Destroy digit display
 	::VMutGUI.DestroyDigitDisplay(guiTable.digitDisplay)
-	
-	//Delete the table
-	//delete guiTable
 }
 
 
@@ -122,8 +119,6 @@ function VMutGUI::CreateSprite(rootEntity, hoffset, voffset, modelName = "error.
 function VMutGUI::DestroySprite(spriteTable) {
 	if (spriteTable.ent)
 		spriteTable.ent.Kill()
-		
-	//delete spriteTable
 }
 
 

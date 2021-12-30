@@ -120,3 +120,14 @@ function VMutUtils::ValidatePlayer(player) {
 		
 	return true
 }
+
+
+function VMutUtils::Explode(origin) {
+	local kvs = {
+		origin 		= origin
+		spawnflags 	= 1
+		targetname	= "vmut_quickexplode_" + UniqueString()
+	}
+	local ent = g_ModeScript.SpawnEntityFromTable("env_explosion", kvs)
+	EntFire(ent.GetName(), "Explode", 0, 0)
+}

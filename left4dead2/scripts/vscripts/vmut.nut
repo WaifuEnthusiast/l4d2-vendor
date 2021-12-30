@@ -16,6 +16,7 @@ const DEFAULT_STARTING_CURRENCY = 4000
 //------------------------------------------------------------------------------------------------------
 //INCLUDE
 
+//@TODO move VendorEnt out of global scope, and have it ONLY referenced in vmut_vendor.nut. Then, if we want to create a vendor from anywhere in the program, we should use either VendorSpawnSystem.Spawn vendor or Vendor.CreateVendor()
 IncludeScript("entitygroups/vmut_vendor_group.nut")
 IncludeScript("entitygroups/vmut_currency_item_group.nut")
 
@@ -118,6 +119,9 @@ function OnGameplayStart() {
 	
 	//Map setup: Spawn vendors and currency items
 	//@TODO move these to map scripts?
+	if ("MapSetup" in g_MapScript)
+		g_MapScript.MapSetup()
+	
 	::VMutVendorSpawnSystem.SpawnAndDistributeVendors()
 	::VMutCurrencySpawnSystem.SpawnAndDistributeCurrencyItems()
 	

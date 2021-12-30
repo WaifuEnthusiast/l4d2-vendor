@@ -166,7 +166,7 @@ function VMutVendorSpawnSystem::SpawnVendor(spawnCandidate, itemid) {
 	
 	//Spawn the vendor
 	printl(" <> Spawning vendor with item id: " + itemid)
-	local vendorData = ::VMutVendor.CreateVendor(spawnCandidate.origin, spawnCandidate.angles, flags)
+	local vendorData = ::VMutVendor.CreateVendor(spawnCandidate.origin, spawnCandidate.angles, flags, ("blacklist" in spawnCandidate) ? spawnCandidate.blacklist : null)
 	
 	//Assign a tag if one was specified in the spawndata
 	if ("tag" in spawnCandidate)
@@ -191,6 +191,9 @@ function VMutVendorSpawnSystem::SpawnVendor(spawnCandidate, itemid) {
  */
 function VMutVendorSpawnSystem::RandomizeItem(blacklist) {
 	local itemid = ITEM_ID.EMPTY
+	
+	if (!blacklist)
+		blacklist = []
 	
 	//Filter out unwanted items according to the specified blacklist
 	local relevantItems = []
