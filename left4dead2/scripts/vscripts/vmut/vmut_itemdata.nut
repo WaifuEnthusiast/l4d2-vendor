@@ -342,6 +342,28 @@ function VMutItemData::Get(index) {
 }
 
 
+/*
+ *	Get a random itemid. Do not select any item ids that are within the specified blacklist.
+ */
+function VMutItemData::RandomizeItem(blacklist) {
+	local itemid = ITEM_ID.EMPTY
+	
+	if (!blacklist)
+		blacklist = []
+	
+	//Filter out unwanted items according to the specified blacklist
+	local relevantItems = []
+	for (local i = 1 ; i < ITEM_ID.count; i++) { //i initialized to 1 instead of 0 because the first index of the itemdata array is EMPTY
+		if (blacklist.find(i) == null)
+			relevantItems.append(i)
+	}
+
+	if (relevantItems.len() > 0) 
+		itemid = relevantItems[RandomInt(0, relevantItems.len()-1)]
+		
+	return itemid
+}
+
 //------------------------------------------------------------------------------------------------------
 //ITEM CATEGORIES
 

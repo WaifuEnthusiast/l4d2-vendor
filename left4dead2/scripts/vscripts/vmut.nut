@@ -117,13 +117,22 @@ MutationState <- {
 function OnGameplayStart() {
 	printl( " ** On Gameplay Start" )
 	
+	//if ("MapSetup" in g_MapScript)
+	//	g_MapScript.MapSetup()
+	
+	//Post-map data persistence
+	::VMutPersistentState.LoadPostMapData()
+	::VMutPersistentState.SavePostMapData()
+	
 	//Map setup: Spawn vendors and currency items
 	//@TODO move these to map scripts?
-	if ("MapSetup" in g_MapScript)
-		g_MapScript.MapSetup()
-	
-	::VMutVendorSpawnSystem.SpawnAndDistributeVendors()
-	::VMutCurrencySpawnSystem.SpawnAndDistributeCurrencyItems()
+	if ("parentMap" in g_MapScript && (g_MapScript.parentMap) in ::VMutPersistentState.postMapData) {
+		::VMutVendorSpawnSystem.SpawnVendorsFromPostMapData(g_MapScript.parentMap)
+		//::VMutCurrencySpawnSystem.SpawnCurrencyItemsFromPostMapData(g_MapScript.parentMap)
+	} else {
+		::VMutVendorSpawnSystem.SpawnAndDistributeVendors()
+		::VMutCurrencySpawnSystem.SpawnAndDistributeCurrencyItems()
+	}
 	
 	//Round setup: Setup survivor state
 	::VMutCurrency.LoadPersistentCurrency()
@@ -135,8 +144,6 @@ function OnGameplayStart() {
 		else
 			::VMutCurrency.GiveCurrencyToAllSurvivors(DEFAULT_STARTING_CURRENCY)
 	}
-	
-	//Immediately create a saved table that we can reference if the round is restarted
 	::VMutCurrency.SavePersistentCurrency()
 }
 
@@ -171,11 +178,15 @@ function OnGameEvent_map_transition(params) {
 	//Save current currency to persistent currency table
 	::VMutCurrency.SavePersistentCurrency()
 	
+	//Save post-map data
+	::VMutPersistentState.BuildPostMapData(Director.GetMapName())
+	::VMutPersistentState.SavePostMapData()
+	
 	//Save vendor state to post-round data
-	//...
+	//::VMutVendor.SavePersistentVendorState()
 	
 	//Save currency item state to post-round data
-	//...
+	//::VMutCurrencySpawnSystem.SavePersistentCurrencyItemState()
 }
 
 

@@ -3,6 +3,52 @@
 
 
 /*
+ *	Convert a table into an array
+ */
+ function VMutUtils::TableToList(table, dest = null) {
+	if (!dest)
+		dest = []
+ 
+	foreach(k, v in table) {
+		dest.append(v)
+	}
+	
+	return dest
+ }
+ 
+ 
+ /*
+ *	Convert an array into a table
+ */
+ function VMutUtils::ListToTable(list, dest = null) {
+	if (!dest)
+		dest = {}
+ 
+	for (local i = 0; i < list.len(); i++) {
+		dest[i.tostring()] <- list[i]
+	}
+	
+	return dest
+ }
+ 
+ 
+/*
+ *	Convert a table into a vector
+ */
+ function VMutUtils::TableToVector(table) {
+	return Vector(table.x, table.y, table.z)
+ }
+ 
+ 
+ /*
+ *	Convert a table into a QAngle
+ */
+ function VMutUtils::TableToQAngle(table) {
+	return QAngle(table.x, table.y, table.z)
+ }
+ 
+ 
+/*
  *	Converts an entity handle to a player CEntity handle
  */
 function VMutUtils::EHandleToPlayer(ehandle) {
@@ -122,6 +168,9 @@ function VMutUtils::ValidatePlayer(player) {
 }
 
 
+/*
+ *	Quickly spawn an explosion
+ */
 function VMutUtils::Explode(origin) {
 	local kvs = {
 		origin 		= origin

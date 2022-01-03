@@ -4,7 +4,6 @@
 
 ::VMutTimers.activeTimers 	<- {}
 ::VMutTimers.thinkEnt 		<- null
-::VMutTimers.timerQueue		<- []
 
 
 /*

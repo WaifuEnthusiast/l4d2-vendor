@@ -35,33 +35,6 @@ function VMutGUI::Precache() {
 //------------------------------------------------------------------------------------------------------
 //VENDOR GUI
 
-
-/*
- *	Create and initialize a gui table
- *	rootEntity = entity that will be used as the move-parent for any additional entities that are created by the gui
- */
-function VMutGUI::CreateGUI(rootEntity) {
-	local guiTable = {
-		id				= "gui_" + UniqueString()
-		root			= rootEntity
-		lockDisplay		= null
-		pricemodDisplay = null
-		digitDisplay 	= ::VMutGUI.CreateDigitDisplay(rootEntity)
-	}
-	
-	return guiTable
-}
-
-
-/*
- *	Destroy and cleanup a gui table
- */
-function VMutGUI::DestroyGUI(guiTable) {
-	//Destroy digit display
-	::VMutGUI.DestroyDigitDisplay(guiTable.digitDisplay)
-}
-
-
 /*
  *	Spawn and initialize a sprite entity
  */

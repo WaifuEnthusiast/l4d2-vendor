@@ -93,7 +93,7 @@ function VMutVendorSpawnSystem::SpawnAndDistributeVendors() {
 		if ("blacklist" in spawnCandidate)
 			blacklist = spawnCandidate.blacklist
 		
-		local itemid = ::VMutVendorSpawnSystem.RandomizeItem(blacklist)
+		local itemid = ::VMutItemData.RandomizeItem(blacklist)
 		::VMutVendorSpawnSystem.decidedItems.append(itemid)
 	}
 	
@@ -107,7 +107,7 @@ function VMutVendorSpawnSystem::SpawnAndDistributeVendors() {
 		local spawnCandidate	= ::VMutVendorSpawnSystem.relevantSpawnCandidates[i]
 		local itemid			= ::VMutVendorSpawnSystem.decidedItems[i]
 		
-		::VMutVendorSpawnSystem.SpawnVendor(spawnCandidate, itemid)
+		::VMutVendorSpawnSystem.SpawnVendorFromSpawnCandidate(spawnCandidate, itemid)
 	}
 	
 	return true
@@ -158,7 +158,7 @@ function VMutVendorSpawnSystem::AddRelvantSpawnCandidatesFromGroup(spawnCandidat
  *	Evaluates the contents of the specified spawn candidate.
  *	Spawn and create a vendor.
  */
-function VMutVendorSpawnSystem::SpawnVendor(spawnCandidate, itemid) {	
+function VMutVendorSpawnSystem::SpawnVendorFromSpawnCandidate(spawnCandidate, itemid) {	
 	//Get flags
 	local flags = 0
 	if ("flags" in spawnCandidate)
@@ -172,13 +172,8 @@ function VMutVendorSpawnSystem::SpawnVendor(spawnCandidate, itemid) {
 	if ("tag" in spawnCandidate)
 		vendorData.tag = spawnCandidate.tag
 	
-	//Melee hack. This is REALLY dumb. We can fix this by giving every melee weapon a unique ITEM_ID. But this may require some more abstraction in the spawning system to treat all melee weapons as a single possible spawn.
-	if (itemid == ITEM_ID.MELEE) {
-		local meleeId = g_ModeScript.meleeId[RandomInt(0, g_ModeScript.meleeId.len()-1)]
-		vendorData.itemParam = meleeId
-	}
-	
 	//Assign item to vendor. This will also automatically call functions to initialize price display and display model.
+	vendorData.meleeId = g_ModeScript.meleeId[RandomInt(0, g_ModeScript.meleeId.len()-1)]
 	::VMutVendor.VendorSetItemId(vendorData, itemid)
 	
 	//Return a reference to the created vendor
@@ -189,21 +184,27 @@ function VMutVendorSpawnSystem::SpawnVendor(spawnCandidate, itemid) {
 /*
  *	Get a random itemid. Do not select any item ids that are within the specified blacklist.
  */
-function VMutVendorSpawnSystem::RandomizeItem(blacklist) {
-	local itemid = ITEM_ID.EMPTY
-	
-	if (!blacklist)
-		blacklist = []
-	
-	//Filter out unwanted items according to the specified blacklist
-	local relevantItems = []
-	for (local i = 1 ; i < ITEM_ID.count; i++) { //i initialized to 1 instead of 0 because the first index of the itemdata array is EMPTY
-		if (blacklist.find(i) == null)
-			relevantItems.append(i)
+ function VMutVendorSpawnSystem::SpawnVendorsFromPostMapData(mapname) {
+ 
+	//Get vendor state table
+	if (!(mapname in ::VMutPersistentState.postMapData)) {
+		printl(" ** Cannot spawn vendors from post map data. Entry " + mapname + " does not exist")
+		return false
 	}
-
-	if (relevantItems.len() > 0) 
-		itemid = relevantItems[RandomInt(0, relevantItems.len()-1)]
+	local vendorStateTable = ::VMutPersistentState.postMapData[mapname].vendorState
+	
+	//Iterate table and spawn vendors
+	foreach(id, state in vendorStateTable) {
+		//@TODO Ideally we would want to just be able to assign the state table directly to a vendor at the time of creation
+		//So vendorData.state = postMapData.state - or copy members one by one.
+		//This would ensure that a recreated vendor has EXACTLY the same state as it originally had. It also means we don't need to care about setting a whole bunch of specific values at the time of creation.
 		
-	return itemid
-}
+		//I have no idea why. But loading tables seems to change "flags" to "FLAGS"
+		local vendorData = ::VMutVendor.CreateVendor(state.spawnData.origin, state.spawnData.angles, (state.FLAGS | VFLAG_POSTMAP_RECREATION), ::VMutUtils.TableToList(state.spawnData.blacklist))
+		::VMutVendor.VendorSetItemId(vendorData, state.itemId)
+		vendorData.tag = state.tag
+	}
+	
+	return true
+	
+ }

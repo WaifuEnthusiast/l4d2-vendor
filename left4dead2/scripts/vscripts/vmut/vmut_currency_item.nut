@@ -4,6 +4,10 @@ printl(" ** Executing currency item script")
 
 value <- 0
 
+//entities <- {
+//	currencyItem = null
+//}
+
 function CollectCurrency() {
 	::VMutCurrency.SurvivorEarnedCurrency(activator.GetSurvivorSlot(), value)
 	Destroy()
