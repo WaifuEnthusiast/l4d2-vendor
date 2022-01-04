@@ -17,31 +17,50 @@
 ::VMutPersistentState.postMapData <- {}	//Index this table with map names
 
 
+/*
+ *	Builds a table containing the post-map data of the current round, then assigns it to the specified mapslot
+ */
 function VMutPersistentState::BuildPostMapData(mapname) {
-	local data = {
-		vendorState 		= {}
-		currencyItemState 	= {}
+	if (!(mapname in ::VMutPersistentState.postMapData)) {
+	
+		::VMutPersistentState.postMapData[mapname] <- {
+			vendorState 		= {}
+			currencyItemState 	= {}
+		}
+		
 	}
 	
-	::VMutPersistentState.BuildPostMapVendorState(::VMutVendor.vendorTable, data.vendorState)
-	::VMutPersistentState.BuildPostMapCurrencyItemState(::VMutCurrencySpawnSystem.currencyItemTable, data.currencyItemState)
+	::VMutPersistentState.postMapData[mapname].vendorState.clear()
+	::VMutPersistentState.postMapData[mapname].currencyItemState.clear()
+
+	::VMutPersistentState.BuildPostMapVendorState(::VMutVendor.vendorTable, ::VMutPersistentState.postMapData[mapname].vendorState)
+	::VMutPersistentState.BuildPostMapCurrencyItemState(::VMutCurrency.currencyItemTable, ::VMutPersistentState.postMapData[mapname].currencyItemState)
 	
-	::VMutPersistentState.postMapData[mapname] <- data
 	printl( " ** Built post-map data for " + mapname)
 }
 
 
+/*
+ *	Builds a table containing state of all vendors on the map
+ *
+ *	sourceTable - table containing all the vendor data
+ *	destTable	- table to copy the vendor state into
+ */
 function VMutPersistentState::BuildPostMapVendorState(sourceTable, destTable) {
 	foreach(id, vendorData in sourceTable) {
+		if (!::VMutVendor.VendorExists(vendorData))
+			continue
+	
 		//@TODO I am very unhappy with this. I should be able to just say destTable[id] <- vendorData.state. Then, I should be able to just pass the state table into a function to create a vendor without any conversions.
 		local vendorState = {	//Convert vendor state into a format that can easily be saved/restored from saved tables...
 			origin 		= vendorData.spawnData.origin.ToKVString()
 			angles 		= vendorData.spawnData.angles.ToKVString()
 			blacklist 	= vendorData.spawnData.blacklist
-			itemId		= vendorData.itemId
-			meleeId		= vendorData.meleeId
+			itemID		= vendorData.itemId
+			meleeID		= vendorData.meleeId
+			timesUsed	= vendorData.timesUsed
 			tag			= vendorData.tag
-			flags		= vendorData.flags
+			FLAGS		= vendorData.flags //For whatever reason, "flags" becomes capitalized to "FLAGS" after saving this table. No idea why.
 			
 		}
 		destTable[id] <- vendorState
@@ -49,18 +68,29 @@ function VMutPersistentState::BuildPostMapVendorState(sourceTable, destTable) {
 }
 
 
+/*
+ *	Builds a table containing state of all currency items on the map
+ *
+ *	sourceTable - table containing all the currency item data
+ *	destTable	- table to copy the currency item state into
+ */
 function VMutPersistentState::BuildPostMapCurrencyItemState(sourceTable, destTable) {
-	foreach(id, currencyItem in sourceTable) {
+	foreach(id, currencyItemData in sourceTable) {
+		if (!::VMutCurrency.CurrencyItemExists(currencyItemData))
+			continue
+	
 		local state = {
-			//origin = currencyItem.origin.currencyItem.GetOrigin()
-			origin = currencyItem.origin.ToKVString()
-			value  = currencyItem.value
+			origin = currencyItemData.entities.prop.GetOrigin().ToKVString()
+			value  = currencyItemData.value
 		}
 		destTable[id] <- state
 	}
 }
 
 
+/*
+ *	Saves the post-map data table to a persistent table
+ */
 function VMutPersistentState::SavePostMapData() {
 	g_ModeScript.SaveTable("postMapData", ::VMutPersistentState.postMapData)
 	printl(" ** SAVED post map data ")
@@ -70,6 +100,9 @@ function VMutPersistentState::SavePostMapData() {
 }
 
 
+/*
+ *	Copies the contents of the persistent table into the post-map data table
+ */
 function VMutPersistentState::LoadPostMapData() {
 	g_ModeScript.RestoreTable("postMapData", ::VMutPersistentState.postMapData)
 	printl(" ** LOADED post map data ")

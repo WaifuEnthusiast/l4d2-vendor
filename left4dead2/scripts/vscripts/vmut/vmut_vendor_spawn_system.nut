@@ -195,6 +195,7 @@ function VMutVendorSpawnSystem::SpawnVendorFromSpawnCandidate(spawnCandidate, it
 	
 	//Iterate table and spawn vendors
 	foreach(id, state in vendorStateTable) {
+	
 		//@TODO Ideally we would want to just be able to assign the state table directly to a vendor at the time of creation
 		//So vendorData.state = postMapData.state - or copy members one by one via a foreach loop.
 		//This would ensure that a recreated vendor has EXACTLY the same state as it originally had. It also means we don't need to care about setting a whole bunch of specific values at the time of creation.
@@ -202,14 +203,18 @@ function VMutVendorSpawnSystem::SpawnVendorFromSpawnCandidate(spawnCandidate, it
 		//If all we do is just reassign state, then there is no need to worry about these functions when changing how vendor data works...
 		//Long story short: This is very hacky and stupid and dumb and should be changed but I'm not going to change it because i'm lazy. lol.
 
+		foreach (k, v in state) {
+			printl(k + " - " + v)
+		}
+		
 		//I have no idea why. But loading tables seems to change "flags" to "FLAGS"
 		local vendorData = ::VMutVendor.CreateVendor(::VMutUtils.KVStringToVector(state.origin), ::VMutUtils.KVStringToQAngle(state.angles), (state.FLAGS | VFLAG_POSTMAP_RECREATION), ::VMutUtils.TableToList(state.blacklist))
 		vendorData.tag = state.tag
-		::VMutVendor.VendorSetMeleeId(vendorData, state.meleeId)
+		vendorData.timesUsed = state.timesUsed
+		::VMutVendor.VendorSetMeleeId(vendorData, state.meleeID)
 		::VMutVendor.VendorSetItemId(vendorData, state.itemID) //???? WHY DOES IT CHANGE Id to ID??????????????? The table saving/restoring system is completely broken!
 		
-		//Aight, I've decided. This system is too broken and creates too many problems that need hacky solutions.
-		//Also, it doesn't even fix the issue of persistent state persisting between campagins. Very scuffed indeed.
+		printl(" <> Recreating vendor with item id: " + state.itemID)
 	}
 	
 	return true

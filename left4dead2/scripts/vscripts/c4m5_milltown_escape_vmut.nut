@@ -16,11 +16,12 @@ function Precache() {
 function OnActivate() {
 	printl(" ** Map OnActivate")
 	
-	//Spawn table of money
+	//Spawn table
 	local kvs = {
 		targetname 			= "money_table"
-		origin				= Vector(-6616, 7552, 116)
+		origin				= Vector(-6616, 7552, 96)
 		model				= "models/props_interiors/table_kitchen.mdl"
+		solid				= 6
 	}
 	local ent = SpawnEntityFromTable("prop_dynamic", kvs)
 	ent.SetAngles(QAngle(0, 30, 0))

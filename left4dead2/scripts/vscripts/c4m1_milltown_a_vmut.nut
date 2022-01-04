@@ -113,7 +113,7 @@ function OnActivate() {
 	ent = SpawnEntityFromTable("prop_dynamic", kvs)
 	ent.SetAngles(QAngle(0, 30, 0))
 	
-	::VMutCurrencySpawnSystem.SpawnCurrencyItem(Vector(-6616, 7552, 132), 1000)
+	::VMutCurrency.CreateCurrencyItem(Vector(-6616, 7552, 132), 1000)
 	
 	
 	//Spawn hints
