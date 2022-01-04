@@ -90,8 +90,8 @@ function VMutVendor::CreateVendor(origin, angles, flags, initialBlacklist = null
 		}
 		spawnData = { 	//READONLY 
 			blacklist			= initialBlacklist	//Kind of scuffed... Maybe a system where the we make a dictionary of spawncandidates with vendors as keys? //We could also make blacklist a part of normal state. This way the blacklist could be changed after the vendor is spawned...
-			origin				= origin.ToKVString()
-			angles				= angles.ToKVString()
+			origin				= origin
+			angles				= angles
 		}
 		id						= id				//Unique identifier used to index the main vendor table
 		tag						= null				//Tagging vendors allows certain vendors to be found and referenced after they are spawned via the vendor spawning system.
@@ -138,6 +138,10 @@ function VMutVendor::CreateVendor(origin, angles, flags, initialBlacklist = null
 	//Lock vendor if flags say to do so
 	if ((flags & VFLAG_START_LOCKED) != 0)
 		::VMutVendor.VendorLock(vendorData)
+		
+	//Set item to initialize displays
+	//::VMutVendor.VendorSetMeleeId(vendorData.meleeId)
+	//::VMutVendor.VendorSetItemId(vendorData.itemId)
 	
 	
 	//-----------------------------------------------------------------------------
@@ -588,15 +592,30 @@ function VMutVendor::VendorExpire(vendorData, expireType) {
 /*
  *	Assign a new item-id to a vendor
  */
-function VMutVendor::VendorSetItemId(vendorData, id) {
-	local itemData = ::VMutItemData.itemDataArray[id]
+function VMutVendor::VendorSetItemId(vendorData, itemId) {
+	local itemData = ::VMutItemData.itemDataArray[itemId]
 	
-	vendorData.itemId = id;
+	vendorData.itemId = itemId;
 		
 	::VMutVendor.VendorUpdateDisplay(vendorData)
 	::VMutGUI.DigitDisplayUpdateValue(vendorData.gui.priceDisplay, itemData.cost.tostring()) 
 	
-	printl(" ** Vendor " + vendorData.id + " set item id to " + id)
+	printl(" ** Vendor " + vendorData.id + " set item id to " + itemId)
+}
+
+
+/*
+ *	Assign a new melee-id to a vendor
+ */
+function VMutVendor::VendorSetMeleeId(vendorData, meleeId) {
+	vendorData.meleeId = meleeId;
+	
+	if (vendorData.itemId == ITEM_ID.MELEE) {
+		::VMutVendor.VendorUpdateDisplay(vendorData)
+		::VMutGUI.DigitDisplayUpdateValue(vendorData.gui.priceDisplay, itemData.cost.tostring()) 
+	}
+	
+	printl(" ** Vendor " + vendorData.id + " set melee id to " + meleeId)
 }
 
 

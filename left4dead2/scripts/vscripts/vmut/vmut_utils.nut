@@ -40,11 +40,29 @@
  }
  
  
- /*
+/*
  *	Convert a table into a QAngle
  */
  function VMutUtils::TableToQAngle(table) {
 	return QAngle(table.x, table.y, table.z)
+ }
+ 
+ 
+ /*
+ *	Convert a vector KV string into a vector instance
+ */
+ function VMutUtils::KVStringToVector(kvString) {
+	local values = split(kvString, " ")
+	return Vector(values[0].tofloat(), values[1].tofloat(), values[2].tofloat())
+ }
+ 
+ 
+/*
+ *	Convert a QAngle KV string into a QAngle instance
+ */
+ function VMutUtils::KVStringToQAngle(kvString) {
+	local values = split(kvString, " ")
+	return QAngle(values[0].tofloat(), values[1].tofloat(), values[2].tofloat())
  }
  
  

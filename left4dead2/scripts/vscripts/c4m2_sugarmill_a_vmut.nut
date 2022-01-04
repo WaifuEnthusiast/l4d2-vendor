@@ -1,30 +1,7 @@
-//------------------------------------------------------------------------------------------------------
-//INITIALIZE ROUND
-
-//if ("c4_m1_milltown_a" in ::VMutPersistentState.postRoundData) {
-//	LoadPostRoundEntities(::VMutPersistentState.postRoundData["c4_m1_milltown_a"])
-//}
-
-parentMap <- "c4m1_milltown_a"
-
 function Precache() {
 	printl(" ** Map Precache")
-	PrecacheModel("models/props_interiors/table_kitchen.mdl")
 }
 
-
-function OnActivate() {
-	printl(" ** Map OnActivate")
-	
-	//Spawn table of money
-	local kvs = {
-		targetname 			= "money_table"
-		origin				= Vector(-6616, 7552, 116)
-		model				= "models/props_interiors/table_kitchen.mdl"
-	}
-	local ent = SpawnEntityFromTable("prop_dynamic", kvs)
-	ent.SetAngles(QAngle(0, 30, 0))
-}
 
 //------------------------------------------------------------------------------------------------------
 //MAP OPTIONS
@@ -32,11 +9,10 @@ function OnActivate() {
 minMedkitVendors 	<- defaultMinMedkitVendors 
 maxMedkitVendors 	<- defaultMaxMedkitVendors 
 vendorWitchLimit 	<- defaultVendorWitchLimit 
-mapCurrency			<- 0		
-minCurrencySpawns	<- 0
-maxCurrencySpawns	<- 0
+mapCurrency			<- defaultMapCurrency		
+minCurrencySpawns	<- defaultMinCurrencySpawns
+maxCurrencySpawns	<- defaultMaxCurrencySpawns
 startingCurrency	<- defaultStartingCurrency
-
 
 //------------------------------------------------------------------------------------------------------
 //PURGE TABLE
@@ -60,7 +36,6 @@ currencyItemCandidates <- []	//No currency spawns governed by the spawning syste
 //ZONE TABLE
 
 protectedZones <- []
-
 
 //------------------------------------------------------------------------------------------------------
 //INITIALIZE ROUND

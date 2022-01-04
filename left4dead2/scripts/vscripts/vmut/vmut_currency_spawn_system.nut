@@ -39,10 +39,12 @@
 	
 	//Spawn the item
 	local angles = QAngle(0,RandomInt(0,360),0)
-	local g = g_ModeScript.SpawnSingleAt(entGroup, origin, angles)
+	local ent = g_ModeScript.SpawnSingleAt(entGroup, origin, angles)
+	
+	local id = "currency_item_" + (::VMutCurrencySpawnSystem.currencyItemSpawnCount++) + "_" + UniqueString()
+	printl("<> Spawned currency item " + id)
 	
 	//Add to table
-	local id = "currency_item_" + (::VMutCurrencySpawnSystem.currencyItemSpawnCount++) + "_" + UniqueString()
 	::VMutCurrencySpawnSystem.currencyItemTable[id] <- { //@TODO This is an incredibly hacky and scuffed fix for saving to post-map data. Will definitely need a fix later
 		script = entScope
 		origin = origin
@@ -84,7 +86,7 @@ function VMutCurrencySpawnSystem::SpawnCurrencyItemsFromPostMapData(mapname) {
 	
 	//Spawn currency items from state table
 	foreach (id, state in currencyItemStateTable) {
-		::VMutCurrencySpawnSystem.SpawnCurrencyItem(state.origin, state.value)
+		::VMutCurrencySpawnSystem.SpawnCurrencyItem(::VMutUtils.KVStringToVector(state.origin), state.value)
 	}
 	
 	return true

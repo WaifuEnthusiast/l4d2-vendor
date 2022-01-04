@@ -12,6 +12,7 @@ printl(" ** Executing mode script")
 
 const DEFAULT_STARTING_CURRENCY = 4000
 
+const ZONE_FLAG_NO_CURRENCY		= 0	//No currency items will spawn in this zone
 
 //------------------------------------------------------------------------------------------------------
 //INCLUDE
@@ -128,7 +129,7 @@ function OnGameplayStart() {
 	//@TODO move these to map scripts?
 	if ("parentMap" in g_MapScript && (g_MapScript.parentMap) in ::VMutPersistentState.postMapData) {
 		::VMutVendorSpawnSystem.SpawnVendorsFromPostMapData(g_MapScript.parentMap)
-		//::VMutCurrencySpawnSystem.SpawnCurrencyItemsFromPostMapData(g_MapScript.parentMap)
+		::VMutCurrencySpawnSystem.SpawnCurrencyItemsFromPostMapData(g_MapScript.parentMap)
 	} else {
 		::VMutVendorSpawnSystem.SpawnAndDistributeVendors()
 		::VMutCurrencySpawnSystem.SpawnAndDistributeCurrencyItems()

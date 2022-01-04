@@ -108,6 +108,7 @@ function OnActivate() {
 		targetname 			= "money_table"
 		origin				= Vector(-6616, 7552, 96)
 		model				= "models/props_interiors/table_kitchen.mdl"
+		solid				= 6
 	}
 	ent = SpawnEntityFromTable("prop_dynamic", kvs)
 	ent.SetAngles(QAngle(0, 30, 0))
@@ -117,13 +118,19 @@ function OnActivate() {
 	
 	//Spawn hints
 	kvs = {
+		targetname 			= "vmut_persistent_currency_hint_target"
+		origin 				= Vector(-6616, 7552, 132)
+	}
+	SpawnEntityFromTable("info_target_instructor_hint", kvs)
+	kvs = {
 		targetname			= "vmut_persistent_currency_hint"
-		origin 				= Vector(0, 0, 0)
+		origin 				= Vector(-6616, 7552, 132)
+		hint_target			= "vmut_persistent_currency_hint_target"
 		hint_caption 		= "Collected money won't reappear on the return trip"
 		hint_static			= 0
 		hint_auto_start 	= true
-		hint_icon_onscreen	= "icon_info"
-		hint_icon_offscreen	= "icon_info"
+		hint_icon_onscreen	= "icon_tip"
+		hint_icon_offscreen	= "icon_tip"
 		hint_color			= "255 255 255"
 		hint_timeout		= 30
 	}
@@ -135,8 +142,8 @@ function OnActivate() {
 		hint_caption 		= "The same vendors will still be here when you come back"
 		hint_static			= 0
 		hint_auto_start 	= true
-		hint_icon_onscreen	= "icon_info"
-		hint_icon_offscreen	= "icon_info"
+		hint_icon_onscreen	= "icon_tip"
+		hint_icon_offscreen	= "icon_tip"
 		hint_color			= "255 255 255"
 		hint_timeout		= 30
 	}
@@ -149,8 +156,8 @@ function OnActivate() {
 		hint_caption 		= "Some vendors won't unlock until the return trip"
 		hint_static			= 0
 		hint_auto_start 	= true
-		hint_icon_onscreen	= "icon_info"
-		hint_icon_offscreen	= "icon_info"
+		hint_icon_onscreen	= "icon_tip"
+		hint_icon_offscreen	= "icon_tip"
 		hint_color			= "255 255 255"
 		hint_timeout		= 30
 	}
