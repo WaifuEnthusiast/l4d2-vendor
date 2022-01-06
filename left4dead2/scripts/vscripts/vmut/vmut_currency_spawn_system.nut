@@ -6,6 +6,14 @@
 ::VMutCurrencySpawnSystem.currencyItemSpawnCount <- 0
 
 
+::VMutCurrencySpawnSystem.defaultCurrencyItemCandidate <- {
+	origin 		= Vector(0,0,0)
+	flags		= 0
+	tag			= 0
+	landmark 	= 0
+}
+
+
  function VMutCurrencySpawnSystem::AddCurrencyItemCandidate(origin) {
 	g_MapScript.currencyItemCandidates.append(
 		{origin = origin}
@@ -25,23 +33,43 @@
 	//Spawn items
 	local itemSpawnValue = 200
 	foreach (spawnCandidate in validCandidates) {
-		::VMutCurrency.CreateCurrencyItem(spawnCandidate.origin, itemSpawnValue)
+		foreach(k, v in ::VMutCurrencySpawnSystem.defaultCurrencyItemCandidate) {
+			if (!(k in spawnCandidate))
+				spawnCandidate[k] <- v
+		}
+	
+		local currencyItemData = ::VMutCurrency.CreateCurrencyItem(spawnCandidate.origin, itemSpawnValue)
+		
+		//Assign post-creation data
+		currencyItemData.flags 		= spawnCandidate.flags
+		currencyItemData.tag		= spawnCandidate.tag
+		currencyItemData.landmark 	= spawnCandidate.landmark
 	}
 }
 
 
-function VMutCurrencySpawnSystem::SpawnCurrencyItemsFromPostMapData(mapname) {
+function VMutCurrencySpawnSystem::SpawnCurrencyItemsFromPostMapData() {
 
-	//Get currency item state table
-	if (!(mapname in ::VMutPersistentState.postMapData)) {
-		printl(" ** Cannot spawn currency items from post map data. Entry " + mapname + " does not exist")
+	//No landmarks = no data to spawn from
+	if (!("landmarks" in g_MapScript)) {
+		printl(" ** Cannot recreate currency items from post-map data because current map has no landmarks")
 		return false
 	}
-	local currencyItemStateTable = ::VMutPersistentState.postMapData[mapname].currencyItemState
-	
-	//Spawn currency items from state table
-	foreach (id, state in currencyItemStateTable) {
-		::VMutCurrency.CreateCurrencyItem(::VMutUtils.KVStringToVector(state.origin), state.value)
+
+	foreach(landmark in g_MapScript.landmarks) {
+		if (!(landmark in ::VMutPersistentState.postMapData))
+			continue
+			
+		//Get currency item state table
+		local currencyItemStateTable = ::VMutPersistentState.postMapData[landmark].currencyItemState
+		
+		//Spawn currency items from state table
+		foreach (id, state in currencyItemStateTable) {
+			local currencyItemData = ::VMutCurrency.CreateCurrencyItem(::VMutUtils.KVStringToVector(state.origin), state.value)
+			
+			currencyItemData.tag 		= state.tag
+			currencyItemData.landmark 	= state.landmark
+		}
 	}
 	
 	return true

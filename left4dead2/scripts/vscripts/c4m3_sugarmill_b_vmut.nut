@@ -15,6 +15,10 @@ minCurrencySpawns	<- defaultMinCurrencySpawns
 maxCurrencySpawns	<- defaultMaxCurrencySpawns
 startingCurrency	<- defaultStartingCurrency
 
+landmarks			<- [
+	"landmark_c4m1"
+]
+
 //------------------------------------------------------------------------------------------------------
 //PURGE TABLE
 

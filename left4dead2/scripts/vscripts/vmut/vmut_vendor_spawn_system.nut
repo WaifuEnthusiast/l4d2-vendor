@@ -60,6 +60,20 @@ const WITCH_ALWAYS 	= 2
 
 
 /*
+ *	Default spawn candidate data
+ */
+ ::VMutVendorSpawnSystem.defaultSpawnCandidate <- {
+	orign 		= Vector(0,0,0)
+	angles		= QAngle(0,0,0)
+	witch		= WITCH_ENABLE
+	flags		= 0
+	tag			= ""
+	landmark	= ""
+	blacklist 	= null
+ }
+
+
+/*
  *	Setup spawn system data
  */
 ::VMutVendorSpawnSystem.relevantSpawnCandidates 	<- []
@@ -87,13 +101,16 @@ function VMutVendorSpawnSystem::SpawnAndDistributeVendors() {
 	}
 	
 	//PHASE 2
-	//Determine what items each relevant spawn candidate will use
+	//Process spawn candidates and determine what items each relevant spawn candidate will use
 	foreach (spawnCandidate in ::VMutVendorSpawnSystem.relevantSpawnCandidates) {
-		local blacklist = []
-		if ("blacklist" in spawnCandidate)
-			blacklist = spawnCandidate.blacklist
+		//Process spawn candidates, assign default values
+		foreach (k, v in ::VMutVendorSpawnSystem.defaultSpawnCandidate) {
+			if (!(k in spawnCandidate))
+				spawnCandidate[k] <- v
+		}
 		
-		local itemid = ::VMutItemData.RandomizeItem(blacklist)
+		//Assign item id
+		local itemid = ::VMutItemData.RandomizeItem(spawnCandidate.blacklist)
 		::VMutVendorSpawnSystem.decidedItems.append(itemid)
 	}
 	
@@ -147,6 +164,7 @@ function VMutVendorSpawnSystem::AddRelvantSpawnCandidatesFromGroup(spawnCandidat
 		
 	//Spawn vendors at relevant spawn candidates
 	foreach (spawnCandidate in relevantSpawnCandidates) {
+		//Assign as relevant
 		::VMutVendorSpawnSystem.relevantSpawnCandidates.append(spawnCandidate)
 	}
 	
@@ -159,6 +177,7 @@ function VMutVendorSpawnSystem::AddRelvantSpawnCandidatesFromGroup(spawnCandidat
  *	Spawn and create a vendor.
  */
 function VMutVendorSpawnSystem::SpawnVendorFromSpawnCandidate(spawnCandidate, itemid) {	
+
 	//Get flags
 	local flags = 0
 	if ("flags" in spawnCandidate)
@@ -168,54 +187,68 @@ function VMutVendorSpawnSystem::SpawnVendorFromSpawnCandidate(spawnCandidate, it
 	printl(" <> Spawning vendor with item id: " + itemid)
 	local vendorData = ::VMutVendor.CreateVendor(spawnCandidate.origin, spawnCandidate.angles, flags, ("blacklist" in spawnCandidate) ? spawnCandidate.blacklist : null)
 	
-	//Assign a tag if one was specified in the spawndata
-	if ("tag" in spawnCandidate)
-		vendorData.tag = spawnCandidate.tag
+	//Assign post-creation data
+	vendorData.tag 		= spawnCandidate.tag
+	vendorData.landmark = spawnCandidate.landmark
 	
-	//Assign item to vendor. This will also automatically call functions to initialize price display and display model.
+	//Initialize vendor's item
 	::VMutVendor.VendorSetMeleeId(vendorData, g_ModeScript.meleeId[RandomInt(0, g_ModeScript.meleeId.len()-1)])
 	::VMutVendor.VendorSetItemId(vendorData, itemid)
 	
 	//Return a reference to the created vendor
 	return vendorData
+	
 }
 
 
 /*
  *	Get a random itemid. Do not select any item ids that are within the specified blacklist.
  */
- function VMutVendorSpawnSystem::SpawnVendorsFromPostMapData(mapname) {
+ function VMutVendorSpawnSystem::SpawnVendorsFromPostMapData() {
  
-	//Get vendor state table
-	if (!(mapname in ::VMutPersistentState.postMapData)) {
-		printl(" ** Cannot spawn vendors from post map data. Entry " + mapname + " does not exist")
+	//No landmarks = no data to spawn from
+	if (!("landmarks" in g_MapScript)) {
+		printl(" ** Cannot recreate vendors from post-map data because current map has no landmarks")
 		return false
 	}
-	local vendorStateTable = ::VMutPersistentState.postMapData[mapname].vendorState
-	
-	//Iterate table and spawn vendors
-	foreach(id, state in vendorStateTable) {
-	
-		//@TODO Ideally we would want to just be able to assign the state table directly to a vendor at the time of creation
-		//So vendorData.state = postMapData.state - or copy members one by one via a foreach loop.
-		//This would ensure that a recreated vendor has EXACTLY the same state as it originally had. It also means we don't need to care about setting a whole bunch of specific values at the time of creation.
-		//The more complex vendors become, the more complex the saving/loading process becomes. This also will create more work later on, since changing how vendor data works means we need to change saving/loading functions too...
-		//If all we do is just reassign state, then there is no need to worry about these functions when changing how vendor data works...
-		//Long story short: This is very hacky and stupid and dumb and should be changed but I'm not going to change it because i'm lazy. lol.
 
-		foreach (k, v in state) {
-			printl(k + " - " + v)
+	
+	foreach (landmark in g_MapScript.landmarks) {
+		if (!(landmark in ::VMutPersistentState.postMapData))
+			continue
+	
+		local vendorStateTable = ::VMutPersistentState.postMapData[landmark].vendorState
+		
+		//Iterate table and spawn vendors
+		foreach(id, state in vendorStateTable) {
+		
+			//@TODO Ideally we would want to just be able to assign the state table directly to a vendor at the time of creation
+			//So vendorData.state = postMapData.state - or copy members one by one via a foreach loop.
+			//This would ensure that a recreated vendor has EXACTLY the same state as it originally had. It also means we don't need to care about setting a whole bunch of specific values at the time of creation.
+			//The more complex vendors become, the more complex the saving/loading process becomes. This also will create more work later on, since changing how vendor data works means we need to change saving/loading functions too...
+			//If all we do is just reassign state, then there is no need to worry about these functions when changing how vendor data works...
+			//Long story short: This is very hacky and stupid and dumb and should be changed but I'm not going to change it because i'm lazy. lol.
+
+			foreach (k, v in state) {
+				printl(k + " - " + v)
+			}
+			
+			//I have no idea why. But loading tables seems to change "flags" to "FLAGS"
+			local vendorData = ::VMutVendor.CreateVendor(::VMutUtils.KVStringToVector(state.origin), ::VMutUtils.KVStringToQAngle(state.angles), (state.FLAGS | VFLAG_POSTMAP_RECREATION), ::VMutUtils.TableToList(state.blacklist))
+			
+			//Assign post-creation data
+			vendorData.tag 			= state.tag
+			vendorData.landmark		= state.landmark
+			vendorData.timesUsed 	= state.timesUsed
+			
+			//Initialize vendor item
+			::VMutVendor.VendorSetMeleeId(vendorData, state.meleeID)
+			::VMutVendor.VendorSetItemId(vendorData, state.itemID) //???? WHY DOES IT CHANGE Id to ID??????????????? The table saving/restoring system is completely broken!
+			
+			printl(" <> Recreating vendor with item id: " + state.itemID)
 		}
-		
-		//I have no idea why. But loading tables seems to change "flags" to "FLAGS"
-		local vendorData = ::VMutVendor.CreateVendor(::VMutUtils.KVStringToVector(state.origin), ::VMutUtils.KVStringToQAngle(state.angles), (state.FLAGS | VFLAG_POSTMAP_RECREATION), ::VMutUtils.TableToList(state.blacklist))
-		vendorData.tag = state.tag
-		vendorData.timesUsed = state.timesUsed
-		::VMutVendor.VendorSetMeleeId(vendorData, state.meleeID)
-		::VMutVendor.VendorSetItemId(vendorData, state.itemID) //???? WHY DOES IT CHANGE Id to ID??????????????? The table saving/restoring system is completely broken!
-		
-		printl(" <> Recreating vendor with item id: " + state.itemID)
 	}
+	
 	
 	return true
 	

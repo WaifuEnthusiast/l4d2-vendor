@@ -21,6 +21,7 @@ const VFLAG_PRESERVE_SPAWNDATA		= 2		//When a vendor changes its item, reuse the
 const VFLAG_SAFE					= 4 	//Vendor will never change its item or expire
 const VFLAG_FINALE					= 8 	//Vendor is tied to a finale sequence
 const VFLAG_POSTMAP_RECREATION		= 16	//Vendor was spawned from a post-map data table
+const VFLAG_SAFEROOM				= 32	//Vendor spawned in a saferoom
 
 const EXPIRE_CHANGE					= 0
 const EXPIRE_EXPLODE_SAFE			= 1
@@ -94,7 +95,8 @@ function VMutVendor::CreateVendor(origin, angles, flags, initialBlacklist = null
 			angles				= angles
 		}
 		id						= id				//Unique identifier used to index the main vendor table
-		tag						= null				//Tagging vendors allows certain vendors to be found and referenced after they are spawned via the vendor spawning system.
+		tag						= ""				//Tagging vendors allows certain vendors to be found and referenced after they are spawned via the vendor spawning system.
+		landmark				= ""				//Landmarks are used to recreate vendors from previous maps
 		flags					= flags				//Flags that are assigned via spawndata. Has some effects on vendor behaviour. Advised to NOT manually alter this value, instead set it via spawndata.
 		itemId					= ITEM_ID.EMPTY	 	//DO NOT manually modify this value. Call VenorSetItemId() instead.
 		meleeId					= "fireaxe"			//Used for vendors that sell melee items
@@ -245,7 +247,8 @@ function VMutVendor::VendorKillUseTarget(vendorData) {
 		
 	ent.Kill()
 	vendorData.entities.usetarget = null
-		
+	printl(" ** Killed usetarget " + vendorData.id + " - " + ent)
+	
 	return true
 	
 }

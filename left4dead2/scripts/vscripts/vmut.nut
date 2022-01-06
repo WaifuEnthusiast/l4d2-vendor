@@ -127,13 +127,11 @@ function OnGameplayStart() {
 	
 	//Map setup: Spawn vendors and currency items
 	//@TODO move these to map scripts?
-	if ("parentMap" in g_MapScript && (g_MapScript.parentMap) in ::VMutPersistentState.postMapData) {
-		::VMutVendorSpawnSystem.SpawnVendorsFromPostMapData(g_MapScript.parentMap)
-		::VMutCurrencySpawnSystem.SpawnCurrencyItemsFromPostMapData(g_MapScript.parentMap)
-	} else {
-		::VMutVendorSpawnSystem.SpawnAndDistributeVendors()
-		::VMutCurrencySpawnSystem.SpawnAndDistributeCurrencyItems()
-	}
+	::VMutVendorSpawnSystem.SpawnVendorsFromPostMapData()
+	::VMutCurrencySpawnSystem.SpawnCurrencyItemsFromPostMapData()
+		
+	::VMutVendorSpawnSystem.SpawnAndDistributeVendors()
+	::VMutCurrencySpawnSystem.SpawnAndDistributeCurrencyItems()
 	
 	//Round setup: Setup survivor state
 	::VMutCurrency.LoadPersistentCurrency()
@@ -180,7 +178,7 @@ function OnGameEvent_map_transition(params) {
 	::VMutCurrency.SavePersistentCurrency()
 	
 	//Save post-map data
-	::VMutPersistentState.BuildPostMapData(Director.GetMapName())
+	::VMutPersistentState.BuildPostMapData()
 	::VMutPersistentState.SavePostMapData()
 	
 	//Save vendor state to post-round data

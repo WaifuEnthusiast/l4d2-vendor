@@ -40,6 +40,7 @@ vendorCandidates <- [
 				origin = Vector(1952, 1244, 432)
 				angles = QAngle(0,180,0)
 				witch  = WITCH_DISABLE
+				flags  = VFLAG_SAFEROOM
 				blacklist = [	//Only spawns with T1 weapons
 					ITEM_ID.AK47,
 					ITEM_ID.M16,
@@ -76,6 +77,7 @@ vendorCandidates <- [
 				origin = Vector(1888, 1244, 432)
 				angles = QAngle(0,180,0)
 				witch  = WITCH_DISABLE
+				flags  = VFLAG_SAFEROOM
 				blacklist = [	//Spawn with anything to create an interesting choice
 					ITEM_ID.FIRST_AID_KIT,
 					ITEM_ID.DEFIBRILLATOR,

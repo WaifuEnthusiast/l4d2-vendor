@@ -1,40 +1,48 @@
+function Precache() {
+	printl(" ** Map Precache")
+}
+
+parentMap <- "c4m2_milltown_a"
+
+//------------------------------------------------------------------------------------------------------
+//MAP OPTIONS
+
+minMedkitVendors 	<- defaultMinMedkitVendors 
+maxMedkitVendors 	<- defaultMaxMedkitVendors 
+vendorWitchLimit 	<- defaultVendorWitchLimit 
+mapCurrency			<- defaultMapCurrency		
+minCurrencySpawns	<- defaultMinCurrencySpawns
+maxCurrencySpawns	<- defaultMaxCurrencySpawns
+startingCurrency	<- defaultStartingCurrency
+
+landmarks			<- [
+	"landmark_c4m1"
+]
+
+//------------------------------------------------------------------------------------------------------
+//PURGE TABLE
+
+purgeTable <- defaultPurgeTable
+
+
+//------------------------------------------------------------------------------------------------------
+//VENDOR SPAWN TABLE
+
+vendorCandidates <- []
+
+
+//------------------------------------------------------------------------------------------------------
+//CURRENCY ITEM SPAWN TABLE
+
+currencyItemCandidates <- []	//No currency spawns governed by the spawning system
+
+	
+//------------------------------------------------------------------------------------------------------
+//ZONE TABLE
+
+protectedZones <- []
+
 //------------------------------------------------------------------------------------------------------
 //INITIALIZE ROUND
 
-//if ("c4_m1_milltown_a" in ::VMutPersistentState.postRoundData) {
-//	LoadPostRoundEntities(::VMutPersistentState.postRoundData["c4_m1_milltown_a"])
-//}
-
 purgeSystem.Purge()
-
-function OnActivate() {
-	printl(" ** Map OnActivate")
-	
-	local kvs = null
-	
-	kvs = {
-		targetname			= "vmut_persistent_currency_hint"
-		origin 				= Vector(0, 0, 0)
-		hint_caption 		= "Collected money won't reappear on the return trip"
-		hint_static			= 0
-		hint_auto_start 	= true
-		hint_icon_onscreen	= "icon_info"
-		hint_icon_offscreen	= "icon_info"
-		hint_color			= "255 255 255"
-		hint_timeout		= 30
-	}
-	SpawnEntityFromTable("env_instructor_hint", kvs)
-	
-	kvs = {
-		targetname			= "vmut_persistent_state_hint"
-		origin 				= Vector(0, 0, 0)
-		hint_caption 		= "The same vendors will still be here when you come back"
-		hint_static			= 0
-		hint_auto_start 	= true
-		hint_icon_onscreen	= "icon_info"
-		hint_icon_offscreen	= "icon_info"
-		hint_color			= "255 255 255"
-		hint_timeout		= 30
-	}
-	SpawnEntityFromTable("env_instructor_hint", kvs)
-}

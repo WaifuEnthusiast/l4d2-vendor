@@ -304,7 +304,7 @@ function VMutItemData::Precache() {
 		type 		= ITEMDATA_TYPE_ITEM
 	},
 	{	//propane
-		cost 		= 500
+		cost 		= 250
 		display 	= "models/props_junk/propanecanister001a.mdl"
 		data	 	= "weapon_propanetank"
 		type 		= ITEMDATA_TYPE_ITEM
@@ -312,19 +312,19 @@ function VMutItemData::Precache() {
 	
 	//UPGRADES
 	{	//incendiary ammo
-		cost 		= 500
+		cost 		= 250
 		display 	= "models/props/terror/incendiary_ammo.mdl"
 		data		= UPGRADE_INCENDIARY_AMMO
 		type 		= ITEMDATA_TYPE_UPGRADE
 	},
 	{	//explosive ammo
-		cost 		= 500
+		cost 		= 250
 		display 	= "models/props/terror/exploding_ammo.mdl"
 		data		= UPGRADE_EXPLODING_AMMO
 		type 		= ITEMDATA_TYPE_UPGRADE
 	},
 	{	//lasersight
-		cost 		= 500
+		cost 		= 250
 		display 	= "models/w_models/weapons/w_laser_sights.mdl"
 		data		= UPGRADE_LASER_SIGHT
 		type 		= ITEMDATA_TYPE_UPGRADE

@@ -14,6 +14,10 @@ minCurrencySpawns	<- defaultMinCurrencySpawns
 maxCurrencySpawns	<- defaultMaxCurrencySpawns
 startingCurrency	<- defaultStartingCurrency
 
+landmarks			<- [
+	"landmark_c4m1"
+]
+
 //------------------------------------------------------------------------------------------------------
 //PURGE TABLE
 
@@ -72,6 +76,39 @@ vendorCandidates <- [
 				origin = Vector(-6384, 7640, 96)
 				angles = QAngle(0,270,0)
 				witch  = WITCH_DISABLE
+				blacklist = primaryWeaponOnlyBlacklist
+			}
+		]
+	}
+	
+	
+	//Saferoom vendors
+	{
+		min = 3,
+		max = 3,
+		spawnCandidates = [
+			{
+				origin = Vector(3776, -1568, 232)
+				angles = QAngle(0,90,0)
+				witch  = WITCH_DISABLE
+				flags  = VFLAG_SAFEROOM
+				landmark = "landmark_c4m1"
+				blacklist = primaryWeaponOnlyBlacklist
+			},
+			{
+				origin = Vector(3776, -1512, 232)
+				angles = QAngle(0,90,0)
+				witch  = WITCH_DISABLE
+				flags  = VFLAG_SAFEROOM
+				landmark = "landmark_c4m1"
+				blacklist = primaryWeaponOnlyBlacklist
+			},
+			{
+				origin = Vector(4088, -1568, 104)
+				angles = QAngle(0,0,0)
+				witch  = WITCH_DISABLE
+				flags  = VFLAG_SAFEROOM
+				landmark = "landmark_c4m1"
 				blacklist = primaryWeaponOnlyBlacklist
 			}
 		]

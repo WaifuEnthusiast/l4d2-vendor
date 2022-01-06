@@ -157,7 +157,6 @@ function VMutCurrency::SetInitialized() {
  */
 function VMutCurrency::CreateCurrencyItem(origin, value) {
 
-	//-----------------------------------------------------------------------------
 	//DATA
 
 	local id = "currency_item_" + (::VMutCurrency.currencyItemSpawnCount++) + "_" + UniqueString()
@@ -173,11 +172,13 @@ function VMutCurrency::CreateCurrencyItem(origin, value) {
 		}
 		id			= id
 		value		= value
+		flags		= 0
+		tag			= ""
+		landmark	= ""
 	}
 	::VMutCurrency.currencyItemTable[id] <- currencyItemData
 	
 	
-	//-----------------------------------------------------------------------------
 	//SPAWN ENTITIES
 	
 	//Generate callbacks for each entity in the entity group. This will make entities add themselves to the currency item's entity data after spawning.
@@ -191,7 +192,6 @@ function VMutCurrency::CreateCurrencyItem(origin, value) {
 	
 	
 	
-	//-----------------------------------------------------------------------------
 	//FUNCTIONALITY
 	
 	//Initialize functionality
@@ -209,7 +209,6 @@ function VMutCurrency::CreateCurrencyItem(origin, value) {
 	currencyItemData.entities.button.ConnectOutput("OnPressed", "CollectItem")
 	
 	
-	//-----------------------------------------------------------------------------
 	//REFERENCE
 	
 	return currencyItemData
@@ -239,4 +238,19 @@ function VMutCurrency::DestroyCurrencyItem(currencyItemData) {
  */
 function VMutCurrency::CurrencyItemExists(currencyItemData) {
 	return (currencyItemData.id in ::VMutCurrency.currencyItemTable)
+}
+
+
+/*
+ *	Find currency items by tag
+ */
+function VMutCurrency::FindCurrencyItemsByTag(tag) {
+	local currencyItemList = []
+	
+	foreach (id, currencyItem in ::VMutCurrency.currencyItemTable) {
+		if (currencyItem.tag == tag)
+			currencyItemList.append(currencyItem)
+	}
+	
+	return currencyItemList
 }
