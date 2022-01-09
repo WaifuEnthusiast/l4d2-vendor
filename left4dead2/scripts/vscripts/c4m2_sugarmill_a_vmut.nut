@@ -42,14 +42,16 @@ minCurrencySpawns	<- 40
 maxCurrencySpawns	<- 50
 startingCurrency	<- defaultStartingCurrency
 
-landmarks			<- [
-	"landmark_c4m1"
-]
+landmarks			= {
+	"c4m2_sugarmill_a"			: Vector(0, 0, 0)
+	"c4m1_milltown_a_saferoom" 	: Vector(3776, -1728, 296)
+}
 
 //------------------------------------------------------------------------------------------------------
 //PURGE TABLE
 
-purgeTable <- defaultPurgeTable
+//purgeTable <- defaultPurgeTable
+purgeSystem.SetPurgeTableCallbacks( @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin(), landmark = "c4m2_sugarmill_a"} ) )
 
 
 //------------------------------------------------------------------------------------------------------
@@ -140,8 +142,9 @@ vendorCandidates <- [
 			//	angles = QAngle(0, 270, 0)
 			//},
 			{
-				origin = Vector(3744, -3288, 116) 
-				angles = QAngle(0, 45, 0)
+				origin 		= Vector(3744, -3288, 116) 
+				angles 		= QAngle(0, 45, 0)
+				landmark 	= "c4m2_sugarmill_a"
 			}
 		]
 	},
@@ -151,8 +154,9 @@ vendorCandidates <- [
 		max = 1,
 		spawnCandidates = [
 			{
-				origin = Vector(4624, -3872, 96) 
-				angles = QAngle(0, 0, 0)
+				origin 		= Vector(4624, -3872, 96) 
+				angles 		= QAngle(0, 0, 0)
+				landmark 	= "c4m2_sugarmill_a"
 			}
 		]
 	},
@@ -162,14 +166,16 @@ vendorCandidates <- [
 		max = 2,
 		spawnCandidates = [
 			{
-				origin = Vector(4256, -4552, 100) 
-				angles = QAngle(0, 180, 0)
-				blacklist = utilityOnlyBlacklist
+				origin 		= Vector(4256, -4552, 100) 
+				angles 		= QAngle(0, 180, 0)
+				landmark 	= "c4m2_sugarmill_a"
+				blacklist 	= utilityOnlyBlacklist
 			},
 			{
-				origin = Vector(4184, -4552, 100) 
-				angles = QAngle(0, 180, 0)
-				blacklist = utilityOnlyBlacklist
+				origin 		= Vector(4184, -4552, 100) 
+				angles 		= QAngle(0, 180, 0)
+				landmark 	= "c4m2_sugarmill_a"
+				blacklist 	= utilityOnlyBlacklist
 			}
 		]
 	},
@@ -179,16 +185,19 @@ vendorCandidates <- [
 		max = 2,
 		spawnCandidates = [
 			{
-				origin = Vector(2600, -3648, 100) 
-				angles = QAngle(0, 0, 0)
+				origin 		= Vector(2600, -3648, 100) 
+				angles 		= QAngle(0, 0, 0)
+				landmark 	= "c4m2_sugarmill_a"
 			},
 			{
-				origin = Vector(2928, -3632, 100) 
-				angles = QAngle(0, 0, 0)
+				origin		= Vector(2928, -3632, 100) 
+				angles		= QAngle(0, 0, 0)
+				landmark 	= "c4m2_sugarmill_a"
 			},
 			{
-				origin = Vector(3056, -3632, 100) 
-				angles = QAngle(0, 0, 0)
+				origin 		= Vector(3056, -3632, 100) 
+				angles 		= QAngle(0, 0, 0)
+				landmark 	= "c4m2_sugarmill_a"
 			}
 		]
 	},
@@ -198,20 +207,24 @@ vendorCandidates <- [
 		max = 4,
 		spawnCandidates = [
 			{
-				origin = Vector(1320, -4208, 106) 
-				angles = QAngle(0, 50, 0)
+				origin 		= Vector(1320, -4208, 106) 
+				angles 		= QAngle(0, 50, 0)
+				landmark 	= "c4m2_sugarmill_a"
 			},
 			{
-				origin = Vector(1160, -4400, 106) 
-				angles = QAngle(0, 50, 0)
+				origin 		= Vector(1160, -4400, 106) 
+				angles 		= QAngle(0, 50, 0)
+				landmark 	= "c4m2_sugarmill_a"
 			},
 			{
-				origin = Vector(1144, -4224, 140) 
-				angles = QAngle(0, 50, 0)
+				origin 		= Vector(1144, -4224, 140) 
+				angles 		= QAngle(0, 50, 0)
+				landmark 	= "c4m2_sugarmill_a"
 			},
 			{
-				origin = Vector(1096, -4280, 140) 
-				angles = QAngle(0, 50, 0)
+				origin 		= Vector(1096, -4280, 140) 
+				angles 		= QAngle(0, 50, 0)
+				landmark 	= "c4m2_sugarmill_a"
 			}
 		]
 	},
@@ -225,9 +238,10 @@ vendorCandidates <- [
 			//	angles = QAngle(0, 270, -90)
 			//},
 			{
-				origin = Vector(2624, -5064, 102) 
-				angles = QAngle(0, 300, 0)
-				blacklist = utilityOnlyBlacklist
+				origin 		= Vector(2624, -5064, 102) 
+				angles 		= QAngle(0, 300, 0)
+				landmark 	= "c4m2_sugarmill_a"
+				blacklist 	= utilityOnlyBlacklist
 			}
 		]
 	},
@@ -237,27 +251,31 @@ vendorCandidates <- [
 		max = 2,
 		spawnCandidates = [
 			{
-				origin = Vector(1524, -6272, 104) 
-				angles = QAngle(0, 180, 0)
+				origin 		= Vector(1524, -6272, 104) 
+				angles 		= QAngle(0, 180, 0)
+				landmark 	= "c4m2_sugarmill_a"
 			},
 			{
-				origin = Vector(1456, -6272, 104) 
-				angles = QAngle(0, 180, 0)
+				origin 		= Vector(1456, -6272, 104) 
+				angles 		= QAngle(0, 180, 0)
+				landmark 	= "c4m2_sugarmill_a"
 			}
 		]
 	},
 	
 	{	//Manufacturing platform
-		min = 1,
+		min = 2,
 		max = 2,
 		spawnCandidates = [
 			{
-				origin = Vector(816, -5960, 176) 
-				angles = QAngle(0, 180, 0)
+				origin 		= Vector(816, -5960, 176) 
+				angles 		= QAngle(0, 180, 0)
+				landmark 	= "c4m2_sugarmill_a"
 			},
 			{
-				origin = Vector(672, -5960, 176) 
-				angles = QAngle(0, 180, 0)
+				origin 		= Vector(672, -5960, 176) 
+				angles 		= QAngle(0, 180, 0)
+				landmark 	= "c4m2_sugarmill_a"
 			}
 		]
 	},
@@ -267,9 +285,10 @@ vendorCandidates <- [
 		max = 1,
 		spawnCandidates = [
 			{
-				origin = Vector(1532, -5368, 228) 
-				angles = QAngle(0, 0, 0)
-				blacklist = primaryWeaponOnlyBlacklist
+				origin 		= Vector(1532, -5368, 228) 
+				angles 		= QAngle(0, 0, 0)
+				landmark 	= "c4m2_sugarmill_a"
+				blacklist	= primaryWeaponOnlyBlacklist
 			}
 		]
 	},
@@ -279,20 +298,24 @@ vendorCandidates <- [
 		max = 4,
 		spawnCandidates = [
 			{
-				origin = Vector(-616, -7816, 112) 
-				angles = QAngle(0, 0, -90)
+				origin 		= Vector(-616, -7816, 112) 
+				angles 		= QAngle(0, 0, -90)
+				landmark 	= "c4m2_sugarmill_a"
 			},
 			{
-				origin = Vector(-1056, -7880, 112) 
-				angles = QAngle(0, 95, 0)
+				origin 		= Vector(-1056, -7880, 112) 
+				angles 		= QAngle(0, 95, 0)
+				landmark 	= "c4m2_sugarmill_a"
 			},
 			{
-				origin = Vector(-1064, -7800, 112) 
-				angles = QAngle(0, 95, 0)
+				origin 		= Vector(-1064, -7800, 112) 
+				angles 		= QAngle(0, 95, 0)
+				landmark 	= "c4m2_sugarmill_a"
 			},
 			{
-				origin = Vector(-1072, -7720, 112) 
-				angles = QAngle(0, 95, 0)
+				origin 		= Vector(-1072, -7720, 112) 
+				angles 		= QAngle(0, 95, 0)
+				landmark 	= "c4m2_sugarmill_a"
 			}
 		]
 	},
@@ -302,46 +325,52 @@ vendorCandidates <- [
 		max = 6,
 		spawnCandidates = [
 			{
-				origin = Vector(-1392, -9184, 608) 
-				angles = QAngle(0, 0, 0)
-				tag	   = "elevatorPanic"
-				flags  = VFLAG_START_LOCKED
-				blacklist = utilityOnlyBlacklist
+				origin 		= Vector(-1392, -9184, 608) 
+				angles 		= QAngle(0, 0, 0)
+				tag	   		= "elevatorPanic"
+				landmark 	= "c4m2_sugarmill_a"
+				flags  		= VFLAG_START_LOCKED
+				blacklist  	= utilityOnlyBlacklist
 			},
 			{
-				origin = Vector(-976, -9184, 608) 
-				angles = QAngle(0, 0, 0)
-				tag	   = "elevatorPanic"
-				flags  = VFLAG_START_LOCKED
-				blacklist = utilityOnlyBlacklist
+				origin 		= Vector(-976, -9184, 608) 
+				angles 		= QAngle(0, 0, 0)
+				tag	   		= "elevatorPanic"
+				landmark 	= "c4m2_sugarmill_a"
+				flags  		= VFLAG_START_LOCKED
+				blacklist 	= utilityOnlyBlacklist
 			},
 			{
-				origin = Vector(-1576, -8960, 608) 
-				angles = QAngle(0, 270, 0)
-				tag	   = "elevatorPanic"
-				flags  = VFLAG_START_LOCKED
-				blacklist = utilityOnlyBlacklist
+				origin 		= Vector(-1576, -8960, 608) 
+				angles 		= QAngle(0, 270, 0)
+				tag	   		= "elevatorPanic"
+				landmark 	= "c4m2_sugarmill_a"
+				flags  		= VFLAG_START_LOCKED
+				blacklist 	= utilityOnlyBlacklist
 			},
 			{
-				origin = Vector(-728, -8976, 608) 
-				angles = QAngle(0, 90, 0)
-				tag	   = "elevatorPanic"
-				flags  = VFLAG_START_LOCKED
-				blacklist = utilityOnlyBlacklist
+				origin 		= Vector(-728, -8976, 608) 
+				angles 		= QAngle(0, 90, 0)
+				tag	   		= "elevatorPanic"
+				landmark 	= "c4m2_sugarmill_a"
+				flags  		= VFLAG_START_LOCKED
+				blacklist 	= utilityOnlyBlacklist
 			},
 			{
-				origin = Vector(-1504, -8480, 608) 
-				angles = QAngle(0, 0, 0)
-				tag	   = "elevatorPanic"
-				flags  = VFLAG_START_LOCKED
-				blacklist = utilityOnlyBlacklist
+				origin 		= Vector(-1504, -8480, 608) 
+				angles 		= QAngle(0, 0, 0)
+				tag	   		= "elevatorPanic"
+				landmark 	= "c4m2_sugarmill_a"
+				flags  		= VFLAG_START_LOCKED
+				blacklist 	= utilityOnlyBlacklist
 			},
 			{
-				origin = Vector(-1192, -8480, 608) 
-				angles = QAngle(0, 0, 0)
-				tag	   = "elevatorPanic"
-				flags  = VFLAG_START_LOCKED
-				blacklist = utilityOnlyBlacklist
+				origin 		= Vector(-1192, -8480, 608) 
+				angles 		= QAngle(0, 0, 0)
+				tag	   		= "elevatorPanic"
+				landmark 	= "c4m2_sugarmill_a"
+				flags  		= VFLAG_START_LOCKED
+				blacklist 	= utilityOnlyBlacklist
 			}
 		]
 	},
@@ -351,19 +380,22 @@ vendorCandidates <- [
 		max = 3,
 		spawnCandidates = [
 			{
-				origin = Vector(-1080, -9520, 128) 
-				angles = QAngle(0, 0, 0)
-				blacklist = utilityOnlyBlacklist
+				origin 		= Vector(-1080, -9520, 128) 
+				angles 		= QAngle(0, 0, 0)
+				landmark 	= "c4m2_sugarmill_a"
+				blacklist 	= utilityOnlyBlacklist
 			},
 			{
-				origin = Vector(-1176, -9520, 128) 
-				angles = QAngle(0, 0, 0)
-				blacklist = utilityOnlyBlacklist
+				origin 		= Vector(-1176, -9520, 128) 
+				angles 		= QAngle(0, 0, 0)
+				landmark 	= "c4m2_sugarmill_a"
+				blacklist 	= utilityOnlyBlacklist
 			},
 			{
-				origin = Vector(-920, -11072, 120) 
-				angles = QAngle(0, 135, -90)
-				blacklist = utilityOnlyBlacklist
+				origin 		= Vector(-920, -11072, 120) 
+				angles 		= QAngle(0, 135, -90)
+				landmark 	= "c4m2_sugarmill_a"
+				blacklist 	= utilityOnlyBlacklist
 			}
 		]
 	},
@@ -373,14 +405,16 @@ vendorCandidates <- [
 		max = 2,
 		spawnCandidates = [
 			{
-				origin = Vector(-1584, -13312, 132) 
-				angles = QAngle(0, 0, 0)
-				blacklist = primaryWeaponOnlyBlacklist
+				origin 		= Vector(-1584, -13312, 132) 
+				angles 		= QAngle(0, 0, 0)
+				landmark 	= "c4m2_sugarmill_a"
+				blacklist 	= primaryWeaponOnlyBlacklist
 			},
 			{
-				origin = Vector(-1888, -13432, 132) 
-				angles = QAngle(0, 90, 0)
-				blacklist = primaryWeaponOnlyBlacklist
+				origin 		= Vector(-1888, -13432, 132) 
+				angles 		= QAngle(0, 90, 0)
+				landmark 	= "c4m2_sugarmill_a"
+				blacklist 	= primaryWeaponOnlyBlacklist
 			}
 		]
 	},
@@ -400,6 +434,7 @@ protectedZones <- [
 	{	//Starting saferoom
 		origin = Vector(3488, -1976, 112)
 		extent = Vector(496, 408, 252)
+		flags  = ZONE_FLAG_NO_CURRENCY
 		protected = [
 			"weapon_ammo_spawn", "weapon_first_aid_kit_spawn"
 		]
@@ -407,6 +442,7 @@ protectedZones <- [
 	{	//Ending saferoom
 		origin = Vector(-1920, -13840, 128)
 		extent = Vector(256, 256, 136)
+		flags  = ZONE_FLAG_NO_CURRENCY
 		protected = [
 			"weapon_ammo_spawn", "weapon_first_aid_kit_spawn"
 		]

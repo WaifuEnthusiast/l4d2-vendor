@@ -21,41 +21,42 @@ const WITCH_ALWAYS 	= 2
  //This means we can simply and easily use probability keys to access data from the main itemdata map.
  //Otherwise, we'll need some janky system where probability overrides are functions that reassign values in a list
  //Example: override = function(x) {x[ITEM_ID.AK47] = 0; x[ITEM_ID.FIRST_AID_KIT] = 100}
- //The randomized then makes a copy of the default probabilities array and passes it into this function in order to reassign values.
+ //The randomizer then makes a copy of the default probabilities array and passes it into this function in order to reassign values.
  //Make a new list. Copy default probs into this list every time we decide on an item. Call override function.
  //Another way would be to just assign big override lists to every spawn candidate, and null all the indicies we want to ignore. This will make the spawndata interfaces really bloated and messy though.
 //Ideally we would want probabilities for categories then probabilities for individual items within each category
  ::VMutVendorSpawnSystem.defaultProbabilities <- [
-	0,	//ITEM_ID.EMPTY,
-	10,	//ITEM_ID.SMG,
-	10,	//ITEM_ID.SMG_SILENCED,
-	10,	//ITEM_ID.SHOTGUN,
-	10,	//ITEM_ID.SHOTGUN_CHROME,
-	10,	//ITEM_ID.AK47,
-	10,	//ITEM_ID.M16,
-	10,	//ITEM_ID.DESERT_RIFLE,
-	10,	//ITEM_ID.AUTOSHOTGUN,
-	10,	//ITEM_ID.SHOTGUN_SPAS,
-	10,	//ITEM_ID.HUNTING_RIFLE,
-	10,	//ITEM_ID.SNIPER_RIFLE,   
-	10,	//ITEM_ID.PISTOL,
-	10,	//ITEM_ID.MAGNUM,
-	20,	//ITEM_ID.MELEE,  
-	10,	//ITEM_ID.MACHINEGUN,
-	10,	//ITEM_ID.GRENADE_LAUNCHER,
-	10,	//ITEM_ID.CHAINSAW,    
-	20,	//ITEM_ID.MOLOTOV,
-	20,	//ITEM_ID.PIPEBOMB,
-	10,	//ITEM_ID.BILE_JAR,    
-	20,	//ITEM_ID.PAIN_PILLS,
-	20,	//ITEM_ID.ADRENALINE,
-	10,	//ITEM_ID.FIRST_AID_KIT,
-	10,	//ITEM_ID.DEFIBRILLATOR,   
-	10,	//ITEM_ID.GAS,
-	10,	//ITEM_ID.PROPANE,   
-	10,	//ITEM_ID.INCENDIARY_UPGRADE,
-	10,	//ITEM_ID.EXPLOSIVE_UPGRADE,
-	10 	//ITEM_ID.LASERSIGHTS_UPGRADE,
+		//item ids						//item keys						//idk which version to use ;;;
+	0,	//ITEM_ID.EMPTY,				"empty"
+	10,	//ITEM_ID.SMG,					"smg"
+	10,	//ITEM_ID.SMG_SILENCED,			"smg_silenced"
+	10,	//ITEM_ID.SHOTGUN,              "shotgun"
+	10,	//ITEM_ID.SHOTGUN_CHROME,       "shotgun_chrome"
+	10,	//ITEM_ID.AK47,                 "ak47"
+	10,	//ITEM_ID.M16,                  "m16"
+	10,	//ITEM_ID.DESERT_RIFLE,         "desert_rifle"
+	10,	//ITEM_ID.AUTOSHOTGUN,          "autoshotgun"
+	10,	//ITEM_ID.SHOTGUN_SPAS,         "shotgun_spas"
+	10,	//ITEM_ID.HUNTING_RIFLE,        "hunting_rifle"
+	10,	//ITEM_ID.SNIPER_RIFLE,         "sniper_rifle"
+	10,	//ITEM_ID.PISTOL,               "pistol"
+	10,	//ITEM_ID.MAGNUM,               "magnum"
+	20,	//ITEM_ID.MELEE,                "melee"
+	10,	//ITEM_ID.MACHINEGUN,           "machinegun"
+	10,	//ITEM_ID.GRENADE_LAUNCHER,     "grenade_launcher"
+	10,	//ITEM_ID.CHAINSAW,             "chainsaw"
+	20,	//ITEM_ID.MOLOTOV,              "molotov"
+	20,	//ITEM_ID.PIPEBOMB,             "pipebomb"
+	10,	//ITEM_ID.BILE_JAR,             "bile_jar"
+	20,	//ITEM_ID.PAIN_PILLS,           "pain_pills"
+	20,	//ITEM_ID.ADRENALINE,           "adrenaline"
+	10,	//ITEM_ID.FIRST_AID_KIT,        "first_aid_kit"
+	10,	//ITEM_ID.DEFIBRILLATOR,        "defibrillator"
+	10,	//ITEM_ID.GAS,                  "gas"
+	10,	//ITEM_ID.PROPANE,              "propane"
+	10,	//ITEM_ID.INCENDIARY_UPGRADE,   "incendiary_upgrade"
+	10,	//ITEM_ID.EXPLOSIVE_UPGRADE,    "explosive_upgrade"
+	10 	//ITEM_ID.LASERSIGHTS_UPGRADE,  "lasersights_upgrade"
 ]
 
 
@@ -81,6 +82,18 @@ const WITCH_ALWAYS 	= 2
 
 
 /*
+ *	Process candidate data and add it to the relevant spawn candidates
+ */
+function VMutVendorSpawnSystem::AddVendorCandidate(candidateData) {
+	foreach (k, v in ::VMutVendorSpawnSystem.defaultSpawnCandidate) {
+		if (!(k in candidateData))
+			candidateData[k] <- v
+	}
+	::VMutVendorSpawnSystem.relevantSpawnCandidates.append(candidateData)
+}
+
+
+/*
  *	Spawns vendors throughout the map
  *	Called at the beginning of the game to properly distribute vendors
  */
@@ -101,14 +114,8 @@ function VMutVendorSpawnSystem::SpawnAndDistributeVendors() {
 	}
 	
 	//PHASE 2
-	//Process spawn candidates and determine what items each relevant spawn candidate will use
+	//Determine what items each relevant spawn candidate will use
 	foreach (spawnCandidate in ::VMutVendorSpawnSystem.relevantSpawnCandidates) {
-		//Process spawn candidates, assign default values
-		foreach (k, v in ::VMutVendorSpawnSystem.defaultSpawnCandidate) {
-			if (!(k in spawnCandidate))
-				spawnCandidate[k] <- v
-		}
-		
 		//Assign item id
 		local itemid = ::VMutItemData.RandomizeItem(spawnCandidate.blacklist)
 		::VMutVendorSpawnSystem.decidedItems.append(itemid)
@@ -154,18 +161,35 @@ function VMutVendorSpawnSystem::AddRelvantSpawnCandidatesFromGroup(spawnCandidat
 		maxSpawns = spawnCandidateGroup.max
 		
 	local spawnCount = RandomInt(minSpawns, maxSpawns)
-		
+	
+	//Get relevant spawn candidates from this group
+	local validCandidates = []
+	foreach (spawnCandidate in spawnCandidateGroup.spawnCandidates) {
+	
+		//@TODO Quick hacky fix. This ideally should not be here.
+		//Instead, aim to create a better system that can validate spawncandidates from mapdata have all the defaults assigned before running them through the selection process.
+		foreach (k, v in ::VMutVendorSpawnSystem.defaultSpawnCandidate) {
+			if (!(k in spawnCandidate))
+			spawnCandidate[k] <- v
+		}
+	
+		if (::VMutVendorSpawnSystem.CandidateIsInNoSpawnZone(spawnCandidate)) //Don't include candidates that are in "no vendor zones"
+			continue
+		if (spawnCandidate.landmark != "" && ::VMutPersistentState.LandmarkExists(spawnCandidate.landmark) && g_MapScript.LandmarkExists(spawnCandidate.landmark))	//Don't include candidates that are included in a persistent landmark
+			continue
+			
+		validCandidates.append(spawnCandidate)
+	
+	}
+	validCandidates = ::VMutUtils.ListRandomSample(validCandidates, spawnCount)
+	
 	//No spawns, do nothing
-	if (spawnCount == 0)
-		return false
-
-	//Get relevant spawn candidates
-	local relevantSpawnCandidates = ::VMutUtils.ListRandomSample(spawnCandidateGroup.spawnCandidates, spawnCount)
+	//if (spawnCount == 0)
+	//	return false
 		
-	//Spawn vendors at relevant spawn candidates
-	foreach (spawnCandidate in relevantSpawnCandidates) {
-		//Assign as relevant
-		::VMutVendorSpawnSystem.relevantSpawnCandidates.append(spawnCandidate)
+	//Process and append relevant candidates
+	foreach (spawnCandidate in validCandidates) {
+		::VMutVendorSpawnSystem.AddVendorCandidate(spawnCandidate)
 	}
 	
 	return true
@@ -202,22 +226,15 @@ function VMutVendorSpawnSystem::SpawnVendorFromSpawnCandidate(spawnCandidate, it
 
 
 /*
- *	Get a random itemid. Do not select any item ids that are within the specified blacklist.
+ *	Recreate vendors that were saved to persistent state from a previous round
  */
- function VMutVendorSpawnSystem::SpawnVendorsFromPostMapData() {
+function VMutVendorSpawnSystem::SpawnVendorsFromLandmarkData() {
  
-	//No landmarks = no data to spawn from
-	if (!("landmarks" in g_MapScript)) {
-		printl(" ** Cannot recreate vendors from post-map data because current map has no landmarks")
-		return false
-	}
-
-	
-	foreach (landmark in g_MapScript.landmarks) {
-		if (!(landmark in ::VMutPersistentState.postMapData))
+	foreach (landmark, landmarkOrigin in g_MapScript.landmarks) {
+		if (!::VMutPersistentState.LandmarkExists(landmark))
 			continue
 	
-		local vendorStateTable = ::VMutPersistentState.postMapData[landmark].vendorState
+		local vendorStateTable = ::VMutPersistentState.landmarkData[landmark].vendorState
 		
 		//Iterate table and spawn vendors
 		foreach(id, state in vendorStateTable) {
@@ -228,13 +245,10 @@ function VMutVendorSpawnSystem::SpawnVendorFromSpawnCandidate(spawnCandidate, it
 			//The more complex vendors become, the more complex the saving/loading process becomes. This also will create more work later on, since changing how vendor data works means we need to change saving/loading functions too...
 			//If all we do is just reassign state, then there is no need to worry about these functions when changing how vendor data works...
 			//Long story short: This is very hacky and stupid and dumb and should be changed but I'm not going to change it because i'm lazy. lol.
-
-			foreach (k, v in state) {
-				printl(k + " - " + v)
-			}
 			
 			//I have no idea why. But loading tables seems to change "flags" to "FLAGS"
-			local vendorData = ::VMutVendor.CreateVendor(::VMutUtils.KVStringToVector(state.origin), ::VMutUtils.KVStringToQAngle(state.angles), (state.FLAGS | VFLAG_POSTMAP_RECREATION), ::VMutUtils.TableToList(state.blacklist))
+			local origin = landmarkOrigin + ::VMutUtils.KVStringToVector(state.origin)
+			local vendorData = ::VMutVendor.CreateVendor(origin, ::VMutUtils.KVStringToQAngle(state.angles), (state.FLAGS | VFLAG_POSTMAP_RECREATION), ::VMutUtils.TableToList(state.blacklist))
 			
 			//Assign post-creation data
 			vendorData.tag 			= state.tag
@@ -249,7 +263,22 @@ function VMutVendorSpawnSystem::SpawnVendorFromSpawnCandidate(spawnCandidate, it
 		}
 	}
 	
-	
 	return true
 	
- }
+}
+ 
+ 
+/*
+ *	Test if the specified vendor spawn candidate exists within a protected zone that disallows vendor spawning
+ */
+function VMutVendorSpawnSystem::CandidateIsInNoSpawnZone(spawnCandidate) {
+	foreach(zone in g_MapScript.protectedZones) {
+		if ((zone.flags & ZONE_FLAG_NO_VENDORS) == 0)
+			continue
+	
+		if (::VMutUtils.PointInBox(spawnCandidate.origin, zone.origin, zone.extent))
+			return true
+	}
+	
+	return false
+}

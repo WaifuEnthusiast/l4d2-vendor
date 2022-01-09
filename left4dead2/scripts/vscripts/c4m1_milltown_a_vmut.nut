@@ -14,14 +14,15 @@ minCurrencySpawns	<- defaultMinCurrencySpawns
 maxCurrencySpawns	<- defaultMaxCurrencySpawns
 startingCurrency	<- defaultStartingCurrency
 
-landmarks			<- [
-	"landmark_c4m1"
-]
+landmarks			= {
+	"c4m1_milltown_a"			: Vector(0, 0, 0)
+	"c4m1_milltown_a_saferoom" 	: Vector(4032, -1600, 296)
+}
 
 //------------------------------------------------------------------------------------------------------
 //PURGE TABLE
 
-purgeTable <- defaultPurgeTable
+purgeSystem.SetPurgeTableCallbacks( @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin(), landmark = "c4m1_milltown_a"} ) )
 
 
 //------------------------------------------------------------------------------------------------------
@@ -67,16 +68,18 @@ vendorCandidates <- [
 		max = 2,
 		spawnCandidates = [
 			{
-				origin = Vector(-6384, 7720, 96)
-				angles = QAngle(0,270,0)
-				witch  = WITCH_DISABLE
-				blacklist = primaryWeaponOnlyBlacklist
+				origin 		= Vector(-6384, 7720, 96)
+				angles 		= QAngle(0,270,0)
+				witch  		= WITCH_DISABLE
+				landmark 	= "c4m1_milltown_a"
+				blacklist 	= primaryWeaponOnlyBlacklist
 			},
 			{
-				origin = Vector(-6384, 7640, 96)
-				angles = QAngle(0,270,0)
-				witch  = WITCH_DISABLE
-				blacklist = primaryWeaponOnlyBlacklist
+				origin 		= Vector(-6384, 7640, 96)
+				angles 		= QAngle(0,270,0)
+				witch  		= WITCH_DISABLE
+				landmark 	= "c4m1_milltown_a"
+				blacklist 	= primaryWeaponOnlyBlacklist
 			}
 		]
 	}
@@ -88,28 +91,28 @@ vendorCandidates <- [
 		max = 3,
 		spawnCandidates = [
 			{
-				origin = Vector(3776, -1568, 232)
-				angles = QAngle(0,90,0)
-				witch  = WITCH_DISABLE
-				flags  = VFLAG_SAFEROOM
-				landmark = "landmark_c4m1"
-				blacklist = primaryWeaponOnlyBlacklist
+				origin 		= Vector(3776, -1568, 232)
+				angles 		= QAngle(0,90,0)
+				witch  		= WITCH_DISABLE
+				flags  		= VFLAG_SAFEROOM
+				landmark 	= "c4m1_milltown_a_saferoom"
+				blacklist 	= primaryWeaponOnlyBlacklist
 			},
 			{
-				origin = Vector(3776, -1512, 232)
-				angles = QAngle(0,90,0)
-				witch  = WITCH_DISABLE
-				flags  = VFLAG_SAFEROOM
-				landmark = "landmark_c4m1"
-				blacklist = primaryWeaponOnlyBlacklist
+				origin 		= Vector(3776, -1512, 232)
+				angles 		= QAngle(0,90,0)
+				witch  		= WITCH_DISABLE
+				flags  		= VFLAG_SAFEROOM
+				landmark 	= "c4m1_milltown_a_saferoom"
+				blacklist 	= primaryWeaponOnlyBlacklist
 			},
 			{
-				origin = Vector(4088, -1568, 104)
-				angles = QAngle(0,0,0)
-				witch  = WITCH_DISABLE
-				flags  = VFLAG_SAFEROOM
-				landmark = "landmark_c4m1"
-				blacklist = primaryWeaponOnlyBlacklist
+				origin 		= Vector(4088, -1568, 104)
+				angles 		= QAngle(0,0,0)
+				witch  		= WITCH_DISABLE
+				flags  		= VFLAG_SAFEROOM
+				landmark 	= "c4m1_milltown_a_saferoom"
+				blacklist 	= primaryWeaponOnlyBlacklist
 			}
 		]
 	}
@@ -118,13 +121,14 @@ vendorCandidates <- [
 //------------------------------------------------------------------------------------------------------
 //CURRENCY ITEM SPAWN TABLE
 
-currencyItemCandidates <- []	//No currency spawns governed by the spawning system
+currencyItemCandidates <- []
 
 	
 //------------------------------------------------------------------------------------------------------
 //ZONE TABLE
 
 protectedZones <- []
+
 
 //------------------------------------------------------------------------------------------------------
 //INITIALIZE ROUND
@@ -151,6 +155,12 @@ function OnActivate() {
 	ent.SetAngles(QAngle(0, 30, 0))
 	
 	::VMutCurrency.CreateCurrencyItem(Vector(-6616, 7552, 132), 1000)
+	//::VMutCurrencySpawnSystem.AddCandidate({
+	//	origin 			= Vector(-6616, 7552, 132)
+	//	landmark 		= "c4m1_milltown_a"
+	//	valueOverride 	= 1000
+	//	flags			= CFLAG_MUST_EXIST | CFLAG_NOT_MAP_CANDIDATE
+	//})
 	
 	
 	//Spawn hints

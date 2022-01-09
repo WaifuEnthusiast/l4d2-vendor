@@ -1,5 +1,8 @@
 //Author: Waifu Enthusiast
 
+//	This entire module is very rushed and very hacky.
+//	Please bear with me.
+
 ::VMutPersistentState <- {}
 
 
@@ -14,58 +17,20 @@
  *	This table is primarily used for preserving vendor state between the map transitions of Hard Rain. All vendors will be as they were when the survivors revisit them on the return trip.
  */
  
-::VMutPersistentState.postMapData <- {}	//Index this table with map names
+::VMutPersistentState.landmarkData <- {}	//Index this table with map names
 
 
 /*
  *	Builds a table containing the post-map data of the current round, then assigns it to the specified mapslot
  */
-function VMutPersistentState::BuildPostMapData() {
+function VMutPersistentState::BuildLandmarkData() {
 
-	//Build a landmark with the same name as the map if it doesn't already exist
-	::VMutPersistentState.InitializeLandmarkTable(g_ModeScript.Director.GetMapName())
-	
-	
-	//Build landmark tables from the current map's landmarks if they don't already exist
+	//Build landmark tables from the current map script's landmarks if they don't already exist
 	if ("landmarks" in g_MapScript) {
-		foreach (landmark in g_MapScript.landmarks)
+		foreach (landmark, landmarkOrigin in g_MapScript.landmarks) {
 			::VMutPersistentState.InitializeLandmarkTable(landmark)
-	}
-	
-	
-	//Loop through vendors and build landmark data
-	foreach (id, vendorData in ::VMutVendor.vendorTable) {
-		
-		if (!::VMutVendor.VendorExists(vendorData))
-			continue
-			
-		//Can't assign to a landmark if the vendor doesn't specify one. Instead, save it to the map landmark.
-		if (!vendorData.landmark || vendorData.landmark == "" || !(vendorData.landmark in ::VMutPersistentState.postMapData)) {
-			::VMutPersistentState.AssignVendorStateToLandmark(vendorData, g_ModeScript.Director.GetMapName())
-			continue
+			::VMutPersistentState.PopulateLandmarkTable(landmark, landmarkOrigin, ::VMutVendor.vendorTable, ::VMutCurrency.currencyItemTable)
 		}
-			
-		//Assign vendor state to the landmark
-		::VMutPersistentState.AssignVendorStateToLandmark(vendorData, vendorData.landmark)
-		
-	}
-	
-	
-	//Loop through currency items and build landmark data
-	foreach (id, currencyItem in ::VMutCurrency.currencyItemTable) {
-		
-		if (!::VMutCurrency.CurrencyItemExists(currencyItem))
-			continue
-			
-		//Can't assign to a landmark if the vendor doesn't specify one. Instead, save it to the map landmark.
-		if (!currencyItem.landmark || currencyItem.landmark == "" || !(currencyItem.landmark in ::VMutPersistentState.postMapData)) {
-			::VMutPersistentState.AssignCurrencyItemStateToLandmark(currencyItem, g_ModeScript.Director.GetMapName())
-			continue
-		}
-			
-		//Assign vendor state to the landmark
-		::VMutPersistentState.AssignCurrencyItemStateToLandmark(currencyItem, currencyItem.landmark)
-		
 	}
 	
 }
@@ -77,31 +42,82 @@ function VMutPersistentState::BuildPostMapData() {
  */
 function VMutPersistentState::InitializeLandmarkTable(landmark) {
 
-	if (!(landmark in ::VMutPersistentState.postMapData)) {
-		::VMutPersistentState.postMapData[landmark] <- {
+	if (!(landmark in ::VMutPersistentState.landmarkData)) {
+		::VMutPersistentState.landmarkData[landmark] <- {
 			vendorState 		= {}
 			currencyItemState 	= {}
 		}
 	}
 				
-	::VMutPersistentState.postMapData[landmark].vendorState.clear()
-	::VMutPersistentState.postMapData[landmark].currencyItemState.clear()
+	::VMutPersistentState.landmarkData[landmark].vendorState.clear()
+	::VMutPersistentState.landmarkData[landmark].currencyItemState.clear()
 	
-	return ::VMutPersistentState.postMapData[landmark]
+	return ::VMutPersistentState.landmarkData[landmark]
 	
+}
+
+
+/*
+ *	Test if the specified landmark exists in persistent state
+ */
+function VMutPersistentState::LandmarkExists(landmark) {
+	return (landmark in ::VMutPersistentState.landmarkData)
+}
+
+
+/*
+ *	Fills a landmark table with vendor and currency item state
+ */
+function VMutPersistentState::PopulateLandmarkTable(landmark, landmarkOrigin, vendorTable, currencyItemTable) {
+	
+	//We really don't want to be looping through every single vendor and currency item for each landmark.
+	//This will create a stupidly huge number of loops for every new landmark.
+	//It would be much better to have a system that simply loops items and vendors once, and then can reference landmakrs somewhere else to get the name and origin...
+	
+	local landmarkTable = ::VMutPersistentState.landmarkData[landmark]
+
+	//Loop through vendors and build landmark data
+	foreach (id, vendorData in ::VMutVendor.vendorTable) {
+		if (!::VMutVendor.VendorExists(vendorData))
+			continue
+		if (!vendorData.landmark)
+			continue
+		if (vendorData.landmark == "")
+			continue
+		if (vendorData.landmark != landmark)
+			continue
+
+		//Assign vendor state to the landmark
+		::VMutPersistentState.AssignVendorStateToLandmark(vendorData, landmark, landmarkOrigin)
+	}
+	
+	//Loop through currency items and build landmark data
+	foreach (id, currencyItem in ::VMutCurrency.currencyItemTable) {
+		if (!::VMutCurrency.CurrencyItemExists(currencyItem))
+			continue
+		if (!currencyItem.landmark)
+			continue
+		if (currencyItem.landmark == "")
+			continue
+		if (currencyItem.landmark != landmark)
+			continue
+
+		//Assign vendor state to the landmark
+		::VMutPersistentState.AssignCurrencyItemStateToLandmark(currencyItem, landmark, landmarkOrigin)
+	}
 }
 
 
 /*
  *	Builds a table containing vendor state which can easily be saved to a persistent table
  */
-function VMutPersistentState::AssignVendorStateToLandmark(vendorData, landmark) {
+function VMutPersistentState::AssignVendorStateToLandmark(vendorData, landmark, landmarkOrigin) {
 
-	printl(vendorData)
+	local offset = vendorData.spawnData.origin - landmarkOrigin
 
 	//@TODO I am very unhappy with this. I should be able to just say destTable[id] <- vendorData.state. Then, I should be able to just pass the state table into a function to create a vendor without any conversions.
 	local vendorState = {	//Convert vendor state into a format that can easily be saved/restored from saved tables...
-		origin 		= vendorData.spawnData.origin.ToKVString()
+		origin 		= offset.ToKVString()
 		angles 		= vendorData.spawnData.angles.ToKVString()
 		blacklist 	= vendorData.spawnData.blacklist
 		itemID		= vendorData.itemId
@@ -112,7 +128,7 @@ function VMutPersistentState::AssignVendorStateToLandmark(vendorData, landmark) 
 		FLAGS		= vendorData.flags //For whatever reason, "flags" becomes capitalized to "FLAGS" after saving this table. No idea why.
 		
 	}
-	::VMutPersistentState.postMapData[landmark].vendorState[vendorData.id] <- vendorState
+	::VMutPersistentState.landmarkData[landmark].vendorState[vendorData.id] <- vendorState
 	
 }
 
@@ -120,14 +136,18 @@ function VMutPersistentState::AssignVendorStateToLandmark(vendorData, landmark) 
 /*
  *	Builds a table containing currency item state which can easily be saved to a persistent table
  */
-function VMutPersistentState::AssignCurrencyItemStateToLandmark(data, landmark) {
+function VMutPersistentState::AssignCurrencyItemStateToLandmark(data, landmark, landmarkOrigin) {
 
+	local offset = data.entities.prop.GetOrigin() - landmarkOrigin
+	
 	local state = {
-		origin 		= data.entities.prop.GetOrigin().ToKVString()
+		origin 		= offset.ToKVString()
 		value  		= data.value
+		tag			= data.tag
 		landmark 	= data.landmark
+		flags		= data.flags
 	}
-	::VMutPersistentState.postMapData[landmark].currencyItemState[data.id] <- state
+	::VMutPersistentState.landmarkData[landmark].currencyItemState[data.id] <- state
 	
 }
 
@@ -135,11 +155,11 @@ function VMutPersistentState::AssignCurrencyItemStateToLandmark(data, landmark) 
 /*
  *	Saves the post-map data table to a persistent table
  */
-function VMutPersistentState::SavePostMapData() {
+function VMutPersistentState::SaveLandmarkData() {
 
-	g_ModeScript.SaveTable("postMapData", ::VMutPersistentState.postMapData)
+	g_ModeScript.SaveTable("landmarkData", ::VMutPersistentState.landmarkData)
 	printl(" ** SAVED post map data ")
-	foreach(landmark, table in ::VMutPersistentState.postMapData) {
+	foreach(landmark, table in ::VMutPersistentState.landmarkData) {
 		printl(landmark + " - " + table)
 	}
 	
@@ -149,10 +169,10 @@ function VMutPersistentState::SavePostMapData() {
 /*
  *	Copies the contents of the persistent table into the post-map data table
  */
-function VMutPersistentState::LoadPostMapData() {
-	g_ModeScript.RestoreTable("postMapData", ::VMutPersistentState.postMapData)
+function VMutPersistentState::LoadLandmarkData() {
+	g_ModeScript.RestoreTable("landmarkData", ::VMutPersistentState.landmarkData)
 	printl(" ** LOADED post map data ")
-	foreach(landmark, table in ::VMutPersistentState.postMapData) {
+	foreach(landmark, table in ::VMutPersistentState.landmarkData) {
 		printl(landmark + " - " + table)
 	}
 	

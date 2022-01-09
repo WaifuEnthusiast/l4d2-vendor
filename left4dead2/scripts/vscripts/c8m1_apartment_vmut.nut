@@ -24,7 +24,7 @@ startingCurrency	<- defaultStartingCurrency
 //------------------------------------------------------------------------------------------------------
 //PURGE TABLE
 
-purgeTable <- defaultPurgeTable
+//purgeTable <- defaultPurgeTable
 
 
 //------------------------------------------------------------------------------------------------------

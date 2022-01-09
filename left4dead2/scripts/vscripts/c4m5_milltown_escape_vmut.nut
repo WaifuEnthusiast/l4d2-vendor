@@ -38,11 +38,16 @@ minCurrencySpawns	<- 0
 maxCurrencySpawns	<- 0
 startingCurrency	<- defaultStartingCurrency
 
+landmarks			= {
+	"c4m1_milltown_a"	: Vector(0, 0, 0)
+}
+
 
 //------------------------------------------------------------------------------------------------------
 //PURGE TABLE
 
-purgeTable <- defaultPurgeTable
+//purgeTable <- defaultPurgeTable
+purgeSystem.SetPurgeTableCallbacks( @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin(), landmark = "c4m1_milltown_a"} ) )
 
 
 //------------------------------------------------------------------------------------------------------

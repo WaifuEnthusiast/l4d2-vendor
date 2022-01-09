@@ -12,7 +12,8 @@ printl(" ** Executing mode script")
 
 const DEFAULT_STARTING_CURRENCY = 4000
 
-const ZONE_FLAG_NO_CURRENCY		= 0	//No currency items will spawn in this zone
+const ZONE_FLAG_NO_VENDORS		= 1	//No vendors will spawn in this zone
+const ZONE_FLAG_NO_CURRENCY		= 2	//No currency items will spawn in this zone
 
 //------------------------------------------------------------------------------------------------------
 //INCLUDE
@@ -44,6 +45,10 @@ g_MapScript.defaultMinCurrencySpawns<- 30
 g_MapScript.defaultMaxCurrencySpawns<- 40
 g_MapScript.defaultStartingCurrency	<- 4000	//When a map is loaded at the start of a campagin, set currency to this ammount
 
+g_MapScript.defaultVendorCandidates 		<- []
+g_MapScript.defaultCurrencyItemCandidates 	<- []
+g_MapScript.defaultProtectedZones			<- []
+
 //Assign defaults to map properties here?
 //minMedkitVendors <- defaultMinMedkitVendors????
 
@@ -54,52 +59,79 @@ g_MapScript.defaultStartingCurrency	<- 4000	//When a map is loaded at the start 
  *	Currently can only purge by classname, but additional purging criteria will be added in the future
  *	classname		- purge entities of this classname
  *	callback		- function that is executed when an entity is purged. The purged entity is passed as the argument.
+ *	condition 		- a function that returns a boolean. If it returns false, cancel the purge.
  *
  *	Potential future criteria:
  *	targetname		- purge entities with this name
  *	position		- purge entities at this position
- *	condition 		- a function that returns a boolean. If it returns false, cancel the purge.
  *
  *	This is very similar to the sanitize table that is already present in the l4d2 mutation system.
  *	If there were some way to add callbacks to sanitized entities in the sanitize table then I would just be using that instead.
  *	Alas, I don't know any way to add pre or post functionality to each entity sanitized by the sanitize table. Thus, please welcome the purge table.
  */
-g_MapScript.defaultPurgeTable <- [
-	{classname = "weapon_spawn", 						callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
-	{classname = "weapon_item_spawn", 					callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
-	{classname = "weapon_ammo_spawn", 					callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
-	{classname = "weapon_melee_spawn", 					callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
-	{classname = "weapon_first_aid_kit_spawn", 			callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
-	{classname = "weapon_defibrillator_spawn", 			callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
-	{classname = "weapon_pain_pills_spawn", 			callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
-	{classname = "weapon_adrenaline_spawn",				callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
-	{classname = "weapon_molotov_spawn",				callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
-	{classname = "weapon_pipe_bomb_spawn",				callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
-	{classname = "weapon_vomitjar_spawn",				callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
-	{classname = "weapon_vomitjar_spawn",				callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
-	{classname = "weapon_upgradepack_incendiary_spawn",	callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
-	{classname = "weapon_upgradepack_explosive_spawn",	callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
-	{classname = "weapon_smg_spawn",                    callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
-	{classname = "weapon_smg_silenced_spawn",           callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
-	{classname = "weapon_shotgun_spawn",                callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
-	{classname = "weapon_shotgun_chrome_spawn",         callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
-	{classname = "weapon_rifle_spawn",                  callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
-	{classname = "weapon_ak47_spawn",                   callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
-	{classname = "weapon_desert_rifle_spawn",           callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
-	{classname = "weapon_autoshotgun_spawn",            callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
-	{classname = "weapon_shotgun_spas_spawn",           callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
-	{classname = "weapon_hunting_rifle_spawn",          callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
-	{classname = "weapon_sniper_military_spawn",        callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
-	{classname = "weapon_chainsaw_spawn",               callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
-	{classname = "weapon_grenade_launcher_spawn",       callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
-	{classname = "weapon_m60_spawn",					callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
-	{classname = "weapon_pistol_spawn",					callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())},
-	{classname = "weapon_pistol_magnum_spawn",			callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate(ent.GetOrigin())}
+g_MapScript.purgeTable <- [
+	{classname = "weapon_spawn", 						callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	{classname = "weapon_item_spawn", 					callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	{classname = "weapon_ammo_spawn", 					callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	{classname = "weapon_melee_spawn", 					callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	{classname = "weapon_first_aid_kit_spawn", 			callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	{classname = "weapon_defibrillator_spawn", 			callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	{classname = "weapon_pain_pills_spawn", 			callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	{classname = "weapon_adrenaline_spawn",				callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	{classname = "weapon_molotov_spawn",				callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	{classname = "weapon_pipe_bomb_spawn",				callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	{classname = "weapon_vomitjar_spawn",				callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	{classname = "weapon_upgradepack_incendiary_spawn",	callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	{classname = "weapon_upgradepack_explosive_spawn",	callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	{classname = "weapon_smg_spawn",                    callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	{classname = "weapon_smg_silenced_spawn",           callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	{classname = "weapon_shotgun_spawn",                callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	{classname = "weapon_shotgun_chrome_spawn",         callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	{classname = "weapon_rifle_spawn",                  callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	{classname = "weapon_ak47_spawn",                   callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	{classname = "weapon_desert_rifle_spawn",           callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	{classname = "weapon_autoshotgun_spawn",            callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	{classname = "weapon_shotgun_spas_spawn",           callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	{classname = "weapon_hunting_rifle_spawn",          callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	{classname = "weapon_sniper_military_spawn",        callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	{classname = "weapon_chainsaw_spawn",               callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	{classname = "weapon_grenade_launcher_spawn",       callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	{classname = "weapon_m60_spawn",					callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	{classname = "weapon_pistol_spawn",					callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	{classname = "weapon_pistol_magnum_spawn",			callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	{classname = "weapon_pistol_gascan_spawn",			callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	{classname = "weapon_pistol_propane_spawn",			callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	{classname = "weapon_ammo", 						callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	{classname = "weapon_melee", 						callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
+	{classname = "weapon_first_aid_kit", 				callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
+	{classname = "weapon_defibrillator", 				callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
+	{classname = "weapon_pain_pills", 					callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
+	{classname = "weapon_adrenaline",					callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
+	{classname = "weapon_molotov",						callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
+	{classname = "weapon_pipe_bomb",					callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
+	{classname = "weapon_vomitjar",						callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
+	{classname = "weapon_upgradepack_incendiary",		callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
+	{classname = "weapon_upgradepack_explosive",		callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
+	{classname = "weapon_smg",                    		callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
+	{classname = "weapon_smg_silenced",           		callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
+	{classname = "weapon_shotgun",                		callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
+	{classname = "weapon_shotgun_chrome",         		callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
+	{classname = "weapon_rifle",                  		callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
+	{classname = "weapon_ak47",                   		callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
+	{classname = "weapon_desert_rifle",           		callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
+	{classname = "weapon_autoshotgun",            		callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
+	{classname = "weapon_shotgun_spas",           		callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
+	{classname = "weapon_hunting_rifle",          		callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
+	{classname = "weapon_sniper_military",        		callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
+	{classname = "weapon_chainsaw",               		callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
+	{classname = "weapon_grenade_launcher",       		callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
+	{classname = "weapon_m60",							callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
+	{classname = "weapon_pistol",						callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
+	{classname = "weapon_pistol_magnum",				callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
+	{classname = "weapon_pistol_gascan",				callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
+	{classname = "weapon_pistol_propane",				callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
+	{classname = "prop_physics", 						callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) (ent.GetModelName() ==  "models/props_junk/propanecanister001a.mdl" || ent.GetModelName() == "models/props_junk/gascan001a.mdl") }
 ]
-
-g_MapScript.defaultVendorCandidates 		<- []
-g_MapScript.defaultCurrencyItemCandidates 	<- []
-g_MapScript.defaultProtectedZones			<- []
 
 
 //------------------------------------------------------------------------------------------------------
@@ -122,13 +154,13 @@ function OnGameplayStart() {
 	//	g_MapScript.MapSetup()
 	
 	//Post-map data persistence
-	::VMutPersistentState.LoadPostMapData()
-	::VMutPersistentState.SavePostMapData()
+	::VMutPersistentState.LoadLandmarkData()
+	::VMutPersistentState.SaveLandmarkData()	//Saved tables are cleared after they are restored, thus we need to immediately save them again...
 	
 	//Map setup: Spawn vendors and currency items
 	//@TODO move these to map scripts?
-	::VMutVendorSpawnSystem.SpawnVendorsFromPostMapData()
-	::VMutCurrencySpawnSystem.SpawnCurrencyItemsFromPostMapData()
+	::VMutVendorSpawnSystem.SpawnVendorsFromLandmarkData()
+	::VMutCurrencySpawnSystem.SpawnCurrencyItemsFromLandmarkData()
 		
 	::VMutVendorSpawnSystem.SpawnAndDistributeVendors()
 	::VMutCurrencySpawnSystem.SpawnAndDistributeCurrencyItems()
@@ -136,14 +168,13 @@ function OnGameplayStart() {
 	//Round setup: Setup survivor state
 	::VMutCurrency.LoadPersistentCurrency()
 	if (!::VMutCurrency.IsInitialized()) {
-		::VMutCurrency.SetInitialized()
-		
 		if ("startingCurrency" in g_MapScript)
 			::VMutCurrency.GiveCurrencyToAllSurvivors(g_MapScript.startingCurrency)
 		else
 			::VMutCurrency.GiveCurrencyToAllSurvivors(DEFAULT_STARTING_CURRENCY)
+		::VMutCurrency.SetInitialized()
 	}
-	::VMutCurrency.SavePersistentCurrency()
+	::VMutCurrency.SavePersistentCurrency() //Saved tables are cleared after they are restored, thus we need to immediately save them again...
 }
 
 
@@ -172,20 +203,16 @@ function Precache() {
 //PERSISTENT DATA SAVING
 
 function OnGameEvent_map_transition(params) {
+
 	printl(" ** map transition")
 	
 	//Save current currency to persistent currency table
 	::VMutCurrency.SavePersistentCurrency()
 	
 	//Save post-map data
-	::VMutPersistentState.BuildPostMapData()
-	::VMutPersistentState.SavePostMapData()
-	
-	//Save vendor state to post-round data
-	//::VMutVendor.SavePersistentVendorState()
-	
-	//Save currency item state to post-round data
-	//::VMutCurrencySpawnSystem.SavePersistentCurrencyItemState()
+	::VMutPersistentState.BuildLandmarkData()
+	::VMutPersistentState.SaveLandmarkData()
+
 }
 
 
@@ -297,6 +324,17 @@ function PrecacheMeleeModels() {
 		PrecacheModel(modelName)
 }
 
+
+//------------------------------------------------------------------------------------------------------
+//LANDMARKS
+
+g_MapScript.landmarks <- []
+
+function g_MapScript::LandmarkExists(landmark) {
+	return (landmark in g_MapScript.landmarks)
+}
+
+
 //------------------------------------------------------------------------------------------------------
 //PURGE SYSTEM
 
@@ -316,7 +354,17 @@ g_MapScript.purgeSystem <- {
 		return false
 	}
 
-		
+	
+	/*
+	 *	Assign a new callback function to all purge entries within the purge table
+	 */
+	SetPurgeTableCallbacks = function(newCallback) {
+		foreach (purgeEntry in g_MapScript.purgeTable) {
+			purgeEntry.callback = newCallback
+		}
+	}
+	
+	
 	/*
 	 *	Purge all entities that fit the criteria of the current map's purge table
 	 */
@@ -326,15 +374,25 @@ g_MapScript.purgeSystem <- {
 			local ent = null
 			
 			//Initialize callbacks
+			local condition = null
+			if ("condition" in purgeEntry) {	//pre-callback
+				condition = purgeEntry.condition
+			}
 			local callback = null
-			if ("callback" in purgeEntry) {
+			if ("callback" in purgeEntry) {		//post-callback
 				callback = purgeEntry.callback
 			}
 			
-			
 			//Purge by classname
 			if ("classname" in purgeEntry) {
-				while (ent = Entities.FindByClassname(ent, purgeEntry.classname)) {
+				while (ent = Entities.FindByClassname(ent, purgeEntry.classname)) {			
+					//Do not purge entities held by a player. (possibly change this to a "condition")
+					//if (ent.GetOwnerEntity())
+					//	continue
+				
+					//Test condition
+					if (condition && !condition(ent))
+						continue
 				
 					//Do not purge entities that are inside a protected zone
 					local isProtected = false
@@ -344,10 +402,12 @@ g_MapScript.purgeSystem <- {
 						}
 					}
 				
-					if (!isProtected) {
-						if (callback) {callback(ent)}	//Execute callback
-						ent.Kill()						//Then kill
-					}
+					if (isProtected) 
+						continue
+						
+					if (callback) {callback(ent)}	//Execute callback
+					ent.Kill()						//Then kill
+
 				}
 			}
 		}

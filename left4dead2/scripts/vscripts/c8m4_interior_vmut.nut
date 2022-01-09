@@ -24,7 +24,7 @@ startingCurrency	<- defaultStartingCurrency
 //------------------------------------------------------------------------------------------------------
 //PURGE TABLE
 
-purgeTable <- defaultPurgeTable
+//purgeTable <- defaultPurgeTable
 
 
 //------------------------------------------------------------------------------------------------------
@@ -286,6 +286,7 @@ protectedZones <- [
 	{
 		origin 		= Vector(12272, 12176, 16)
 		extent 		= Vector(168, 272, 128)
+		flags  		= ZONE_FLAG_NO_CURRENCY
 		protected	= [
 			"weapon_first_aid_kit_spawn",
 			"weapon_ammo_spawn"
@@ -294,6 +295,7 @@ protectedZones <- [
 	{
 		origin 		= Vector(12272, 12448, 16)
 		extent 		= Vector(208, 224, 128)
+		flags  		= ZONE_FLAG_NO_CURRENCY
 		protected	= [
 			"weapon_first_aid_kit_spawn",
 			"weapon_ammo_spawn"
@@ -304,6 +306,7 @@ protectedZones <- [
 	{
 		origin 		= Vector(11280, 14784, 5536)
 		extent 		= Vector(424, 320, 192)
+		flags 		= ZONE_FLAG_NO_CURRENCY
 		protected	= [
 			"weapon_first_aid_kit_spawn",
 			"weapon_ammo_spawn"
