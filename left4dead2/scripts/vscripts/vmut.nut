@@ -20,6 +20,7 @@ const ZONE_FLAG_NO_CURRENCY		= 2	//No currency items will spawn in this zone
 
 //@TODO move VendorEnt out of global scope, and have it ONLY referenced in vmut_vendor.nut. Then, if we want to create a vendor from anywhere in the program, we should use either VendorSpawnSystem.Spawn vendor or Vendor.CreateVendor()
 IncludeScript("entitygroups/vmut_vendor_group.nut")
+IncludeScript("entitygroups/vmut_vendor_mini_group.nut")
 IncludeScript("entitygroups/vmut_currency_item_group.nut")
 
 IncludeScript("vmut/vmut_persistent_state")
