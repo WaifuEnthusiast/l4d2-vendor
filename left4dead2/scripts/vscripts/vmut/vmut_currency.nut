@@ -25,6 +25,14 @@ const CURRENCY_SOURCE_SI_KILLED		= 3
   *	So here is the solution. A horrible survivor-slot-to-mapped-value thingamajig. Death.
   */
 
+  
+function VMutCurrency::Precache() {
+	PrecacheModel("models/props_collectables/money_wad.mdl")	//small
+	PrecacheModel("models/props_waterfront/money_pile.mdl")		//med
+	PrecacheModel("models/props_collectables/gold_bar.mdl")		//big
+}
+  
+  
 //------------------------------------------------------------------------------------------------------
 //CURRENCY RESOURCE
   
@@ -151,11 +159,16 @@ function VMutCurrency::SetInitialized() {
 ::VMutCurrency.currencyItemTable <- {}
 ::VMutCurrency.currencyItemSpawnCount <- 0
 
+::VMutCurrency.currencyItemModels <- [
+	"models/props_collectables/money_wad.mdl",	//small
+	"models/props_waterfront/money_pile.mdl",	//med
+	"models/props_collectables/gold_bar.mdl"	//big
+]
 
 /*
  *	Create a currency item
  */
-function VMutCurrency::CreateCurrencyItem(origin, value) {
+function VMutCurrency::CreateCurrencyItem(origin, angles, value) {
 
 	//DATA
 
@@ -187,9 +200,15 @@ function VMutCurrency::CreateCurrencyItem(origin, value) {
 	entGroup.SpawnTables[ "button" ].PostPlaceCB 	<- function(entity, rarity) {currencyItemData.entities.button	<- entity}
 	
 	//Spawn the entity group
-	local angles = QAngle(0, RandomInt(0, 360), 0)
 	g_ModeScript.SpawnSingleAt(entGroup, origin, angles)
 	
+	//Determine what model the currency item should use
+	local model = ::VMutCurrency.currencyItemModels[0]
+	if (value >= 1000)
+		model = ::VMutCurrency.currencyItemModels[1]
+	if (value >= 2000)
+		model = ::VMutCurrency.currencyItemModels[2]
+	currencyItemData.entities.prop.SetModel(model)
 	
 	
 	//FUNCTIONALITY

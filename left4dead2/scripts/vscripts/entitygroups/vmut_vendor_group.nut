@@ -129,7 +129,7 @@
 					rendermode = "0"
 					SetBodyGroup = "0"
 					skin = "0"
-					solid = "6"
+					solid = "0"
 					spawnflags = "0"
 					StartDisabled = "0"
 					targetname = "prop_item"

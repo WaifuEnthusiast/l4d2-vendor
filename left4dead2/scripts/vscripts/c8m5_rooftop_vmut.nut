@@ -1,11 +1,18 @@
-/*
- *	Moved spawn-data into a map script to take advantage of the fact that the l4d2 mutation system will automatically load any script that has the same name as the current map.
- */
+//Author: Waifu Enthusiast
 
 printl(" ** Executing map script")
 
+
 function Precache() {
 	printl(" ** Map precache")
+}
+
+
+function OnActivate() {
+	printl(" ** Map OnActivate")
+	
+	//Free 1k to buy a T2 weapon...
+	::VMutCurrency.CreateCurrencyItem(Vector(5856, 8336, 5956), QAngle(0,0,0), 1000)	
 }
 
 
@@ -459,6 +466,7 @@ protectedZones <- [
 	{
 		origin 		= Vector(5248, 8160, 5536)
 		extent 		= Vector(448, 416, 128)
+		flags		= 0
 		protected	= [
 			"weapon_first_aid_kit_spawn",
 			"weapon_ammo_spawn"
@@ -469,6 +477,7 @@ protectedZones <- [
 	{
 		origin 		= Vector(5472, 8288, 6048)
 		extent 		= Vector(528, 432, 224)
+		flags		= 0
 		protected	= [
 			"weapon_first_aid_kit_spawn",
 			"prop_minigun_l4d1"
@@ -497,14 +506,6 @@ IncludeScript("vmut/vmut_balloon_manager")
 
 //------------------------------------------------------------------------------------------------------
 //MAP EVENTS AND SCRIPTED BEHAVIOURS
-
-
-function OnActivate() {
-	printl(" ** Map OnActivate")
-	
-	//Free 1k to buy a T2 weapon...
-	::VMutCurrency.CreateCurrencyItem(Vector(5856, 8336, 5956), 1000)	
-}
 
 
 eventFinale <- false

@@ -1,5 +1,8 @@
 //Author: Waifu Enthusiast
 
+printl(" ** Executing map script")
+
+
 function Precache() {
 	printl(" ** Map Precache")
 }
@@ -7,6 +10,21 @@ function Precache() {
 
 function OnActivate() {
 	printl(" ** Map OnActivate")
+	
+	//Spawn table of money in ending saferoom
+	local kvs = {
+		targetname 			= "vmut_money_table"
+		origin				= Vector(-1880, -13756, 132)
+		model				= "models/props_interiors/table_kitchen.mdl"
+		solid				= 6
+	}
+	local ent = SpawnEntityFromTable("prop_dynamic", kvs)
+	
+	::VMutCurrency.CreateCurrencyItem(Vector(-1880, -13776, 167), QAngle(0,0,0), 1000).landmark = "c4m2_sugarmill_a"
+	::VMutCurrency.CreateCurrencyItem(Vector(-1880, -13756, 167), QAngle(0,0,0), 1000).landmark = "c4m2_sugarmill_a"
+	::VMutCurrency.CreateCurrencyItem(Vector(-1880, -13736, 167), QAngle(0,0,0), 1000).landmark = "c4m2_sugarmill_a"
+	::VMutCurrency.CreateCurrencyItem(Vector(-1880, -13716, 167), QAngle(0,0,0), 1000).landmark = "c4m2_sugarmill_a"
+	
 	
 	//Create a hint for the elevator panic event
 	local kvs = {

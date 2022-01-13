@@ -1,11 +1,15 @@
-/*
- *	Moved spawn-data into a map script to take advantage of the fact that the l4d2 mutation system will automatically load any script that has the same name as the current map.
- */
+//Author: Waifu Enthusiast
 
 printl(" ** Executing map script")
 
+
 function Precache() {
 	printl(" ** Map precache")
+}
+
+
+function OnActivate() {
+	printl(" ** Map OnActivate")
 }
 
 
@@ -44,6 +48,7 @@ vendorCandidates <- [
 					ITEM_ID.PISTOL,
 					ITEM_ID.MAGNUM,
 					ITEM_ID.MELEE,
+					ITEM_ID.MACHINEGUN
 					ITEM_ID.MOLOTOV,
 					ITEM_ID.PIPEBOMB,
 					ITEM_ID.BILE_JAR,		
@@ -102,12 +107,11 @@ vendorCandidates <- [
 			}
 		]
 	}
-		
-		
+			
 	//Subway tunnel
 	{
-		min = 2,
-		max = 3,
+		min = 1,
+		max = 2,
 		spawnCandidates = [
 			{
 				origin = Vector(3480, 4456, -288)
@@ -116,13 +120,69 @@ vendorCandidates <- [
 			{
 				origin = Vector(3480, 3680, -288)
 				angles = QAngle(0, 255, 0)
-			},
+			}
+		]
+	},
+	
+	//Subway weapon table
+	{
+		min = 2,
+		max = 2,
+		spawnCandidates = [
 			{
 				origin = Vector(4920, 4032, -336)
 				angles = QAngle(0, 0, 0)
-			}
+				blacklist = [	//Only spawns with T2 primary weapons
+					ITEM_ID.PISTOL,
+					ITEM_ID.MAGNUM,
+					ITEM_ID.MELEE,
+					ITEM_ID.SMG,
+					ITEM_ID.SMG_SILENCED,
+					ITEM_ID.SHOTGUN,
+					ITEM_ID.SHOTGUN_CHROME,
+					ITEM_ID.MOLOTOV,
+					ITEM_ID.PIPEBOMB,
+					ITEM_ID.BILE_JAR,		
+					ITEM_ID.PAIN_PILLS,
+					ITEM_ID.ADRENALINE,
+					ITEM_ID.FIRST_AID_KIT,
+					ITEM_ID.DEFIBRILLATOR,	
+					ITEM_ID.GAS,
+					ITEM_ID.PROPANE,
+					ITEM_ID.INCENDIARY_UPGRADE,
+					ITEM_ID.EXPLOSIVE_UPGRADE,
+					ITEM_ID.LASERSIGHTS_UPGRADE
+				]
+			},
+			{
+				origin = Vector(5024, 4028, -298)
+				angles = QAngle(0, 0, 0)
+				witch  = WITCH_DISABLE
+				flags  = VFLAG_IS_MINI
+				blacklist = [	//Only spawns with T2 primary weapons
+					ITEM_ID.PISTOL,
+					ITEM_ID.MAGNUM,
+					ITEM_ID.MELEE,
+					ITEM_ID.SMG,
+					ITEM_ID.SMG_SILENCED,
+					ITEM_ID.SHOTGUN,
+					ITEM_ID.SHOTGUN_CHROME,
+					ITEM_ID.MOLOTOV,
+					ITEM_ID.PIPEBOMB,
+					ITEM_ID.BILE_JAR,		
+					ITEM_ID.PAIN_PILLS,
+					ITEM_ID.ADRENALINE,
+					ITEM_ID.FIRST_AID_KIT,
+					ITEM_ID.DEFIBRILLATOR,	
+					ITEM_ID.GAS,
+					ITEM_ID.PROPANE,
+					ITEM_ID.INCENDIARY_UPGRADE,
+					ITEM_ID.EXPLOSIVE_UPGRADE,
+					ITEM_ID.LASERSIGHTS_UPGRADE
+				]
+			},
 		]
-	}
+	},
 	
 	//Subway end
 	{
@@ -144,19 +204,23 @@ vendorCandidates <- [
 			{
 				origin = Vector(8544, 3344, -144)
 				angles = QAngle(0,180,0)
+				//blacklist = [ITEM_ID.GAS]
 			},
 			{
 				origin = Vector(8480, 3344, -144)
 				angles = QAngle(0,180,0)
+				//blacklist = [ITEM_ID.GAS]
 			},
 			{
 				origin = Vector(8560, 3856, -144)
 				angles = QAngle(0,270,0)
+				//blacklist = [ITEM_ID.GAS]
 			},
 			{
 				origin = Vector(8328, 3656, -120)
 				angles = QAngle(0, 210, -90)
 				witch  = WITCH_DISABLE
+				//blacklist = [ITEM_ID.GAS]
 			}
 		]
 	}
@@ -167,10 +231,12 @@ vendorCandidates <- [
 		max = 2,
 		spawnCandidates = [
 			{
-				origin = Vector(7504, 3792, 22)
-				angles = QAngle(0,0,0)
+				origin = Vector(7836, 3508, 24)
+				angles = QAngle(0,180,0)
 				witch  = WITCH_DISABLE
-				blacklist = [	//gas, propane, molotov, pipebomb only
+				//flags  = VFLAG_START_LOCKED
+				//tag	   = "door_panic"
+				blacklist = [	//gas, molotov, pipebomb only
 					ITEM_ID.AK47,
 					ITEM_ID.M16,
 					ITEM_ID.DESERT_RIFLE,
@@ -195,13 +261,16 @@ vendorCandidates <- [
 					ITEM_ID.DEFIBRILLATOR,	
 					ITEM_ID.INCENDIARY_UPGRADE,
 					ITEM_ID.EXPLOSIVE_UPGRADE,
-					ITEM_ID.LASERSIGHTS_UPGRADE
+					ITEM_ID.LASERSIGHTS_UPGRADE,
+					ITEM_ID.PROPANE
 				]
 			},
 			{
-				origin = Vector(7624, 3792, 22)
-				angles = QAngle(0,0,0)
+				origin = Vector(7744, 3508, 24)
+				angles = QAngle(0,180,0)
 				witch  = WITCH_DISABLE
+				//flags  = VFLAG_START_LOCKED
+				//tag	   = "door_panic"
 				blacklist = [	//gas, propane, molotov, pipebomb only
 					ITEM_ID.AK47,
 					ITEM_ID.M16,
@@ -227,7 +296,8 @@ vendorCandidates <- [
 					ITEM_ID.DEFIBRILLATOR,	
 					ITEM_ID.INCENDIARY_UPGRADE,
 					ITEM_ID.EXPLOSIVE_UPGRADE,
-					ITEM_ID.LASERSIGHTS_UPGRADE
+					ITEM_ID.LASERSIGHTS_UPGRADE,
+					ITEM_ID.PROPANE
 				]
 			}
 		]
@@ -304,6 +374,7 @@ protectedZones <- [
 	{
 		origin 		= Vector(2816, 2832, 16)
 		extent 		= Vector(224, 480, 128)
+		flags		= ZONE_FLAG_NO_CURRENCY
 		protected	= [
 			"weapon_first_aid_kit_spawn",
 			"weapon_ammo_spawn"
@@ -314,14 +385,56 @@ protectedZones <- [
 	{
 		origin 		= Vector(10776, 4608, 16)
 		extent 		= Vector(320, 264, 128)
+		flags		= ZONE_FLAG_NO_CURRENCY
 		protected	= [
 			"weapon_first_aid_kit_spawn",
 			"weapon_ammo_spawn"
 		]
-	}
+	},
+	
+	//Subway weapon table
+	{
+		origin 		= Vector(4976, 4000, -340)
+		extent 		= Vector(144, 56, 84)
+		flags		= ZONE_FLAG_NO_CURRENCY
+		protected	= []
+	},
 ]
 
 //------------------------------------------------------------------------------------------------------
 //INITIALIZE ROUND
 
 purgeSystem.Purge()
+
+
+//------------------------------------------------------------------------------------------------------
+//MAP EVENTS AND SCRIPTED BEHAVIOURS
+
+eventDoorPanic <- false
+
+local doorButton = Entities.FindByClassnameNearest("func_button", Vector(7299.62, 3291.75, 78), 8)
+if (doorButton && doorButton.IsValid()) {
+
+	//Get scope
+	doorButton.ValidateScriptScope()
+	local scope = doorButton.GetScriptScope()
+	
+	//Setup functionality
+	scope.VMutUnlockPanicVendors <- function() {
+		//Unlock vendors
+		local panicVendors = ::VMutVendor.FindVendorsByTag("door_panic")
+		foreach (vendorData in panicVendors) {
+			::VMutVendor.VendorUnlock(vendorData)
+		}
+		
+		//Set map event
+		g_MapScript.eventDoorPanic = true
+	}
+	doorButton.ConnectOutput("OnPressed", "VMutUnlockPanicVendors")
+	
+	printl(" ** Initialized door event")
+	
+}
+else {
+	printl(" ** Failed to initialize door event")
+}

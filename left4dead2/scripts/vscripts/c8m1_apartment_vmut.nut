@@ -1,11 +1,15 @@
-/*
- *	Moved spawn-data into a map script to take advantage of the fact that the l4d2 mutation system will automatically load any script that has the same name as the current map.
- */
+//Author: Waifu Enthusiast
 
 printl(" ** Executing map script")
 
+
 function Precache() {
 	printl(" ** Map precache")
+}
+
+
+function OnActivate() {
+	printl(" ** Map OnActivate")
 }
 
 
@@ -161,6 +165,7 @@ protectedZones <- [
 	{
 		origin 		= Vector(1560, 792, 424)
 		extent 		= Vector(752, 656, 592)
+		flags		= 0
 		protected	= [
 			"weapon_first_aid_kit_spawn",
 			"weapon_ammo_spawn"
@@ -171,6 +176,7 @@ protectedZones <- [
 	{
 		origin 		= Vector(2816, 2832, -240)
 		extent 		= Vector(224, 480, 128)
+		flags		= ZONE_FLAG_NO_CURRENCY
 		protected	= [
 			"weapon_first_aid_kit_spawn",
 			"weapon_ammo_spawn"

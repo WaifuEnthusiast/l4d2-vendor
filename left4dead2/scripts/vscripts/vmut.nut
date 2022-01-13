@@ -69,12 +69,13 @@ g_MapScript.defaultProtectedZones			<- []
  *	This is very similar to the sanitize table that is already present in the l4d2 mutation system.
  *	If there were some way to add callbacks to sanitized entities in the sanitize table then I would just be using that instead.
  *	Alas, I don't know any way to add pre or post functionality to each entity sanitized by the sanitize table. Thus, please welcome the purge table.
+ *
+ *	edit:	I've made the difficult design decision to allow secondary weapons to spawn normally.
  */
 g_MapScript.purgeTable <- [
 	{classname = "weapon_spawn", 						callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
 	{classname = "weapon_item_spawn", 					callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
 	{classname = "weapon_ammo_spawn", 					callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
-	{classname = "weapon_melee_spawn", 					callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
 	{classname = "weapon_first_aid_kit_spawn", 			callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
 	{classname = "weapon_defibrillator_spawn", 			callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
 	{classname = "weapon_pain_pills_spawn", 			callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
@@ -97,13 +98,13 @@ g_MapScript.purgeTable <- [
 	{classname = "weapon_sniper_military_spawn",        callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
 	{classname = "weapon_chainsaw_spawn",               callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
 	{classname = "weapon_grenade_launcher_spawn",       callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
-	{classname = "weapon_m60_spawn",					callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
-	{classname = "weapon_pistol_spawn",					callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
-	{classname = "weapon_pistol_magnum_spawn",			callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	{classname = "weapon_rifle_m60_spawn",				callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	//{classname = "weapon_melee_spawn", 					callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	//{classname = "weapon_pistol_spawn",					callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
+	//{classname = "weapon_pistol_magnum_spawn",			callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
 	{classname = "weapon_pistol_gascan_spawn",			callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
 	{classname = "weapon_pistol_propane_spawn",			callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
 	{classname = "weapon_ammo", 						callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} )},
-	{classname = "weapon_melee", 						callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
 	{classname = "weapon_first_aid_kit", 				callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
 	{classname = "weapon_defibrillator", 				callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
 	{classname = "weapon_pain_pills", 					callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
@@ -126,9 +127,10 @@ g_MapScript.purgeTable <- [
 	{classname = "weapon_sniper_military",        		callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
 	{classname = "weapon_chainsaw",               		callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
 	{classname = "weapon_grenade_launcher",       		callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
-	{classname = "weapon_m60",							callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
-	{classname = "weapon_pistol",						callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
-	{classname = "weapon_pistol_magnum",				callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
+	{classname = "weapon_rifle_m60",					callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
+	//{classname = "weapon_melee", 						callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
+	//{classname = "weapon_pistol",						callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
+	//{classname = "weapon_pistol_magnum",				callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
 	{classname = "weapon_pistol_gascan",				callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
 	{classname = "weapon_pistol_propane",				callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) !ent.GetOwnerEntity()},
 	{classname = "prop_physics", 						callback = @(ent) ::VMutCurrencySpawnSystem.AddCurrencyItemCandidate( {origin = ent.GetOrigin()} ),		condition = @(ent) (ent.GetModelName() ==  "models/props_junk/propanecanister001a.mdl" || ent.GetModelName() == "models/props_junk/gascan001a.mdl") }
@@ -197,6 +199,7 @@ function Precache() {
 	::VMutItemData.Precache()
 	::VMutGUI.Precache()
 	::VMutVendor.Precache()
+	::VMutCurrency.Precache()
 }
 
 

@@ -1,7 +1,70 @@
+//Author: Waifu Enthusiast
+
+printl(" ** Executing map script")
+
+
 function Precache() {
 	printl(" ** Map Precache")
 	PrecacheModel("models/props_interiors/table_kitchen.mdl")
 }
+
+
+function OnActivate() {
+	printl(" ** Map OnActivate")
+	
+	//Spawn table of money
+	local kvs = {
+		targetname 			= "vmut_money_table"
+		origin				= Vector(-6616, 7552, 96)
+		model				= "models/props_interiors/table_kitchen.mdl"
+		solid				= 6
+	}
+	local ent = SpawnEntityFromTable("prop_dynamic", kvs)
+	ent.SetAngles(QAngle(0, 30, 0))
+	
+	::VMutCurrency.CreateCurrencyItem(Vector(-6616, 7552, 132), QAngle(0,0,0), 1000).landmark = "c4m1_milltown_a"
+	
+	
+	//Spawn hints
+	kvs = {
+		targetname 			= "vmut_persistent_currency_hint_target"
+		origin 				= Vector(-6616, 7552, 148)
+	}
+	SpawnEntityFromTable("info_target_instructor_hint", kvs)
+	kvs = {
+		targetname			= "vmut_persistent_currency_hint"
+		origin 				= Vector(-6616, 7552, 148)
+		hint_target			= "vmut_persistent_currency_hint_target"
+		hint_caption 		= "Collected money won't reappear on the return trip"
+		hint_static			= 0
+		hint_auto_start 	= true
+		hint_icon_onscreen	= "icon_tip"
+		hint_icon_offscreen	= "icon_tip"
+		hint_color			= "255 255 0"
+		hint_timeout		= 30
+	}
+	SpawnEntityFromTable("env_instructor_hint", kvs)
+	
+	kvs = {
+		targetname 			= "vmut_persistent_state_hint_target"
+		origin 				= Vector(-6384, 7680, 225)
+	}
+	SpawnEntityFromTable("info_target_instructor_hint", kvs)
+	kvs = {
+		targetname			= "vmut_persistent_state_hint"
+		origin 				= Vector(-6384, 7680, 225)
+		hint_target			= "vmut_persistent_state_hint_target"
+		hint_caption 		= "The same vendors will still be here when you come back"
+		hint_static			= 0
+		hint_auto_start 	= true
+		hint_icon_onscreen	= "icon_tip"
+		hint_icon_offscreen	= "icon_tip"
+		hint_color			= "255 255 0"
+		hint_timeout		= 30
+	}
+	SpawnEntityFromTable("env_instructor_hint", kvs)
+}
+
 
 //------------------------------------------------------------------------------------------------------
 //MAP OPTIONS
@@ -419,86 +482,3 @@ protectedZones <- [
 //INITIALIZE ROUND
 
 purgeSystem.Purge()
-
-
-function OnActivate() {
-	printl(" ** Map OnActivate")
-	
-	
-	local kvs = null
-	local ent = null
-	
-	
-	//Spawn table of money
-	kvs = {
-		targetname 			= "money_table"
-		origin				= Vector(-6616, 7552, 96)
-		model				= "models/props_interiors/table_kitchen.mdl"
-		solid				= 6
-	}
-	ent = SpawnEntityFromTable("prop_dynamic", kvs)
-	ent.SetAngles(QAngle(0, 30, 0))
-	
-	::VMutCurrency.CreateCurrencyItem(Vector(-6616, 7552, 132), 1000)
-	//::VMutCurrencySpawnSystem.AddCandidate({
-	//	origin 			= Vector(-6616, 7552, 132)
-	//	landmark 		= "c4m1_milltown_a"
-	//	valueOverride 	= 1000
-	//	flags			= CFLAG_MUST_EXIST | CFLAG_NOT_MAP_CANDIDATE
-	//})
-	
-	
-	//Spawn hints
-	kvs = {
-		targetname 			= "vmut_persistent_currency_hint_target"
-		origin 				= Vector(-6616, 7552, 148)
-	}
-	SpawnEntityFromTable("info_target_instructor_hint", kvs)
-	kvs = {
-		targetname			= "vmut_persistent_currency_hint"
-		origin 				= Vector(-6616, 7552, 148)
-		hint_target			= "vmut_persistent_currency_hint_target"
-		hint_caption 		= "Collected money won't reappear on the return trip"
-		hint_static			= 0
-		hint_auto_start 	= true
-		hint_icon_onscreen	= "icon_tip"
-		hint_icon_offscreen	= "icon_tip"
-		hint_color			= "255 255 0"
-		hint_timeout		= 30
-	}
-	SpawnEntityFromTable("env_instructor_hint", kvs)
-	
-	kvs = {
-		targetname 			= "vmut_persistent_state_hint_target"
-		origin 				= Vector(-6384, 7680, 225)
-	}
-	SpawnEntityFromTable("info_target_instructor_hint", kvs)
-	kvs = {
-		targetname			= "vmut_persistent_state_hint"
-		origin 				= Vector(-6384, 7680, 225)
-		hint_target			= "vmut_persistent_state_hint_target"
-		hint_caption 		= "The same vendors will still be here when you come back"
-		hint_static			= 0
-		hint_auto_start 	= true
-		hint_icon_onscreen	= "icon_tip"
-		hint_icon_offscreen	= "icon_tip"
-		hint_color			= "255 255 0"
-		hint_timeout		= 30
-	}
-	SpawnEntityFromTable("env_instructor_hint", kvs)
-	
-	/*
-	kvs = {
-		targetname			= "vmut_return_unlock_hint"
-		origin 				= Vector(0, 0, 0)
-		hint_caption 		= "Some vendors won't unlock until the return trip"
-		hint_static			= 0
-		hint_auto_start 	= true
-		hint_icon_onscreen	= "icon_tip"
-		hint_icon_offscreen	= "icon_tip"
-		hint_color			= "255 255 255"
-		hint_timeout		= 30
-	}
-	SpawnEntityFromTable("env_instructor_hint", kvs)
-	*/
-}

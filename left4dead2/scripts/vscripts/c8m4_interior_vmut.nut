@@ -1,11 +1,29 @@
-/*
- *	Moved spawn-data into a map script to take advantage of the fact that the l4d2 mutation system will automatically load any script that has the same name as the current map.
- */
+//Author: Waifu Enthusiast
 
 printl(" ** Executing map script")
 
+
 function Precache() {
 	printl(" ** Map precache")
+}
+
+
+function OnActivate() {
+	printl(" ** Map OnActivate")
+	
+	//Create a hint for the elevator panic event
+	local kvs = {
+		targetname			= "vmut_elevator_panic_hint"
+		origin 				= Vector(13440, 15008, 464)
+		hint_caption 		= "Locked vendors will open after calling the elevator"
+		hint_static			= 1
+		hint_auto_start 	= true
+		hint_icon_onscreen	= "icon_info"
+		hint_icon_offscreen	= "icon_info"
+		hint_color			= "255 255 255"
+		hint_timeout		= 6
+	}
+	elevatorPanicHint = SpawnEntityFromTable("env_instructor_hint", kvs)
 }
 
 
@@ -39,7 +57,39 @@ local primaryWeaponOnlyBlacklist = [
 	//ITEM_ID.M16,
 	//ITEM_ID.DESERT_RIFLE,
 	//ITEM_ID.AUTOSHOTGUN,
-	////ITEM_ID.SHOTGUN_SPAS,
+	//ITEM_ID.SHOTGUN_SPAS,
+	//ITEM_ID.HUNTING_RIFLE,
+	//ITEM_ID.SNIPER_RIFLE,  
+	ITEM_ID.PISTOL,
+	ITEM_ID.MAGNUM,
+	ITEM_ID.MELEE,
+	//ITEM_ID.MACHINEGUN,
+	//ITEM_ID.GRENADE_LAUNCHER,
+	ITEM_ID.CHAINSAW,
+	ITEM_ID.MOLOTOV,
+	ITEM_ID.PIPEBOMB,
+	ITEM_ID.BILE_JAR,
+	ITEM_ID.PAIN_PILLS,
+	ITEM_ID.ADRENALINE,
+	ITEM_ID.FIRST_AID_KIT,
+	ITEM_ID.DEFIBRILLATOR,
+	ITEM_ID.GAS,
+	ITEM_ID.PROPANE,
+	ITEM_ID.INCENDIARY_UPGRADE,
+	ITEM_ID.EXPLOSIVE_UPGRADE,
+	ITEM_ID.LASERSIGHTS_UPGRADE
+]
+
+local t2WeaponOnlyBlacklist = [
+	ITEM_ID.SMG,
+	ITEM_ID.SMG_SILENCED,
+	ITEM_ID.SHOTGUN,
+	ITEM_ID.SHOTGUN_CHROME,
+	//ITEM_ID.AK47,
+	//ITEM_ID.M16,
+	//ITEM_ID.DESERT_RIFLE,
+	//ITEM_ID.AUTOSHOTGUN,
+	//ITEM_ID.SHOTGUN_SPAS,
 	//ITEM_ID.HUNTING_RIFLE,
 	//ITEM_ID.SNIPER_RIFLE,  
 	ITEM_ID.PISTOL,
@@ -148,7 +198,7 @@ vendorCandidates <- [
 				origin = Vector(13552, 15072, 424)
 				angles = QAngle(0,0,0)
 				witch  = WITCH_DISABLE
-				blacklist = primaryWeaponOnlyBlacklist
+				blacklist = t2WeaponOnlyBlacklist
 				flags = VFLAG_PRESERVE_SPAWNDATA
 			}
 		]
@@ -165,84 +215,84 @@ vendorCandidates <- [
 				origin = Vector(13696, 14848, 424)
 				angles = QAngle(0,270,0)
 				blacklist = utilityOnlyBlacklist
-				tag	= "elevatorPanic"
+				tag	= "elevator_panic"
 				flags = VFLAG_START_LOCKED
 			},
 			{
 				origin = Vector(13728, 14464, 424)
 				angles = QAngle(0,270,0)
 				blacklist = utilityOnlyBlacklist
-				tag	= "elevatorPanic"
+				tag	= "elevator_panic"
 				flags = VFLAG_START_LOCKED
 			},
 			{
 				origin = Vector(13688, 14312, 424)
 				angles = QAngle(0,270,0)
 				blacklist = utilityOnlyBlacklist
-				tag	= "elevatorPanic"
+				tag	= "elevator_panic"
 				flags = VFLAG_START_LOCKED
 			},
 			{	//sideroom
 				origin = Vector(13248, 14008, 424)
 				angles = QAngle(0,270,0)
 				blacklist = utilityOnlyBlacklist
-				tag	= "elevatorPanic"
+				tag	= "elevator_panic"
 				flags = VFLAG_START_LOCKED
 			},
 			{	//surgery room
 				origin = Vector(12136, 14440, 424)
 				angles = QAngle(0,270,0)
 				blacklist = utilityOnlyBlacklist
-				tag	= "elevatorPanic"
+				tag	= "elevator_panic"
 				flags = VFLAG_START_LOCKED
 			},
 			{
 				origin = Vector(12136, 14808, 424)
 				angles = QAngle(0,270,0)
 				blacklist = utilityOnlyBlacklist
-				tag	= "elevatorPanic"
+				tag	= "elevator_panic"
 				flags = VFLAG_START_LOCKED
 			},
 			{	//dark room
 				origin = Vector(12888, 15328, 424)
 				angles = QAngle(0,0,0)
 				blacklist = utilityOnlyBlacklist
-				tag	= "elevatorPanic"
+				tag	= "elevator_panic"
 				flags = VFLAG_START_LOCKED
 			},
 			{
 				origin = Vector(12616, 15328, 424)
 				angles = QAngle(0,0,0)
 				blacklist = utilityOnlyBlacklist
-				tag	= "elevatorPanic"
+				tag	= "elevator_panic"
 				flags = VFLAG_START_LOCKED
 			},
 			{	//small dark room
 				origin = Vector(12288, 15328, 424)
 				angles = QAngle(0,0,0)
 				blacklist = utilityOnlyBlacklist
-				tag	= "elevatorPanic"
+				tag	= "elevator_panic"
 				flags = VFLAG_START_LOCKED
 			},
 			{	//reception rest room <- possibly turn this into its own group with 0-2 spawns.
 				origin = Vector(12312, 14280, 424)
 				angles = QAngle(0,0,0)
 				blacklist = utilityOnlyBlacklist
-				tag	= "elevatorPanic"
+				tag	= "elevator_panic"
 				flags = VFLAG_START_LOCKED
 			},
 			{
 				origin = Vector(11952, 14112, 424)
 				angles = QAngle(0,90,0)
 				blacklist = utilityOnlyBlacklist
-				tag	= "elevatorPanic"
+				tag	= "elevator_panic"
 				flags = VFLAG_START_LOCKED
 			},
 			{	//imaging room
 				origin = Vector(12800, 14456, 424)
 				angles = QAngle(0,270,0)
 				blacklist = utilityOnlyBlacklist
-				tag	= "elevatorPanic"
+				tag	= "elevator_panic"
 				flags = VFLAG_START_LOCKED
 			},
 		]
@@ -260,7 +310,69 @@ vendorCandidates <- [
 				blacklist = primaryWeaponOnlyBlacklist
 			}
 		]
-	}
+	},
+	
+	//Top floor tank/witch utility
+	{
+		min = 1,
+		max = 1,
+		spawnCandidates = [
+			{
+				origin = Vector(12496, 13656, 5537)
+				angles = QAngle(0,90,0)
+				witch  = WITCH_DISABLE
+				blacklist = [
+					ITEM_ID.SMG,
+					ITEM_ID.SMG_SILENCED,
+					ITEM_ID.SHOTGUN,
+					ITEM_ID.SHOTGUN_CHROME,
+					ITEM_ID.AK47,
+					ITEM_ID.M16,
+					ITEM_ID.DESERT_RIFLE,
+					ITEM_ID.AUTOSHOTGUN,
+					ITEM_ID.SHOTGUN_SPAS,
+					ITEM_ID.HUNTING_RIFLE,
+					ITEM_ID.SNIPER_RIFLE,  
+					ITEM_ID.PISTOL,
+					ITEM_ID.MAGNUM,
+					ITEM_ID.MELEE,
+					//ITEM_ID.MACHINEGUN,
+					ITEM_ID.GRENADE_LAUNCHER,
+					ITEM_ID.CHAINSAW,
+					//ITEM_ID.MOLOTOV,
+					//ITEM_ID.PIPEBOMB,
+					//ITEM_ID.BILE_JAR,
+					//ITEM_ID.PAIN_PILLS,
+					//ITEM_ID.ADRENALINE,
+					ITEM_ID.FIRST_AID_KIT,
+					ITEM_ID.DEFIBRILLATOR,
+					//ITEM_ID.GAS,
+					//ITEM_ID.PROPANE,
+					//ITEM_ID.INCENDIARY_UPGRADE,
+					//ITEM_ID.EXPLOSIVE_UPGRADE,
+					ITEM_ID.LASERSIGHTS_UPGRADE
+				]
+			}
+		]
+	},
+	
+	//Top floor supply
+	{
+		min = 2,
+		max = 2,
+		spawnCandidates = [
+			{
+				origin = Vector(14008, 14792, 5537)
+				angles = QAngle(0,90,0)
+				witch  = WITCH_DISABLE
+			},
+			{
+				origin = Vector(14008, 147228, 5537)
+				angles = QAngle(0,90,0)
+				witch  = WITCH_DISABLE
+			}
+		]
+	},
 	
 	//Top floor <- Either a "supply stop" then vendor drought, or sprinkles of vendors throughout. Create either a preparation based experience or an "advance and improvise" based experience (or both) 
 	{
@@ -327,57 +439,28 @@ purgeSystem.Purge()
 eventElevatorPanic <- false
 elevatorPanicHint <- null
 
-//Find the elevator button
 local elevatorButton = Entities.FindByClassnameNearest("func_button", Vector(13491 15102 477.5), 1)
-
 if (elevatorButton && elevatorButton.IsValid()) {
+
 	//Get scope
 	elevatorButton.ValidateScriptScope()
 	local scope = elevatorButton.GetScriptScope()
 	
 	//Setup functionality
 	scope.VMutUnlockPanicVendors <- function() {
-	
 		//Unlock vendors
-		local panicVendors = ::VMutVendor.FindVendorsByTag("elevatorPanic")
+		local panicVendors = ::VMutVendor.FindVendorsByTag("elevator_panic")
 		foreach (vendorData in panicVendors) {
 			::VMutVendor.VendorUnlock(vendorData)
 		}
-		
-		//Destroy panic hint
-		//if (elevatorPanicHint)
-		//	elevatorPanicHint.Kill()
-		
 		//Set map event
 		g_MapScript.eventElevatorPanic = true
 	}
-	
-	//Attach output
 	elevatorButton.ConnectOutput("OnPressed", "VMutUnlockPanicVendors")
+	
+	printl(" ** Initialized elevator event")
 }
 else {
 	printl(" ** Failed to initialize elevator event")
 }
 
-
-//Spawn map specific entities
-//function MapSetup() {
-//}
-
-function OnActivate() {
-	printl(" ** Map OnActivate")
-	
-	//Create a hint for the elevator panic event
-	local kvs = {
-		targetname			= "vmut_elevator_panic_hint"
-		origin 				= Vector(13440, 15008, 464)
-		hint_caption 		= "Locked vendors will open after calling the elevator"
-		hint_static			= 1
-		hint_auto_start 	= true
-		hint_icon_onscreen	= "icon_info"
-		hint_icon_offscreen	= "icon_info"
-		hint_color			= "255 255 255"
-		hint_timeout		= 6
-	}
-	elevatorPanicHint = SpawnEntityFromTable("env_instructor_hint", kvs)
-}

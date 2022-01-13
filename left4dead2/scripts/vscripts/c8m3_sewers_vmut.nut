@@ -1,12 +1,17 @@
-/*
- *	Moved spawn-data into a map script to take advantage of the fact that the l4d2 mutation system will automatically load any script that has the same name as the current map.
- */
+//Author: Waifu Enthusiast
 
 printl(" ** Executing map script")
+
 
 function Precache() {
 	printl(" ** Map precache")
 }
+
+
+function OnActivate() {
+	printl(" ** Map OnActivate")
+}
+
 
 //@TODO
 //add vendors to outside area just before hospital. This is an area where chaos can potentially unfold, so having some vendors near the manhole or in the streets can make things more interesting...
@@ -365,6 +370,7 @@ protectedZones <- [
 	{
 		origin 		= Vector(10768, 4624, 16)
 		extent 		= Vector(336, 248, 128)
+		flags		= ZONE_FLAG_NO_CURRENCY
 		protected	= [
 			"weapon_first_aid_kit_spawn",
 			"weapon_ammo_spawn"
@@ -375,6 +381,7 @@ protectedZones <- [
 	{
 		origin 		= Vector(12272, 12176, 16)
 		extent 		= Vector(168, 272, 128)
+		flags		= ZONE_FLAG_NO_CURRENCY
 		protected	= [
 			"weapon_first_aid_kit_spawn",
 			"weapon_ammo_spawn"
@@ -383,6 +390,7 @@ protectedZones <- [
 	{
 		origin 		= Vector(12272, 12448, 16)
 		extent 		= Vector(208, 224, 128)
+		flags		= ZONE_FLAG_NO_CURRENCY
 		protected	= [
 			"weapon_first_aid_kit_spawn",
 			"weapon_ammo_spawn"

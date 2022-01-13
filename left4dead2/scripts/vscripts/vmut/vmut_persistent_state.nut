@@ -142,6 +142,7 @@ function VMutPersistentState::AssignCurrencyItemStateToLandmark(data, landmark, 
 	
 	local state = {
 		origin 		= offset.ToKVString()
+		angles		= data.entities.prop.GetAngles().ToKVString()
 		value  		= data.value
 		tag			= data.tag
 		landmark 	= data.landmark

@@ -64,7 +64,8 @@ function VMutCurrencySpawnSystem::SpawnAndDistributeCurrencyItems() {
 	foreach (spawnCandidate in validCandidates) {
 	
 		//Create item and assign post-creation data
-		local currencyItemData = ::VMutCurrency.CreateCurrencyItem(spawnCandidate.origin, itemSpawnValue)
+		local angles = QAngle(0, RandomInt(0, 360), 0)
+		local currencyItemData = ::VMutCurrency.CreateCurrencyItem(spawnCandidate.origin, angles, itemSpawnValue)
 		
 		currencyItemData.flags 		= spawnCandidate.flags
 		currencyItemData.tag		= spawnCandidate.tag
@@ -88,7 +89,8 @@ function VMutCurrencySpawnSystem::SpawnCurrencyItemsFromLandmarkData() {
 		//Spawn currency items from state table
 		foreach (id, state in currencyItemStateTable) {
 			local origin = landmarkOrigin + ::VMutUtils.KVStringToVector(state.origin)
-			local currencyItemData = ::VMutCurrency.CreateCurrencyItem(origin, state.value)
+			local angles = ::VMutUtils.KVStringToQAngle(state.angles)
+			local currencyItemData = ::VMutCurrency.CreateCurrencyItem(origin, angles, state.value)
 			
 			currencyItemData.tag 		= state.tag
 			currencyItemData.landmark 	= state.landmark
