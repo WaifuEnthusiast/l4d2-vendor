@@ -95,8 +95,8 @@ local t2WeaponOnlyBlacklist = [
 	ITEM_ID.PISTOL,
 	ITEM_ID.MAGNUM,
 	ITEM_ID.MELEE,
-	//ITEM_ID.MACHINEGUN,
-	//ITEM_ID.GRENADE_LAUNCHER,
+	ITEM_ID.MACHINEGUN,
+	ITEM_ID.GRENADE_LAUNCHER,
 	ITEM_ID.CHAINSAW,
 	ITEM_ID.MOLOTOV,
 	ITEM_ID.PIPEBOMB,
@@ -189,10 +189,26 @@ vendorCandidates <- [
 		]
 	},
 	
+	//Second floor
+	{
+		min = 2
+		max = 2
+		spawnCandidates = [
+			{
+				origin = Vector(12328, 12336, 152)
+				angles = QAngle(0,180,0)
+			},
+			{
+				origin = Vector(12672, 12920, 152)
+				angles = QAngle(0,270,0)
+			}
+		]
+	}
+	
 	//Elevator primary weapon
 	{
-		min = 1,
-		max = 1,
+		min = 2,
+		max = 2,
 		spawnCandidates = [
 			{
 				origin = Vector(13552, 15072, 424)
@@ -200,6 +216,13 @@ vendorCandidates <- [
 				witch  = WITCH_DISABLE
 				blacklist = t2WeaponOnlyBlacklist
 				flags = VFLAG_PRESERVE_SPAWNDATA
+			},
+			{
+				origin = Vector(13528, 14970, 446)
+				angles = QAngle(0,300,0)
+				witch  = WITCH_DISABLE
+				blacklist = t2WeaponOnlyBlacklist
+				flags = VFLAG_PRESERVE_SPAWNDATA | VFLAG_IS_MINI
 			}
 		]
 	}
@@ -336,18 +359,18 @@ vendorCandidates <- [
 					ITEM_ID.PISTOL,
 					ITEM_ID.MAGNUM,
 					ITEM_ID.MELEE,
-					//ITEM_ID.MACHINEGUN,
+					ITEM_ID.MACHINEGUN,
 					ITEM_ID.GRENADE_LAUNCHER,
 					ITEM_ID.CHAINSAW,
 					//ITEM_ID.MOLOTOV,
-					//ITEM_ID.PIPEBOMB,
+					ITEM_ID.PIPEBOMB,
 					//ITEM_ID.BILE_JAR,
 					//ITEM_ID.PAIN_PILLS,
 					//ITEM_ID.ADRENALINE,
 					ITEM_ID.FIRST_AID_KIT,
 					ITEM_ID.DEFIBRILLATOR,
 					//ITEM_ID.GAS,
-					//ITEM_ID.PROPANE,
+					ITEM_ID.PROPANE,
 					//ITEM_ID.INCENDIARY_UPGRADE,
 					//ITEM_ID.EXPLOSIVE_UPGRADE,
 					ITEM_ID.LASERSIGHTS_UPGRADE
@@ -363,12 +386,12 @@ vendorCandidates <- [
 		spawnCandidates = [
 			{
 				origin = Vector(14008, 14792, 5537)
-				angles = QAngle(0,90,0)
+				angles = QAngle(0,270,0)
 				witch  = WITCH_DISABLE
 			},
 			{
-				origin = Vector(14008, 147228, 5537)
-				angles = QAngle(0,90,0)
+				origin = Vector(14008, 14728, 5537)
+				angles = QAngle(0,270,0)
 				witch  = WITCH_DISABLE
 			}
 		]
@@ -423,6 +446,15 @@ protectedZones <- [
 			"weapon_first_aid_kit_spawn",
 			"weapon_ammo_spawn"
 		]
+	}
+	
+	//Patient bed near elevator
+	{
+	
+		origin 		= Vector(13488, 14888, 424)
+		extent 		= Vector(104, 128, 80)
+		flags  		= ZONE_FLAG_NO_CURRENCY
+		protected	= []
 	}
 ]
 

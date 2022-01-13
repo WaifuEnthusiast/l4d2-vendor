@@ -2,6 +2,9 @@
 ::VMutCurrencySpawnSystem <- {}
 
 
+const DEFAULT_CURRENCY_ITEM_VALUE = 250
+
+
 /*
  *	Default spawn candidate data
  */
@@ -60,7 +63,7 @@ function VMutCurrencySpawnSystem::SpawnAndDistributeCurrencyItems() {
  
  
 	//Spawn items
-	local itemSpawnValue = 200
+	local itemSpawnValue = DEFAULT_CURRENCY_ITEM_VALUE
 	foreach (spawnCandidate in validCandidates) {
 	
 		//Create item and assign post-creation data

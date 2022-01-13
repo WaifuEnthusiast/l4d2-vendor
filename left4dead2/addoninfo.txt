@@ -2,7 +2,7 @@
 {
 	addonSteamAppID		550
 	addontitle		"Vendor Mutation"
-	addonversion		0.1
+	addonversion		0.2
 	addontagline		"Vendor Mutation"
 	addonauthor		"Waifu Enthusiast"
 	addonSteamGroupName	""

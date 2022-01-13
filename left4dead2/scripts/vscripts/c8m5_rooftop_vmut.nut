@@ -12,7 +12,7 @@ function OnActivate() {
 	printl(" ** Map OnActivate")
 	
 	//Free 1k to buy a T2 weapon...
-	::VMutCurrency.CreateCurrencyItem(Vector(5856, 8336, 5956), QAngle(0,0,0), 1000)	
+	::VMutCurrency.CreateCurrencyItem(Vector(5856, 8336, 5956), QAngle(0,0,0), 5000)	
 }
 
 

@@ -264,10 +264,44 @@ vendorCandidates <- [
 			{	//upstairs
 				origin = Vector(13104, 8112, 16)
 				angles = QAngle(0, 270, 0)
+				blacklist = [	//Only spawns with primary weapons
+					ITEM_ID.PISTOL,
+					ITEM_ID.MAGNUM,
+					ITEM_ID.MELEE,
+					ITEM_ID.MOLOTOV,
+					ITEM_ID.PIPEBOMB,
+					ITEM_ID.BILE_JAR,		
+					ITEM_ID.PAIN_PILLS,
+					ITEM_ID.ADRENALINE,
+					ITEM_ID.FIRST_AID_KIT,
+					ITEM_ID.DEFIBRILLATOR,	
+					ITEM_ID.GAS,
+					ITEM_ID.PROPANE,
+					ITEM_ID.INCENDIARY_UPGRADE,
+					ITEM_ID.EXPLOSIVE_UPGRADE,
+					ITEM_ID.LASERSIGHTS_UPGRADE
+				]
 			},
 			{
 				origin = Vector(13104, 8048, 16)
 				angles = QAngle(0, 270, 0)
+				blacklist = [	//Only spawns with primary weapons
+					ITEM_ID.PISTOL,
+					ITEM_ID.MAGNUM,
+					ITEM_ID.MELEE,
+					ITEM_ID.MOLOTOV,
+					ITEM_ID.PIPEBOMB,
+					ITEM_ID.BILE_JAR,		
+					ITEM_ID.PAIN_PILLS,
+					ITEM_ID.ADRENALINE,
+					ITEM_ID.FIRST_AID_KIT,
+					ITEM_ID.DEFIBRILLATOR,	
+					ITEM_ID.GAS,
+					ITEM_ID.PROPANE,
+					ITEM_ID.INCENDIARY_UPGRADE,
+					ITEM_ID.EXPLOSIVE_UPGRADE,
+					ITEM_ID.LASERSIGHTS_UPGRADE
+				]
 			},
 			{	//downstairs
 				origin = Vector(13384, 7400, -255)
@@ -292,7 +326,7 @@ vendorCandidates <- [
 	
 	//Sewer ammo room
 	{
-		min = 1,
+		min = 2,
 		max = 2,
 		spawnCandidates = [
 			{
