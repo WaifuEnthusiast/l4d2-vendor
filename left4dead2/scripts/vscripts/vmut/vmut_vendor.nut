@@ -357,7 +357,7 @@ function VMutVendor::VendorStartExplodeSequence(vendorData) {
 	}
 	
 	//Begin countdown
-	local params = {flash = true, count = 5}
+	local params = {flash = true, count = 4}
 	::VMutTimers.AddTimer("vendor_countdown_"+vendorData.id, 0.5, params.count*2, countdown, params)
 }
 
